@@ -20,8 +20,19 @@ export const obtenerCasoPorId = asyncHandler(async (req: Request, res: Response)
 });
 
 export const crearCaso = asyncHandler(async (req: Request, res: Response) => {
-  // TODO: Implementar creación manual de caso
-  res.json({ message: 'Crear caso - Por implementar' });
+  const { usuarioId, tipo, categoria, descripcion, prioridad } = req.body;
+
+  const caso = await casoService.crearDesdeWhatsApp(
+    req.body.telefono || 'desconocido',
+    {
+      tipo,
+      categoria,
+      descripcion,
+      urgencia: prioridad === 'urgente'
+    }
+  );
+
+  res.status(201).json(caso);
 });
 
 export const asignarTecnico = asyncHandler(async (req: Request, res: Response) => {
