@@ -215,6 +215,8 @@ model Caso {
   adjuntos              Adjunto[]
   timelineEventos       TimelineEvento[]
   transferencias        Transferencia[]
+  citas                 Cita[]
+  aprobaciones          Aprobacion[]
 
   @@index([numeroCaso])
   @@index([estado])
@@ -510,4 +512,111 @@ model KPIDiario {
   @@unique([fecha, condominioId, plataforma])
   @@index([fecha])
   @@map("kpis_diarios")
+}
+
+// ========================================
+// SISTEMA DE CITAS
+// ========================================
+
+// BLOQUES HORARIOS
+enum DiaSemana {
+  lunes
+  martes
+  miercoles
+  jueves
+  viernes
+}
+
+model BloqueHorario {
+  id            String      @id @default(uuid())
+  diaSemana     DiaSemana   @map("dia_semana")
+  horaInicio    String      @map("hora_inicio") // "09:00"
+  horaFin       String      @map("hora_fin")    // "11:00"
+  capacidad     Int         @default(5)
+  activo        Boolean     @default(true)
+
+  citas         Cita[]
+
+  @@map("bloques_horarios")
+}
+
+// CITAS PROGRAMADAS
+enum EstadoCita {
+  pendiente
+  confirmada_propietario
+  confirmada_ingenieria
+  completada
+  no_realizada
+  reprogramada
+  cancelada
+}
+
+model Cita {
+  id                      String        @id @default(uuid())
+  casoId                  String        @map("caso_id")
+  fecha                   DateTime      @db.Date
+  bloqueHorarioId         String        @map("bloque_horario_id")
+  tecnicoId               String?       @map("tecnico_id")
+
+  estado                  EstadoCita    @default(pendiente)
+  propietarioConfirmo     Boolean       @default(false) @map("propietario_confirmo")
+  ingenieriaConfirmo      Boolean       @default(false) @map("ingenieria_confirmo")
+
+  fechaConfirmacionProp   DateTime?     @map("fecha_confirmacion_prop")
+  fechaConfirmacionIng    DateTime?     @map("fecha_confirmacion_ing")
+
+  visitaRealizada         Boolean       @default(false) @map("visita_realizada")
+  solucionado             Boolean?
+  comentarioPropietario   String?       @db.Text @map("comentario_propietario")
+
+  motivoCancelacion       String?       @db.Text @map("motivo_cancelacion")
+  notas                   String?       @db.Text
+
+  fechaCreacion           DateTime      @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  caso                    Caso          @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  bloqueHorario           BloqueHorario @relation(fields: [bloqueHorarioId], references: [id])
+
+  @@index([casoId])
+  @@index([fecha])
+  @@index([tecnicoId])
+  @@map("citas")
+}
+
+// ========================================
+// APROBACIONES
+// ========================================
+
+enum EstadoAprobacion {
+  pendiente
+  aprobado
+  rechazado
+  solicitar_info
+}
+
+model Aprobacion {
+  id                String            @id @default(uuid())
+  casoId            String            @map("caso_id")
+  tipoAprobacion    String            @map("tipo_aprobacion") // "nueva_visita", "materiales", "costo_extra"
+
+  descripcion       String            @db.Text
+  costoEstimado     Decimal?          @db.Decimal(10, 2) @map("costo_estimado")
+  justificacion     String?           @db.Text
+
+  solicitadoPor     String            @map("solicitado_por") // ID del técnico
+  estado            EstadoAprobacion  @default(pendiente)
+
+  aprobadoPor       String?           @map("aprobado_por")
+  fechaSolicitud    DateTime          @default(now()) @map("fecha_solicitud")
+  fechaRespuesta    DateTime?         @map("fecha_respuesta")
+
+  comentarios       String?           @db.Text
+
+  // Relaciones
+  caso              Caso              @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  @@index([casoId])
+  @@index([estado])
+  @@map("aprobaciones")
 }

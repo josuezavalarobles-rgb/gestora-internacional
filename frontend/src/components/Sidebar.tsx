@@ -6,7 +6,8 @@ import {
   UserCog,
   BarChart3,
   Calendar,
-  Plus
+  Plus,
+  CheckCircle
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -37,6 +38,16 @@ export default function Sidebar() {
       label: 'Nuevo Caso',
     },
     {
+      path: '/citas',
+      icon: Calendar,
+      label: 'Citas',
+    },
+    {
+      path: '/aprobaciones',
+      icon: CheckCircle,
+      label: 'Aprobaciones',
+    },
+    {
       path: '/tecnicos',
       icon: UserCog,
       label: 'Tecnicos',
@@ -54,7 +65,7 @@ export default function Sidebar() {
     {
       path: '/calendario',
       icon: Calendar,
-      label: 'Calendario',
+      label: 'Calendario (Viejo)',
     },
   ];
 

@@ -334,4 +334,273 @@ ETAPA ACTUAL: SEGUIMIENTO
 
     return palabrasUrgentes.some((p) => mensajeLower.includes(p));
   }
+
+  /**
+   * ========================================
+   * FUNCIONALIDADES DE CONFIRMACIÓN DE CITAS
+   * ========================================
+   */
+
+  /**
+   * Detectar intent de confirmación de cita
+   */
+  public detectarIntentConfirmacionCita(mensaje: string): {
+    esConfirmacionCita: boolean;
+    numeroOpcion?: number;
+    confirmacion?: boolean;
+  } {
+    const mensajeLower = mensaje.toLowerCase();
+
+    // Detectar confirmación de disponibilidad
+    const palabrasConfirmacion = [
+      'confirmo',
+      'confirmar',
+      'si puedo',
+      'sí puedo',
+      'disponible',
+      'si estoy',
+      'sí estoy',
+      'acepto',
+      'ok',
+      'está bien',
+    ];
+
+    const palabrasNegacion = [
+      'no puedo',
+      'no estoy',
+      'no disponible',
+      'reprogramar',
+      'cambiar',
+      'otro dia',
+      'otro día',
+      'otra fecha',
+    ];
+
+    // Detectar si eligió un número (1, 2, 3, etc.)
+    const numeroMatch = mensaje.match(/^(\d+)$/) || mensaje.match(/opción (\d+)/i);
+    if (numeroMatch) {
+      return {
+        esConfirmacionCita: true,
+        numeroOpcion: parseInt(numeroMatch[1]),
+      };
+    }
+
+    // Detectar confirmación positiva
+    if (palabrasConfirmacion.some((p) => mensajeLower.includes(p))) {
+      return {
+        esConfirmacionCita: true,
+        confirmacion: true,
+      };
+    }
+
+    // Detectar negación
+    if (palabrasNegacion.some((p) => mensajeLower.includes(p))) {
+      return {
+        esConfirmacionCita: true,
+        confirmacion: false,
+      };
+    }
+
+    return {
+      esConfirmacionCita: false,
+    };
+  }
+
+  /**
+   * Generar respuesta para oferta de citas
+   */
+  public async generarOfertaCitas(data: {
+    nombreUsuario: string;
+    numeroCaso: string;
+    horariosDisponibles: Array<{
+      id: string;
+      fecha: Date;
+      horaInicio: string;
+      horaFin: string;
+      diaSemana: string;
+    }>;
+  }): Promise<string> {
+    const { nombreUsuario, numeroCaso, horariosDisponibles } = data;
+
+    if (horariosDisponibles.length === 0) {
+      return `Hola ${nombreUsuario}, lamentablemente no tenemos horarios disponibles en este momento. Nuestro equipo te contactará pronto para coordinar una visita. 🗓️`;
+    }
+
+    let mensaje = `Hola ${nombreUsuario} 👋\n\n`;
+    mensaje += `Para atender tu caso ${numeroCaso}, tenemos los siguientes horarios disponibles:\n\n`;
+
+    horariosDisponibles.slice(0, 3).forEach((horario, index) => {
+      const fecha = new Date(horario.fecha);
+      const fechaFormateada = this.formatearFecha(fecha);
+      mensaje += `${index + 1}. ${fechaFormateada} de ${horario.horaInicio} a ${
+        horario.horaFin
+      }\n`;
+    });
+
+    mensaje += `\n¿Cuál horario te viene mejor? Responde con el número (1, 2 o 3) 📅`;
+
+    return mensaje;
+  }
+
+  /**
+   * Generar respuesta de confirmación de cita
+   */
+  public generarConfirmacionCita(data: {
+    nombreUsuario: string;
+    fecha: Date;
+    horaInicio: string;
+    horaFin: string;
+    numeroCaso: string;
+  }): string {
+    const { nombreUsuario, fecha, horaInicio, horaFin, numeroCaso } = data;
+    const fechaFormateada = this.formatearFecha(fecha);
+
+    return `Perfecto ${nombreUsuario}! 🎉\n\nHe confirmado tu cita para el ${fechaFormateada} de ${horaInicio} a ${horaFin}.\n\nCaso: ${numeroCaso}\n\nUn técnico visitará tu unidad en el horario acordado. Por favor asegúrate de estar disponible.\n\nTe enviaremos un recordatorio un día antes. 📲`;
+  }
+
+  /**
+   * Generar respuesta de cita reprogramada
+   */
+  public generarCitaReprogramada(data: {
+    nombreUsuario: string;
+    fecha: Date;
+    horaInicio: string;
+    horaFin: string;
+    motivo?: string;
+  }): string {
+    const { nombreUsuario, fecha, horaInicio, horaFin, motivo } = data;
+    const fechaFormateada = this.formatearFecha(fecha);
+
+    let mensaje = `Hola ${nombreUsuario},\n\n`;
+    if (motivo) {
+      mensaje += `Tu cita ha sido reprogramada. ${motivo}\n\n`;
+    } else {
+      mensaje += `Tu cita ha sido reprogramada.\n\n`;
+    }
+    mensaje += `Nueva fecha: ${fechaFormateada} de ${horaInicio} a ${horaFin}\n\n`;
+    mensaje += `Por favor confirma si esta nueva fecha te funciona. 📅`;
+
+    return mensaje;
+  }
+
+  /**
+   * Generar recordatorio de cita
+   */
+  public generarRecordatorioCita(data: {
+    nombreUsuario: string;
+    fecha: Date;
+    horaInicio: string;
+    horaFin: string;
+    unidad: string;
+    direccion: string;
+  }): string {
+    const { nombreUsuario, fecha, horaInicio, horaFin, unidad, direccion } = data;
+    const fechaFormateada = this.formatearFecha(fecha);
+
+    return `Hola ${nombreUsuario}! 👋\n\nRecordatorio: Mañana ${fechaFormateada} tienes una visita programada de ${horaInicio} a ${horaFin}\n\nUbicación: ${direccion}\nUnidad: ${unidad}\n\nPor favor confirma que estarás disponible respondiendo "Confirmo" 📲`;
+  }
+
+  /**
+   * Generar mensaje de seguimiento post-visita
+   */
+  public generarSeguimientoPostVisita(data: {
+    nombreUsuario: string;
+    numeroCaso: string;
+    fecha: Date;
+  }): string {
+    const { nombreUsuario, numeroCaso, fecha } = data;
+    const fechaFormateada = this.formatearFecha(fecha);
+
+    return `Hola ${nombreUsuario}! 👋\n\nNuestro técnico realizó una visita el ${fechaFormateada} para atender tu caso ${numeroCaso}.\n\n¿Se resolvió el problema? Por favor responde:\n1. Sí, todo resuelto ✅\n2. No, aún persiste el problema ❌\n3. Se resolvió parcialmente 🔧`;
+  }
+
+  /**
+   * Formatear fecha en español
+   */
+  private formatearFecha(fecha: Date): string {
+    const diasSemana = [
+      'domingo',
+      'lunes',
+      'martes',
+      'miércoles',
+      'jueves',
+      'viernes',
+      'sábado',
+    ];
+    const meses = [
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
+    ];
+
+    const diaSemana = diasSemana[fecha.getDay()];
+    const dia = fecha.getDate();
+    const mes = meses[fecha.getMonth()];
+
+    return `${diaSemana} ${dia} de ${mes}`;
+  }
+
+  /**
+   * Parsear respuesta de satisfacción post-visita
+   */
+  public parsearRespuestaSatisfaccion(mensaje: string): {
+    solucionado: boolean | null;
+    comentario?: string;
+  } {
+    const mensajeLower = mensaje.toLowerCase();
+
+    // Opción 1: Sí, todo resuelto
+    if (
+      mensajeLower.includes('1') ||
+      mensajeLower.includes('si') ||
+      mensajeLower.includes('sí') ||
+      mensajeLower.includes('resuelto') ||
+      mensajeLower.includes('solucionado')
+    ) {
+      return {
+        solucionado: true,
+        comentario: mensaje,
+      };
+    }
+
+    // Opción 2: No, aún persiste
+    if (
+      mensajeLower.includes('2') ||
+      mensajeLower.includes('no') ||
+      mensajeLower.includes('persiste') ||
+      mensajeLower.includes('continua') ||
+      mensajeLower.includes('continúa')
+    ) {
+      return {
+        solucionado: false,
+        comentario: mensaje,
+      };
+    }
+
+    // Opción 3: Parcial
+    if (
+      mensajeLower.includes('3') ||
+      mensajeLower.includes('parcial') ||
+      mensajeLower.includes('a medias')
+    ) {
+      return {
+        solucionado: false,
+        comentario: `Resuelto parcialmente: ${mensaje}`,
+      };
+    }
+
+    return {
+      solucionado: null,
+      comentario: mensaje,
+    };
+  }
 }

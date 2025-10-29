@@ -88,6 +88,95 @@ export const condominiosApi = {
   },
 };
 
+export const citasApi = {
+  obtenerDisponibilidad: async (fecha: string): Promise<any> => {
+    const response = await api.get(`/citas/disponibilidad/${fecha}`);
+    return response.data;
+  },
+
+  programar: async (data: any): Promise<any> => {
+    const response = await api.post('/citas', data);
+    return response.data;
+  },
+
+  confirmarPropietario: async (citaId: string): Promise<any> => {
+    const response = await api.put(`/citas/${citaId}/confirmar-propietario`);
+    return response.data;
+  },
+
+  confirmarIngenieria: async (citaId: string, tecnicoId: string): Promise<any> => {
+    const response = await api.put(`/citas/${citaId}/confirmar-ingenieria`, { tecnicoId });
+    return response.data;
+  },
+
+  reprogramar: async (citaId: string, data: any): Promise<any> => {
+    const response = await api.put(`/citas/${citaId}/reprogramar`, data);
+    return response.data;
+  },
+
+  cancelar: async (citaId: string, motivo: string): Promise<any> => {
+    const response = await api.put(`/citas/${citaId}/cancelar`, { motivo });
+    return response.data;
+  },
+
+  completar: async (citaId: string, data: any): Promise<any> => {
+    const response = await api.put(`/citas/${citaId}/completar`, data);
+    return response.data;
+  },
+
+  obtenerDelDia: async (fecha: string): Promise<any> => {
+    const response = await api.get(`/citas/dia/${fecha}`);
+    return response.data;
+  },
+
+  obtenerPorTecnico: async (tecnicoId: string, params?: any): Promise<any> => {
+    const response = await api.get(`/citas/tecnico/${tecnicoId}`, { params });
+    return response.data;
+  },
+
+  obtenerPendientes: async (): Promise<any> => {
+    const response = await api.get('/citas/pendientes');
+    return response.data;
+  },
+};
+
+export const aprobacionesApi = {
+  solicitar: async (data: any): Promise<any> => {
+    const response = await api.post('/aprobaciones', data);
+    return response.data;
+  },
+
+  obtenerPendientes: async (): Promise<any> => {
+    const response = await api.get('/aprobaciones/pendientes');
+    return response.data;
+  },
+
+  obtenerTodas: async (params?: any): Promise<any> => {
+    const response = await api.get('/aprobaciones', { params });
+    return response.data;
+  },
+
+  obtenerPorId: async (aprobacionId: string): Promise<any> => {
+    const response = await api.get(`/aprobaciones/${aprobacionId}`);
+    return response.data;
+  },
+
+  aprobar: async (aprobacionId: string, data: any): Promise<any> => {
+    const response = await api.put(`/aprobaciones/${aprobacionId}/aprobar`, data);
+    return response.data;
+  },
+
+  rechazar: async (aprobacionId: string, data: any): Promise<any> => {
+    const response = await api.put(`/aprobaciones/${aprobacionId}/rechazar`, data);
+    return response.data;
+  },
+
+  solicitarInfo: async (aprobacionId: string, data: any): Promise<any> => {
+    const response = await api.put(`/aprobaciones/${aprobacionId}/solicitar-info`, data);
+    return response.data;
+  },
+};
+
 export const reportesApi = {
   getPorFecha: async (fechaInicio: string, fechaFin: string): Promise<any> => {
     const response = await api.get('/reportes/estadisticas', {

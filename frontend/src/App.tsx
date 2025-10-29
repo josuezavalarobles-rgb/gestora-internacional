@@ -7,6 +7,8 @@ import Usuarios from './pages/Usuarios';
 import NuevoCaso from './pages/NuevoCaso';
 import Reportes from './pages/Reportes';
 import Calendario from './pages/Calendario';
+import CalendarioCitas from './pages/CalendarioCitas';
+import Aprobaciones from './pages/Aprobaciones';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path="/tecnicos" element={<Tecnicos />} />
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/nuevo-caso" element={<NuevoCaso />} />
+          <Route path="/citas" element={<CalendarioCitas />} />
+          <Route path="/aprobaciones" element={<Aprobaciones />} />
           <Route path="/reportes" element={<Reportes />} />
           <Route path="/calendario" element={<Calendario />} />
         </Routes>

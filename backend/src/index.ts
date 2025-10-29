@@ -29,10 +29,15 @@ import condominiosRoutes from './routes/condominios.routes';
 import notificacionesRoutes from './routes/notificaciones.routes';
 import kpisRoutes from './routes/kpis.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
+import citasRoutes from './routes/citas.routes';
+import aprobacionesRoutes from './routes/aprobaciones.routes';
 
 // Servicios
 import { WhatsAppService } from './services/whatsapp/WhatsAppService';
 import { SocketService } from './services/sockets/SocketService';
+
+// Jobs
+import { iniciarTodosLosJobs } from './jobs';
 
 class Application {
   public app: express.Application;
@@ -115,6 +120,8 @@ class Application {
     this.app.use(`${apiPrefix}/notificaciones`, notificacionesRoutes);
     this.app.use(`${apiPrefix}/kpis`, kpisRoutes);
     this.app.use(`${apiPrefix}/whatsapp`, whatsappRoutes);
+    this.app.use(`${apiPrefix}/citas`, citasRoutes);
+    this.app.use(`${apiPrefix}/aprobaciones`, aprobacionesRoutes);
 
     // Error handlers
     this.app.use(notFoundHandler);
@@ -186,6 +193,9 @@ class Application {
       this.initializeRoutes();
       this.initializeSockets();
       await this.initializeWhatsApp();
+
+      // Iniciar jobs programados
+      iniciarTodosLosJobs();
 
       // Iniciar servidor
       const port = config.port;
