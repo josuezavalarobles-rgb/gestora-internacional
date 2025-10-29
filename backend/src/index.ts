@@ -189,11 +189,13 @@ class Application {
 
       // Iniciar servidor
       const port = config.port;
-      this.httpServer.listen(port, () => {
+      const host = '0.0.0.0'; // Escuchar en todas las interfaces (requerido para Railway/Docker)
+
+      this.httpServer.listen(port, host, () => {
         logger.info('');
         logger.info('✅ Servidor iniciado correctamente');
-        logger.info(`🚀 API disponible en: http://localhost:${port}`);
-        logger.info(`📚 API Docs: http://localhost:${port}/api-docs`);
+        logger.info(`🚀 API disponible en: http://${host}:${port}`);
+        logger.info(`📚 API Docs: http://${host}:${port}/api-docs`);
         logger.info(`🌍 Environment: ${config.env}`);
         logger.info(`📱 WhatsApp Bot: ${config.bot.enabled ? 'Habilitado' : 'Deshabilitado'}`);
         logger.info('');
