@@ -1,0 +1,241 @@
+📁 ESTRUCTURA COMPLETA DEL PROYECTO AMICO MANAGEMENT
+══════════════════════════════════════════════════════
+
+amico/
+│
+├── 📄 README.md                          # Documentación principal
+├── 📄 RESUMEN_PROYECTO.md                # Resumen ejecutivo detallado
+├── 📄 INSTRUCCIONES_INSTALACION.md       # Guía de instalación paso a paso
+├── 📄 COMANDOS_RAPIDOS.md                # Comandos útiles del día a día
+├── 📄 PROYECTO_ESTADO.md                 # Estado actual del desarrollo
+├── 📄 .gitignore                         # Archivos a ignorar en Git
+├── 📄 docker-compose.yml                 # Configuración Docker (BD)
+│
+├── 📁 backend/                           ← BACKEND NODE.JS + TYPESCRIPT
+│   │
+│   ├── 📄 package.json                   # Dependencias y scripts
+│   ├── 📄 tsconfig.json                  # Configuración TypeScript
+│   ├── 📄 .env.example                   # Template variables de entorno
+│   ├── 📄 .env                           # Variables de entorno (gitignored)
+│   │
+│   ├── 📁 prisma/                        ← SCHEMA DE BASE DE DATOS
+│   │   └── 📄 schema.prisma              # Schema PostgreSQL (15 modelos)
+│   │
+│   ├── 📁 src/                           ← CÓDIGO FUENTE
+│   │   │
+│   │   ├── 📄 index.ts                   # ⭐ Punto de entrada principal
+│   │   │
+│   │   ├── 📁 config/                    ← CONFIGURACIÓN
+│   │   │   ├── 📄 index.ts               # Config centralizada
+│   │   │   └── 📁 database/
+│   │   │       ├── 📄 postgres.ts        # Conexión PostgreSQL (Prisma)
+│   │   │       ├── 📄 mongodb.ts         # Conexión MongoDB (Mongoose)
+│   │   │       └── 📄 redis.ts           # Conexión Redis
+│   │   │
+│   │   ├── 📁 models/                    ← MODELOS DE BD
+│   │   │   └── 📁 mongodb/
+│   │   │       ├── 📄 Mensaje.ts         # Modelo de mensajes WhatsApp
+│   │   │       └── 📄 Conversacion.ts    # Modelo de conversaciones
+│   │   │
+│   │   ├── 📁 services/                  ← ⭐ SERVICIOS (LÓGICA DE NEGOCIO)
+│   │   │   ├── 📁 whatsapp/
+│   │   │   │   └── 📄 WhatsAppService.ts # 🔥 Integración WhatsApp (Baileys)
+│   │   │   ├── 📁 ai/
+│   │   │   │   └── 📄 AIService.ts       # 🔥 Motor IA (GPT-4 + Langchain)
+│   │   │   ├── 📁 casos/
+│   │   │   │   └── 📄 CasoService.ts     # 🔥 Gestión de casos
+│   │   │   ├── 📁 notifications/
+│   │   │   │   └── 📄 NotificacionService.ts # 🔥 Notificaciones multi-canal
+│   │   │   └── 📁 sockets/
+│   │   │       └── 📄 SocketService.ts   # 🔥 WebSockets tiempo real
+│   │   │
+│   │   ├── 📁 controllers/               ← CONTROLADORES API (TODO)
+│   │   │   ├── 📄 auth.controller.ts
+│   │   │   ├── 📄 casos.controller.ts
+│   │   │   ├── 📄 usuarios.controller.ts
+│   │   │   └── 📄 ...
+│   │   │
+│   │   ├── 📁 routes/                    ← RUTAS API
+│   │   │   ├── 📄 auth.routes.ts         # Login, register
+│   │   │   ├── 📄 casos.routes.ts        # CRUD de casos
+│   │   │   ├── 📄 usuarios.routes.ts     # Gestión usuarios
+│   │   │   ├── 📄 condominios.routes.ts  # Gestión condominios
+│   │   │   ├── 📄 notificaciones.routes.ts # Notificaciones
+│   │   │   ├── 📄 kpis.routes.ts         # Dashboard métricas
+│   │   │   └── 📄 whatsapp.routes.ts     # Admin WhatsApp
+│   │   │
+│   │   ├── 📁 middleware/                ← MIDDLEWARES
+│   │   │   ├── 📄 errorHandler.ts        # Manejo de errores
+│   │   │   ├── 📄 notFoundHandler.ts     # 404 handler
+│   │   │   ├── 📄 rateLimiter.ts         # Rate limiting
+│   │   │   └── 📄 auth.middleware.ts     # JWT validation (TODO)
+│   │   │
+│   │   ├── 📁 utils/                     ← UTILIDADES
+│   │   │   ├── 📄 logger.ts              # Logger (Pino)
+│   │   │   ├── 📄 validators.ts          # Validadores Zod (TODO)
+│   │   │   └── 📄 helpers.ts             # Funciones auxiliares (TODO)
+│   │   │
+│   │   └── 📁 types/                     ← TIPOS TYPESCRIPT
+│   │       ├── 📄 express.d.ts           # Extend Express types
+│   │       └── 📄 index.ts               # Tipos compartidos
+│   │
+│   ├── 📁 uploads/                       ← ARCHIVOS SUBIDOS (gitignored)
+│   │   └── .gitkeep
+│   │
+│   ├── 📁 logs/                          ← LOGS DEL SISTEMA (gitignored)
+│   │   └── .gitkeep
+│   │
+│   ├── 📁 auth_info_baileys/             ← SESIÓN WHATSAPP (gitignored)
+│   │   └── (archivos de sesión)
+│   │
+│   └── 📁 dist/                          ← BUILD DE PRODUCCIÓN (gitignored)
+│       └── (archivos compilados .js)
+│
+├── 📁 frontend/                          ← FRONTEND REACT (TODO)
+│   │
+│   ├── 📄 package.json
+│   ├── 📄 tsconfig.json
+│   ├── 📄 vite.config.ts
+│   ├── 📄 tailwind.config.js
+│   │
+│   ├── 📁 src/
+│   │   ├── 📄 main.tsx
+│   │   ├── 📄 App.tsx
+│   │   │
+│   │   ├── 📁 pages/                     ← PÁGINAS
+│   │   │   ├── 📄 Dashboard.tsx
+│   │   │   ├── 📄 CasosList.tsx
+│   │   │   ├── 📄 CasoDetail.tsx
+│   │   │   ├── 📄 Login.tsx
+│   │   │   └── 📄 ...
+│   │   │
+│   │   ├── 📁 components/                ← COMPONENTES REACT
+│   │   │   ├── 📁 ui/                    # Shadcn/ui components
+│   │   │   ├── 📁 layout/                # Layout components
+│   │   │   ├── 📁 casos/                 # Casos components
+│   │   │   ├── 📁 chat/                  # Chat components
+│   │   │   └── 📄 ...
+│   │   │
+│   │   ├── 📁 hooks/                     ← CUSTOM HOOKS
+│   │   │   ├── 📄 useAuth.ts
+│   │   │   ├── 📄 useCasos.ts
+│   │   │   ├── 📄 useSocket.ts
+│   │   │   └── 📄 ...
+│   │   │
+│   │   ├── 📁 services/                  ← API CALLS
+│   │   │   ├── 📄 api.ts
+│   │   │   ├── 📄 casosService.ts
+│   │   │   ├── 📄 authService.ts
+│   │   │   └── 📄 ...
+│   │   │
+│   │   ├── 📁 store/                     ← ESTADO GLOBAL (Zustand)
+│   │   │   ├── 📄 authStore.ts
+│   │   │   ├── 📄 casosStore.ts
+│   │   │   └── 📄 ...
+│   │   │
+│   │   ├── 📁 utils/                     ← UTILIDADES
+│   │   │   ├── 📄 formatters.ts
+│   │   │   ├── 📄 constants.ts
+│   │   │   └── 📄 ...
+│   │   │
+│   │   └── 📁 types/                     ← TIPOS TYPESCRIPT
+│   │       └── 📄 index.ts
+│   │
+│   └── 📁 public/
+│       ├── 📄 index.html
+│       └── 📁 assets/
+│
+├── 📁 shared/                            ← CÓDIGO COMPARTIDO
+│   └── 📁 types/
+│       └── 📄 index.ts                   # Types compartidos frontend/backend
+│
+├── 📁 database/                          ← SCRIPTS DE BD
+│   ├── 📁 migrations/                    # Migraciones SQL manuales
+│   ├── 📁 seeds/                         # Datos de prueba
+│   │   ├── 📄 usuarios.seed.ts
+│   │   ├── 📄 condominios.seed.ts
+│   │   └── 📄 index.ts
+│   └── 📁 backup/                        # Backups
+│
+└── 📁 docs/                              ← DOCUMENTACIÓN ADICIONAL
+    ├── 📄 API.md                         # Documentación API
+    ├── 📄 DATABASE.md                    # Schema y relaciones
+    ├── 📄 DEPLOYMENT.md                  # Guía de deployment
+    ├── 📄 ARCHITECTURE.md                # Arquitectura del sistema
+    └── 📁 images/                        # Diagramas y screenshots
+
+
+════════════════════════════════════════════════════════════════════════════
+
+🔥 ARCHIVOS PRINCIPALES IMPLEMENTADOS (Backend)
+
+✅ src/index.ts                           # Punto de entrada (250 líneas)
+✅ src/config/index.ts                    # Configuración (150 líneas)
+✅ src/services/whatsapp/WhatsAppService.ts   # WhatsApp (400 líneas)
+✅ src/services/ai/AIService.ts           # IA Conversacional (320 líneas)
+✅ src/services/casos/CasoService.ts      # Gestión casos (350 líneas)
+✅ src/services/notifications/NotificacionService.ts  # Notificaciones (280 líneas)
+✅ src/services/sockets/SocketService.ts  # WebSockets (300 líneas)
+✅ prisma/schema.prisma                   # Schema BD (500 líneas)
+✅ src/models/mongodb/Mensaje.ts          # Mensajes (100 líneas)
+✅ src/models/mongodb/Conversacion.ts     # Conversaciones (120 líneas)
+
+TOTAL: ~4,500+ líneas de código backend funcional
+
+════════════════════════════════════════════════════════════════════════════
+
+📊 DISTRIBUCIÓN DEL CÓDIGO
+
+Backend Implementado (70%):
+├── Configuración y Setup       ✅ 100%
+├── Base de Datos              ✅ 100%
+├── Servicios Core             ✅ 100%
+├── WhatsApp + IA             ✅ 100%
+├── Rutas API                 ⚠️  30% (placeholders)
+├── Controladores             ❌  0%
+├── Autenticación JWT         ⚠️  50%
+└── Tests                     ❌  0%
+
+Frontend (0%):
+└── Todo por hacer            ❌  0%
+
+DevOps:
+├── Docker Compose            ✅ 100%
+├── Variables de entorno      ✅ 100%
+└── CI/CD                     ❌  0%
+
+════════════════════════════════════════════════════════════════════════════
+
+🎯 PRIORIDADES SIGUIENTE FASE
+
+1. 🔴 Alta Prioridad
+   - Completar controladores API
+   - Implementar autenticación JWT completa
+   - Upload de archivos
+   - Tests básicos
+
+2. 🟡 Media Prioridad
+   - Iniciar frontend React
+   - Dashboard principal
+   - Lista de casos
+   - Chat en tiempo real
+
+3. 🟢 Baja Prioridad
+   - Tests E2E
+   - Documentación API (Swagger)
+   - CI/CD
+   - Monitoreo (Sentry, etc.)
+
+════════════════════════════════════════════════════════════════════════════
+
+💡 LEYENDA
+
+✅ = Completado
+⚠️ = Parcialmente implementado
+❌ = No iniciado
+🔥 = Archivo crítico del sistema
+⭐ = Punto de entrada importante
+📁 = Directorio
+📄 = Archivo
+
+════════════════════════════════════════════════════════════════════════════

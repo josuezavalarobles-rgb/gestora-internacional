@@ -1,0 +1,513 @@
+// ========================================
+// AMICO MANAGEMENT - DATABASE SCHEMA
+// PostgreSQL con Prisma ORM
+// ========================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// USUARIOS Y AUTENTICACIÓN
+// ========================================
+
+enum TipoUsuario {
+  propietario
+  inquilino
+  autorizado
+  tecnico
+  admin
+  super_admin
+}
+
+enum EstadoUsuario {
+  pendiente
+  activo
+  inactivo
+  suspendido
+}
+
+model Usuario {
+  id                String         @id @default(uuid())
+  nombreCompleto    String         @map("nombre_completo")
+  telefono          String         @unique
+  email             String?        @unique
+  password          String?        // Solo para admin/técnicos
+  tipoUsuario       TipoUsuario    @map("tipo_usuario")
+  estado            EstadoUsuario  @default(pendiente)
+  condominioId      String?        @map("condominio_id")
+  unidad            String?        // Apt 402, Casa 12, etc.
+  puedeVotar        Boolean        @default(false) @map("puede_votar")
+
+  // Metadatos
+  avatarUrl         String?        @map("avatar_url")
+  notas             String?        @db.Text
+  metadata          Json?
+
+  // Auditoría
+  fechaRegistro     DateTime       @default(now()) @map("fecha_registro")
+  ultimoAcceso      DateTime?      @map("ultimo_acceso")
+  validadoPor       String?        @map("validado_por")
+  fechaValidacion   DateTime?      @map("fecha_validacion")
+
+  // Relaciones
+  condominio        Condominio?    @relation(fields: [condominioId], references: [id])
+  casosCreados      Caso[]         @relation("CasosCreados")
+  casosAsignados    Caso[]         @relation("CasosAsignados")
+  notificaciones    Notificacion[]
+  sesiones          Sesion[]
+
+  @@index([telefono])
+  @@index([condominioId])
+  @@index([estado])
+  @@map("usuarios")
+}
+
+// ========================================
+// CONDOMINIOS
+// ========================================
+
+enum EstadoCondominio {
+  activo
+  inactivo
+  en_construccion
+}
+
+model Condominio {
+  id                String              @id @default(uuid())
+  nombre            String
+  direccion         String              @db.Text
+  ciudad            String
+  provincia         String
+  codigoPostal      String?             @map("codigo_postal")
+  telefono          String?
+  email             String?
+
+  // Configuración
+  estado            EstadoCondominio    @default(activo)
+  totalUnidades     Int                 @map("total_unidades")
+  fechaEntrega      DateTime?           @map("fecha_entrega") // Para cálculo de garantía
+
+  // SLA específico del condominio
+  slaGarantia       Int                 @default(24) @map("sla_garantia") // horas
+  slaCondominio     Int                 @default(72) @map("sla_condominio") // horas
+
+  // Horarios
+  horarioAtencion   Json?               @map("horario_atencion")
+
+  // Metadatos
+  logo              String?
+  metadata          Json?
+
+  // Auditoría
+  fechaCreacion     DateTime            @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime           @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  usuarios          Usuario[]
+  casos             Caso[]
+  amenidades        Amenidad[]
+
+  @@index([estado])
+  @@map("condominios")
+}
+
+// ========================================
+// CASOS / RECLAMACIONES
+// ========================================
+
+enum TipoCaso {
+  garantia
+  condominio
+}
+
+enum EstadoCaso {
+  nuevo
+  asignado
+  en_proceso
+  en_visita
+  esperando_repuestos
+  resuelto
+  cerrado
+  reabierto
+  cancelado
+}
+
+enum PrioridadCaso {
+  baja
+  media
+  alta
+  urgente
+}
+
+enum CategoriaCaso {
+  filtraciones_humedad
+  problemas_electricos
+  plomeria
+  puertas_ventanas
+  pisos_paredes_techo
+  aires_acondicionados
+  areas_comunes
+  seguridad
+  limpieza
+  otro
+}
+
+model Caso {
+  id                    String          @id @default(uuid())
+  numeroCaso            String          @unique @map("numero_caso") // AMC-2024-0157
+
+  // Usuario y ubicación
+  usuarioId             String          @map("usuario_id")
+  condominioId          String          @map("condominio_id")
+  unidad                String
+
+  // Clasificación
+  tipo                  TipoCaso
+  categoria             CategoriaCaso
+  subcategoria          String?
+  descripcion           String          @db.Text
+
+  // Estado y prioridad
+  estado                EstadoCaso      @default(nuevo)
+  prioridad             PrioridadCaso   @default(media)
+
+  // Asignación
+  tecnicoAsignadoId     String?         @map("tecnico_asignado_id")
+  fechaAsignacion       DateTime?       @map("fecha_asignacion")
+
+  // Diagnóstico y resolución
+  diagnostico           String?         @db.Text
+  solucionAplicada      String?         @map("solucion_aplicada") @db.Text
+  tiempoEstimado        String?         @map("tiempo_estimado")
+
+  // Fechas
+  fechaCreacion         DateTime        @default(now()) @map("fecha_creacion")
+  fechaVisita           DateTime?       @map("fecha_visita")
+  fechaResolucion       DateTime?       @map("fecha_resolucion")
+  fechaCierre           DateTime?       @map("fecha_cierre")
+
+  // SLA
+  slaViolado            Boolean         @default(false) @map("sla_violado")
+  tiempoRespuesta       Int?            @map("tiempo_respuesta") // minutos
+  tiempoResolucion      Int?            @map("tiempo_resolucion") // horas
+
+  // Satisfacción
+  satisfaccionCliente   Int?            @map("satisfaccion_cliente") // 1-5
+  comentarioCliente     String?         @map("comentario_cliente") @db.Text
+
+  // Costos (opcional)
+  costoEstimado         Decimal?        @map("costo_estimado") @db.Decimal(10, 2)
+  costoReal             Decimal?        @map("costo_real") @db.Decimal(10, 2)
+
+  // Metadatos
+  metadata              Json?
+
+  // Relaciones
+  usuario               Usuario         @relation("CasosCreados", fields: [usuarioId], references: [id])
+  condominio            Condominio      @relation(fields: [condominioId], references: [id])
+  tecnicoAsignado       Usuario?        @relation("CasosAsignados", fields: [tecnicoAsignadoId], references: [id])
+  adjuntos              Adjunto[]
+  timelineEventos       TimelineEvento[]
+  transferencias        Transferencia[]
+
+  @@index([numeroCaso])
+  @@index([estado])
+  @@index([prioridad])
+  @@index([usuarioId])
+  @@index([condominioId])
+  @@index([tecnicoAsignadoId])
+  @@index([fechaCreacion])
+  @@map("casos")
+}
+
+// ========================================
+// ADJUNTOS MULTIMEDIA
+// ========================================
+
+enum TipoAdjunto {
+  imagen
+  video
+  audio
+  documento
+}
+
+model Adjunto {
+  id                String        @id @default(uuid())
+  casoId            String        @map("caso_id")
+  tipo              TipoAdjunto
+  url               String
+  nombreArchivo     String        @map("nombre_archivo")
+  tamanoBytes       BigInt        @map("tamano_bytes")
+  mimeType          String        @map("mime_type")
+
+  // Metadata del archivo
+  ancho             Int?          // Para imágenes
+  alto              Int?          // Para imágenes
+  duracion          Int?          // Para videos/audios (segundos)
+
+  fechaSubida       DateTime      @default(now()) @map("fecha_subida")
+
+  // Relaciones
+  caso              Caso          @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  @@index([casoId])
+  @@map("adjuntos")
+}
+
+// ========================================
+// TIMELINE DE EVENTOS
+// ========================================
+
+enum TipoEvento {
+  creado
+  asignado
+  reasignado
+  estado_cambiado
+  prioridad_cambiada
+  visita_programada
+  visita_completada
+  diagnostico_enviado
+  reparacion_programada
+  reparacion_completada
+  comentario_agregado
+  transferido
+  escalado
+  cerrado
+  reabierto
+}
+
+model TimelineEvento {
+  id                String      @id @default(uuid())
+  casoId            String      @map("caso_id")
+  tipoEvento        TipoEvento  @map("tipo_evento")
+  titulo            String
+  descripcion       String?     @db.Text
+
+  // Usuario responsable
+  usuarioId         String?     @map("usuario_id")
+  usuarioNombre     String?     @map("usuario_nombre")
+
+  // Datos adicionales
+  metadata          Json?
+
+  fecha             DateTime    @default(now())
+
+  // Relaciones
+  caso              Caso        @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  @@index([casoId])
+  @@index([fecha])
+  @@map("timeline_eventos")
+}
+
+// ========================================
+// TRANSFERENCIAS DE CASOS
+// ========================================
+
+enum TipoTransferencia {
+  bot_a_humano
+  humano_a_bot
+  humano_a_humano
+  escalamiento
+}
+
+model Transferencia {
+  id                  String              @id @default(uuid())
+  casoId              String              @map("caso_id")
+  tipo                TipoTransferencia
+
+  deAgenteId          String?             @map("de_agente_id")
+  aAgenteId           String?             @map("a_agente_id")
+
+  motivo              String?             @db.Text
+  notas               String?             @db.Text
+
+  fechaTransferencia  DateTime            @default(now()) @map("fecha_transferencia")
+
+  // Relaciones
+  caso                Caso                @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  @@index([casoId])
+  @@map("transferencias")
+}
+
+// ========================================
+// NOTIFICACIONES
+// ========================================
+
+enum TipoNotificacion {
+  nueva_conversacion
+  mensaje_nuevo
+  bot_necesita_ayuda
+  lead_caliente
+  caso_asignado
+  caso_actualizado
+  visita_programada
+  sla_proximo_vencer
+  sla_violado
+  sistema
+}
+
+enum PrioridadNotificacion {
+  baja
+  media
+  alta
+  critica
+}
+
+model Notificacion {
+  id                String                  @id @default(uuid())
+  usuarioId         String                  @map("usuario_id")
+  tipo              TipoNotificacion
+  prioridad         PrioridadNotificacion   @default(media)
+
+  casoId            String?                 @map("caso_id")
+
+  titulo            String
+  mensaje           String                  @db.Text
+  urlAccion         String?                 @map("url_accion")
+
+  leida             Boolean                 @default(false)
+  fechaLeida        DateTime?               @map("fecha_leida")
+
+  metadata          Json?
+
+  fechaCreacion     DateTime                @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  usuario           Usuario                 @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([leida])
+  @@index([prioridad])
+  @@map("notificaciones")
+}
+
+// ========================================
+// SESIONES DE AGENTES
+// ========================================
+
+enum EstadoSesion {
+  online
+  ausente
+  ocupado
+  offline
+}
+
+model Sesion {
+  id                    String          @id @default(uuid())
+  usuarioId             String          @map("usuario_id")
+  estado                EstadoSesion    @default(online)
+
+  conversacionesActivas Int             @default(0) @map("conversaciones_activas")
+
+  socketId              String?         @map("socket_id")
+  ipAddress             String?         @map("ip_address")
+  userAgent             String?         @map("user_agent")
+
+  ultimaActividad       DateTime        @default(now()) @updatedAt @map("ultima_actividad")
+  fechaLogin            DateTime        @default(now()) @map("fecha_login")
+  fechaLogout           DateTime?       @map("fecha_logout")
+
+  // Relaciones
+  usuario               Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([estado])
+  @@map("sesiones")
+}
+
+// ========================================
+// AMENIDADES (Módulo futuro)
+// ========================================
+
+enum TipoAmenidad {
+  salon_eventos
+  gimnasio
+  piscina
+  cancha_tenis
+  cancha_padel
+  cancha_basketball
+  area_bbq
+  salon_ninos
+  otro
+}
+
+model Amenidad {
+  id                String          @id @default(uuid())
+  condominioId      String          @map("condominio_id")
+  nombre            String
+  tipo              TipoAmenidad
+  descripcion       String?         @db.Text
+  capacidad         Int?
+
+  activa            Boolean         @default(true)
+  requiereReserva   Boolean         @default(true) @map("requiere_reserva")
+
+  costoReserva      Decimal?        @map("costo_reserva") @db.Decimal(10, 2)
+
+  metadata          Json?
+
+  fechaCreacion     DateTime        @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  condominio        Condominio      @relation(fields: [condominioId], references: [id])
+
+  @@index([condominioId])
+  @@map("amenidades")
+}
+
+// ========================================
+// KPIs DIARIOS
+// ========================================
+
+enum PlataformaKPI {
+  whatsapp
+  web
+  todas
+}
+
+model KPIDiario {
+  id                      String          @id @default(uuid())
+  fecha                   DateTime        @db.Date
+  condominioId            String?         @map("condominio_id")
+  plataforma              PlataformaKPI   @default(whatsapp)
+
+  // Métricas de casos
+  casosNuevos             Int             @default(0) @map("casos_nuevos")
+  casosAsignados          Int             @default(0) @map("casos_asignados")
+  casosResueltos          Int             @default(0) @map("casos_resueltos")
+  casosCerrados           Int             @default(0) @map("casos_cerrados")
+
+  // Métricas de mensajes
+  mensajesEnviados        Int             @default(0) @map("mensajes_enviados")
+  mensajesRecibidos       Int             @default(0) @map("mensajes_recibidos")
+  mensajesBot             Int             @default(0) @map("mensajes_bot")
+  mensajesHumano          Int             @default(0) @map("mensajes_humano")
+
+  // Métricas de tiempo
+  tiempoRespuestaPromedio Int?            @map("tiempo_respuesta_promedio") // segundos
+  tiempoResolucionPromedio Int?           @map("tiempo_resolucion_promedio") // horas
+
+  // Métricas de satisfacción
+  satisfaccionPromedio    Decimal?        @map("satisfaccion_promedio") @db.Decimal(3, 2)
+
+  // SLA
+  slasCumplidos           Int             @default(0) @map("slas_cumplidos")
+  slasViolados            Int             @default(0) @map("slas_violados")
+
+  // Conversión
+  tasaConversion          Decimal?        @map("tasa_conversion") @db.Decimal(5, 2)
+
+  fechaCreacion           DateTime        @default(now()) @map("fecha_creacion")
+
+  @@unique([fecha, condominioId, plataforma])
+  @@index([fecha])
+  @@map("kpis_diarios")
+}

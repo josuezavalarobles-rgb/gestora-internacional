@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amico Management - Dashboard Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-blue-600">🏢 AMICO</span>
+                    <span class="ml-2 text-gray-600">Management</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">Admin</span>
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                        A
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Casos Nuevos</p>
+                        <p class="text-3xl font-bold text-blue-600">12</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">📋</span>
+                    </div>
+                </div>
+                <p class="text-xs text-green-600 mt-2">↑ 8% vs ayer</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">En Proceso</p>
+                        <p class="text-3xl font-bold text-orange-600">34</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">🔧</span>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">→ Sin cambios</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Resueltos Hoy</p>
+                        <p class="text-3xl font-bold text-green-600">8</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">✅</span>
+                    </div>
+                </div>
+                <p class="text-xs text-green-600 mt-2">↑ 15% vs ayer</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Satisfacción</p>
+                        <p class="text-3xl font-bold text-purple-600">4.8</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">⭐</span>
+                    </div>
+                </div>
+                <p class="text-xs text-purple-600 mt-2">⭐⭐⭐⭐⭐</p>
+            </div>
+        </div>
+
+        <!-- Casos Urgentes -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b">
+                <h2 class="text-xl font-bold text-gray-800">🔴 Casos Urgentes (1)</h2>
+            </div>
+            <div class="p-6">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 hover:shadow-md transition-shadow cursor-pointer">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="font-bold text-gray-800">#AMC-2024-0001</span>
+                                <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded">URGENTE</span>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">Garantía</span>
+                            </div>
+                            <p class="text-gray-800 font-medium">Juan Carlos Pérez - Apt 402, Torre A</p>
+                            <p class="text-gray-600 text-sm mt-1">Filtración severa en el techo del baño principal. El agua está goteando...</p>
+                            <div class="flex items-center space-x-4 mt-3 text-sm text-gray-500">
+                                <span>👷 Ing. Carlos Méndez</span>
+                                <span>🕐 Hace 3 horas</span>
+                                <span>📸 3 fotos</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                                Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Todos los Casos -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-800">📋 Todos los Casos (7)</h2>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                    + Nuevo Caso
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Caso</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problema</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridad</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Técnico</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Caso 1 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="font-mono font-bold text-sm">#AMC-2024-0001</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">Juan Carlos Pérez</div>
+                                <div class="text-sm text-gray-500">Apt 402, Torre A</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">Filtración en techo</div>
+                                <div class="text-sm text-gray-500">Garantía</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Asignado
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    🔴 Urgente
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                Ing. Carlos Méndez
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-blue-600 hover:text-blue-900 font-medium">Ver →</button>
+                            </td>
+                        </tr>
+
+                        <!-- Caso 2 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="font-mono font-bold text-sm">#AMC-2024-0002</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">María Fernanda González</div>
+                                <div class="text-sm text-gray-500">Apt 305, Torre B</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">Problema eléctrico</div>
+                                <div class="text-sm text-gray-500">Condominio</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    En Proceso
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                                    🟠 Alta
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                Ing. Rafael Jiménez
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-blue-600 hover:text-blue-900 font-medium">Ver →</button>
+                            </td>
+                        </tr>
+
+                        <!-- Caso 3 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="font-mono font-bold text-sm">#AMC-2024-0003</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">Roberto Martínez</div>
+                                <div class="text-sm text-gray-500">Apt 1502, Torre Norte</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">Puerta principal</div>
+                                <div class="text-sm text-gray-500">Garantía</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    Nuevo
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    🟡 Media
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-400">
+                                Sin asignar
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-blue-600 hover:text-blue-900 font-medium">Ver →</button>
+                            </td>
+                        </tr>
+
+                        <!-- Caso 4 -->
+                        <tr class="hover:bg-gray-50 bg-green-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="font-mono font-bold text-sm">#AMC-2024-0004</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">Ana Lucía Rodríguez</div>
+                                <div class="text-sm text-gray-500">Apt 801, Torre Sur</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">Aire acondicionado</div>
+                                <div class="text-sm text-gray-500">Condominio</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    ✅ Resuelto
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
+                                    Media
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                Téc. Luis Fernández
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-green-600 hover:text-green-900 font-medium">Ver →</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Vista Detallada (Modal simulado) -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" id="modal" style="display: none;">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+
+            <!-- Header del Modal -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Caso #AMC-2024-0001</h2>
+                <button onclick="document.getElementById('modal').style.display='none'" class="text-white hover:text-gray-200">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+
+            <!-- Contenido -->
+            <div class="p-6">
+
+                <!-- Alertas -->
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <span class="text-2xl">🔴</span>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-800">
+                                Caso Urgente - Requiere atención inmediata
+                            </p>
+                            <p class="text-sm text-red-700 mt-1">
+                                SLA: 4 horas | Tiempo transcurrido: 3h 15min
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">👤 Cliente</h3>
+                        <p class="text-lg font-semibold text-gray-900">Juan Carlos Pérez</p>
+                        <p class="text-sm text-gray-600">📞 809-555-1234</p>
+                        <p class="text-sm text-gray-600">📧 juan.perez@gmail.com</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">🏢 Ubicación</h3>
+                        <p class="text-lg font-semibold text-gray-900">Residencial Las Palmas</p>
+                        <p class="text-sm text-gray-600">Apt 402, Torre A</p>
+                    </div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-500 mb-2">📝 Descripción del Problema</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-gray-800">Filtración severa en el techo del baño principal. El agua está goteando y manchando las paredes. Necesita atención urgente.</p>
+                    </div>
+                </div>
+
+                <!-- Fotos -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-500 mb-2">📸 Fotos Adjuntas (3)</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span class="text-4xl">📷</span>
+                        </div>
+                        <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span class="text-4xl">📷</span>
+                        </div>
+                        <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span class="text-4xl">📷</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-500 mb-4">🕐 Timeline</h3>
+                    <div class="space-y-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">✓</div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-900">Caso Creado</p>
+                                <p class="text-sm text-gray-600">Reportado por WhatsApp</p>
+                                <p class="text-xs text-gray-500 mt-1">29 Oct, 10:30 AM - Hace 3 horas</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">✓</div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-900">Caso Asignado</p>
+                                <p class="text-sm text-gray-600">Asignado al Ing. Carlos Méndez (automático)</p>
+                                <p class="text-xs text-gray-500 mt-1">29 Oct, 11:00 AM - Hace 2.5 horas</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">⏱</div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-900">Visita Programada</p>
+                                <p class="text-sm text-gray-600">Programada para hoy 3:00 PM</p>
+                                <p class="text-xs text-gray-500 mt-1">29 Oct, 12:00 PM - Hace 1.5 horas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="flex space-x-3">
+                    <button class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                        💬 Chatear con Cliente
+                    </button>
+                    <button class="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium">
+                        📅 Reprogramar Visita
+                    </button>
+                    <button class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                        ✅ Marcar Resuelto
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simular click en primer caso
+        document.querySelector('tbody tr').addEventListener('click', function() {
+            document.getElementById('modal').style.display = 'flex';
+        });
+    </script>
+
+    <!-- Footer -->
+    <div class="text-center py-8 text-gray-500 text-sm">
+        <p>🎨 PREVIEW - Así se verá el sistema real (NO es Excel feo)</p>
+        <p class="mt-2">Esto es solo una demostración estática del diseño final</p>
+    </div>
+
+</body>
+</html>
