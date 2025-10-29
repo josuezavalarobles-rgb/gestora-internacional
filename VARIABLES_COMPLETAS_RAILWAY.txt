@@ -1,0 +1,67 @@
+================================================================
+VARIABLES DE ENTORNO PARA RAILWAY - COPIAR Y PEGAR
+================================================================
+
+INSTRUCCIONES:
+1. Ve a Railway → Tu servicio backend → Tab "Variables"
+2. Click "Raw Editor" (arriba a la derecha)
+3. BORRA todo lo que haya
+4. COPIA Y PEGA todo lo de abajo
+5. Click "Update Variables"
+
+================================================================
+
+NODE_ENV=production
+JWT_SECRET=amico-production-secret-2024-super-seguro
+JWT_REFRESH_SECRET=amico-refresh-secret-2024
+CORS_ORIGIN=*
+BOT_ENABLED=false
+API_VERSION=v1
+
+OPENAI_API_KEY=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
+OPENAI_MODEL=gpt-4-turbo-preview
+OPENAI_MAX_TOKENS=1000
+OPENAI_TEMPERATURE=0.7
+
+WHATSAPP_SESSION_NAME=amico-production
+WHATSAPP_BUSINESS_NAME=Amico Management
+WHATSAPP_AUTO_READ=true
+
+SLA_GARANTIA_HORAS=24
+SLA_CONDOMINIO_HORAS=72
+SLA_URGENTE_HORAS=4
+
+TZ=America/Santo_Domingo
+
+LOG_LEVEL=info
+LOG_FORMAT=json
+
+NOTIFICATIONS_ENABLED=true
+FEATURE_AI_CLASSIFICATION=true
+FEATURE_AUTO_ASSIGNMENT=true
+
+================================================================
+IMPORTANTE: Las bases de datos se conectan automáticamente
+================================================================
+
+Railway agregará estas variables automáticamente cuando conectes
+las bases de datos al servicio backend:
+
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+MONGODB_URI=${{MongoDB.MONGO_URL}}
+REDIS_URL=${{Redis.REDIS_URL}}
+
+NO las agregues manualmente, Railway las conecta solo.
+
+================================================================
+PASOS DESPUÉS DE PEGAR LAS VARIABLES:
+================================================================
+
+1. Click "Update Variables"
+2. Ve a tab "Deployments"
+3. Click "Redeploy"
+4. Espera 5-10 minutos
+5. Ve a Settings → Networking → Generate Domain
+6. Prueba: https://tu-url.up.railway.app/health
+
+================================================================
