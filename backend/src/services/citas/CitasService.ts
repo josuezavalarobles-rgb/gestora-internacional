@@ -2,9 +2,11 @@
 // SERVICIO DE GESTIÓN DE CITAS
 // ========================================
 
-import prisma from '../../config/database/prisma';
+import { getPrismaClient } from '../../config/database/postgres';
 import { NotificacionService } from '../notifications/NotificacionService';
 import { Prisma } from '@prisma/client';
+
+const prisma = getPrismaClient();
 
 export class CitasService {
   private notificacionService: NotificacionService;

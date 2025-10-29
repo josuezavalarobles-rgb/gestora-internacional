@@ -4,7 +4,9 @@
 // ========================================
 
 import * as cron from 'node-cron';
-import prisma from '../config/database/prisma';
+const prisma = getPrismaClient();
+
+import { getPrismaClient } from '../config/database/postgres';
 import { AIService } from '../services/ai/AIService';
 import { WhatsAppService } from '../services/whatsapp/WhatsAppService';
 import { logger } from '../utils/logger';

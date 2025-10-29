@@ -2,8 +2,10 @@
 // SERVICIO DE GESTIÓN DE APROBACIONES
 // ========================================
 
-import prisma from '../../config/database/prisma';
+import { getPrismaClient } from '../../config/database/postgres';
 import { NotificacionService } from '../notifications/NotificacionService';
+const prisma = getPrismaClient();
+
 import { Decimal } from '@prisma/client/runtime/library';
 
 export class AprobacionesService {
