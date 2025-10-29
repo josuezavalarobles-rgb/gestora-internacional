@@ -55,6 +55,75 @@ export const usuariosApi = {
     const response = await api.get('/usuarios/tecnicos');
     return response.data;
   },
+
+  getAll: async (): Promise<any[]> => {
+    const response = await api.get('/usuarios');
+    return response.data;
+  },
+
+  create: async (data: any): Promise<any> => {
+    const response = await api.post('/usuarios', data);
+    return response.data;
+  },
+
+  update: async (id: string, data: any): Promise<any> => {
+    const response = await api.put(`/usuarios/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/usuarios/${id}`);
+  },
+
+  getPropietarios: async (): Promise<any[]> => {
+    const response = await api.get('/usuarios?tipoUsuario=propietario');
+    return response.data;
+  },
+};
+
+export const condominiosApi = {
+  getAll: async (): Promise<any[]> => {
+    const response = await api.get('/condominios');
+    return response.data;
+  },
+};
+
+export const reportesApi = {
+  getPorFecha: async (fechaInicio: string, fechaFin: string): Promise<any> => {
+    const response = await api.get('/reportes/estadisticas', {
+      params: { fechaInicio, fechaFin }
+    });
+    return response.data;
+  },
+
+  getEstadisticas: async (): Promise<any> => {
+    const response = await api.get('/reportes/estadisticas');
+    return response.data;
+  },
+};
+
+export const visitasApi = {
+  getAll: async (): Promise<any[]> => {
+    const response = await api.get('/visitas');
+    return response.data;
+  },
+
+  getPorFecha: async (fecha: string): Promise<any[]> => {
+    const response = await api.get('/visitas', {
+      params: { fecha }
+    });
+    return response.data;
+  },
+
+  create: async (data: any): Promise<any> => {
+    const response = await api.post('/visitas', data);
+    return response.data;
+  },
+
+  update: async (id: string, data: any): Promise<any> => {
+    const response = await api.put(`/visitas/${id}`, data);
+    return response.data;
+  },
 };
 
 export default api;

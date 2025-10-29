@@ -66,3 +66,72 @@ export interface KPIStats {
   satisfaccionPromedio: number;
   tiempoRespuestaPromedio: number;
 }
+
+// Tipos para formularios
+export interface CrearTecnicoData {
+  nombreCompleto: string;
+  telefono: string;
+  email?: string;
+}
+
+export interface CrearUsuarioData {
+  nombreCompleto: string;
+  telefono: string;
+  email?: string;
+  tipoUsuario: 'propietario' | 'inquilino';
+  unidad: string;
+  condominioId: string;
+}
+
+export interface CrearCasoData {
+  usuarioId: string;
+  condominioId: string;
+  unidad: string;
+  tipo: 'garantia' | 'condominio';
+  categoria: string;
+  descripcion: string;
+  prioridad: 'baja' | 'media' | 'alta' | 'urgente';
+  tecnicoAsignadoId?: string;
+}
+
+// Tipos para reportes
+export interface ReporteFiltros {
+  fechaInicio: string;
+  fechaFin: string;
+}
+
+export interface ReporteEstadisticas {
+  totalCasos: number;
+  casosPorEstado: { estado: string; cantidad: number }[];
+  casosPorPrioridad: { prioridad: string; cantidad: number }[];
+  casosPorTecnico: { tecnico: string; cantidad: number }[];
+  casosPorDia: { fecha: string; cantidad: number }[];
+  tiempoPromedioResolucion: number;
+  slaCumplido: number;
+}
+
+// Tipos para calendario
+export interface VisitaProgramada {
+  id: string;
+  caso: Caso;
+  fecha: string;
+  hora: string;
+  tecnico: Usuario;
+  estado: 'programada' | 'en_curso' | 'completada' | 'cancelada';
+}
+
+// Lista de categorias
+export const CATEGORIAS = [
+  'Plomeria',
+  'Electricidad',
+  'Pintura',
+  'Carpinteria',
+  'Cerrajeria',
+  'Aire Acondicionado',
+  'Limpieza',
+  'Jardineria',
+  'Seguridad',
+  'Otros'
+] as const;
+
+export type Categoria = typeof CATEGORIAS[number];
