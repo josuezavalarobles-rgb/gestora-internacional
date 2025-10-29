@@ -1,0 +1,29 @@
+=======================================================
+COMANDOS PARA EJECUTAR - COPIAR Y PEGAR
+=======================================================
+
+PASO 1: Conectar con GitHub
+-----------------------------
+cd c:\Users\josue\mis-sitios-bluehost\public_html\amico
+
+git remote add origin https://github.com/josuezavalarobles-rgb/amico-management.git
+
+git branch -M main
+
+
+PASO 2: Subir código a GitHub
+-----------------------------
+git push -u origin main
+
+
+PASO 3: Verificar
+-----------------------------
+git remote -v
+
+
+=======================================================
+NOTAS:
+- Si pide autenticación, usa tu token de GitHub (no password)
+- El push puede tomar 1-2 minutos (son 27,859 líneas)
+- Una vez subido, continúa con Railway
+=======================================================

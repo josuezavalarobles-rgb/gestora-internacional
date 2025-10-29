@@ -9,7 +9,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { createServer } from 'http';
+import http, { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
 import { config } from './config';
