@@ -29,10 +29,13 @@ export default function UsuariosPage() {
         usuariosApi.getPropietarios(),
         condominiosApi.getAll(),
       ]);
-      setUsuarios(usuariosData as Usuario[]);
-      setCondominios(condominiosData as Condominio[]);
+      // Asegurar que siempre sean arrays
+      setUsuarios(Array.isArray(usuariosData) ? usuariosData : []);
+      setCondominios(Array.isArray(condominiosData) ? condominiosData : []);
     } catch (error) {
       setErrorMessage('Error al cargar datos');
+      setUsuarios([]);
+      setCondominios([]);
       console.error('Error:', error);
     } finally {
       setLoading(false);
