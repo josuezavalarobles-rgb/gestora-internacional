@@ -10,7 +10,7 @@ import Calendario from './pages/Calendario';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/amico-app">
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
