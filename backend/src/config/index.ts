@@ -140,9 +140,10 @@ const requiredEnvVars = [
   'JWT_SECRET',
 ];
 
-if (config.env === 'production') {
-  requiredEnvVars.push('OPENAI_API_KEY');
-}
+// OPENAI_API_KEY es opcional - el sistema funciona sin IA
+// if (config.env === 'production') {
+//   requiredEnvVars.push('OPENAI_API_KEY');
+// }
 
 const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
 
