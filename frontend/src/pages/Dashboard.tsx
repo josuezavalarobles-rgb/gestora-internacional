@@ -11,15 +11,20 @@ import {
   Calendar,
   ArrowRight,
   Search,
-  Filter
+  Filter,
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 import StatsCard from '../components/StatsCard';
-import { casosApi, kpisApi } from '../services/api';
+import SolicitudesChart from '../components/SolicitudesChart';
+import UrgenciaChart from '../components/UrgenciaChart';
+import { casosApi, kpisApi, solicitudesApi } from '../services/api';
 import type { Caso, KPIStats } from '../types';
 
 export default function Dashboard() {
   const [casos, setCasos] = useState<Caso[]>([]);
   const [stats, setStats] = useState<KPIStats | null>(null);
+  const [solicitudesStats, setSolicitudesStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,14 +42,16 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
 
-      // Cargar casos y estadísticas en paralelo
-      const [casosData, statsData] = await Promise.all([
+      // Cargar casos, estadísticas y solicitudes en paralelo
+      const [casosData, statsData, solicitudesStatsData] = await Promise.all([
         casosApi.getAll(),
         kpisApi.getDashboard(),
+        solicitudesApi.getEstadisticas().catch(() => null),
       ]);
 
       setCasos(casosData);
       setStats(statsData);
+      setSolicitudesStats(solicitudesStatsData?.estadisticas || null);
     } catch (err) {
       console.error('Error cargando datos:', err);
       setError('Error al cargar los datos. Por favor verifica que el backend esté corriendo.');
@@ -186,6 +193,52 @@ export default function Dashboard() {
           iconBgColor="bg-purple-50"
         />
       </div>
+
+      {/* Estadísticas de Solicitudes IA */}
+      {solicitudesStats && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatsCard
+              title="Total Solicitudes IA"
+              value={solicitudesStats.totalSolicitudes || 0}
+              icon={Activity}
+              iconColor="text-indigo-600"
+              iconBgColor="bg-indigo-50"
+            />
+            <StatsCard
+              title="Tiempo Promedio Resolucion"
+              value={`${Math.round(solicitudesStats.tiempoPromedioResolucionHoras || 0)}h`}
+              icon={Clock}
+              iconColor="text-cyan-600"
+              iconBgColor="bg-cyan-50"
+            />
+            <StatsCard
+              title="Satisfaccion IA"
+              value={`${solicitudesStats.satisfaccionPromedio?.toFixed(1) || '0.0'}/5`}
+              icon={ThumbsUp}
+              iconColor="text-pink-600"
+              iconBgColor="bg-pink-50"
+            />
+            <StatsCard
+              title="Tasa de Conversion"
+              value={`${((solicitudesStats.totalSolicitudes / (casos.length + solicitudesStats.totalSolicitudes)) * 100).toFixed(0)}%`}
+              icon={TrendingUp}
+              iconColor="text-emerald-600"
+              iconBgColor="bg-emerald-50"
+            />
+          </div>
+
+          {/* Gráficas de Solicitudes */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {solicitudesStats.solicitudesPorTipo && solicitudesStats.solicitudesPorTipo.length > 0 && (
+              <SolicitudesChart data={solicitudesStats.solicitudesPorTipo} />
+            )}
+            {solicitudesStats.solicitudesPorUrgencia && solicitudesStats.solicitudesPorUrgencia.length > 0 && (
+              <UrgenciaChart data={solicitudesStats.solicitudesPorUrgencia} />
+            )}
+          </div>
+        </>
+      )}
 
       {/* Casos Urgentes */}
       {casosUrgentes.length > 0 && (

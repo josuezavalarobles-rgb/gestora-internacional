@@ -177,6 +177,33 @@ export const aprobacionesApi = {
   },
 };
 
+export const solicitudesApi = {
+  getAll: async (params?: any): Promise<any> => {
+    const response = await api.get('/solicitudes', { params });
+    return response.data;
+  },
+
+  getEstadisticas: async (): Promise<any> => {
+    const response = await api.get('/solicitudes/estadisticas');
+    return response.data;
+  },
+
+  getByCodigo: async (codigo: string): Promise<any> => {
+    const response = await api.get(`/solicitudes/codigo/${codigo}`);
+    return response.data;
+  },
+
+  actualizarEstado: async (id: string, estado: string, asignadoA?: string, comentario?: string): Promise<any> => {
+    const response = await api.patch(`/solicitudes/${id}/estado`, { estado, asignadoA, comentario });
+    return response.data;
+  },
+
+  calificar: async (id: string, calificacion: number, comentario?: string): Promise<any> => {
+    const response = await api.post(`/solicitudes/${id}/calificar`, { calificacion, comentario });
+    return response.data;
+  },
+};
+
 export const reportesApi = {
   getPorFecha: async (fechaInicio: string, fechaFin: string): Promise<any> => {
     const response = await api.get('/reportes/estadisticas', {

@@ -585,6 +585,79 @@ model Cita {
 }
 
 // ========================================
+// SOLICITUDES (Sistema de Tracking IA)
+// ========================================
+
+enum TipoSolicitud {
+  mantenimiento
+  pago
+  reserva
+  acceso
+  emergencia
+  consulta
+}
+
+enum UrgenciaSolicitud {
+  baja
+  media
+  alta
+  critica
+}
+
+enum EstadoSolicitud {
+  nueva
+  en_proceso
+  resuelta
+  cerrada
+}
+
+model Solicitud {
+  id                String              @id @default(uuid())
+  codigoUnico       String              @unique @map("codigo_unico") // AMICO-URG-2024-0001
+
+  // Clasificación
+  tipoSolicitud     TipoSolicitud       @map("tipo_solicitud")
+  urgencia          UrgenciaSolicitud
+  categoria         String?
+
+  // Usuario y contacto
+  usuarioId         String?             @map("usuario_id")
+  telefono          String
+  nombreUsuario     String?             @map("nombre_usuario")
+  descripcion       String              @db.Text
+
+  // Estado y asignación
+  estado            EstadoSolicitud     @default(nueva)
+  asignadoA         String?             @map("asignado_a")
+  fechaAsignacion   DateTime?           @map("fecha_asignacion")
+
+  // Conversación WhatsApp
+  mensajesWhatsApp  Json?               @map("mensajes_whatsapp") // Historial completo
+  emocionDetectada  String?             @map("emocion_detectada") // neutral, frustrado, urgente, etc
+
+  // Tracking de tiempos
+  fechaCreacion     DateTime            @default(now()) @map("fecha_creacion")
+  fechaResolucion   DateTime?           @map("fecha_resolucion")
+  tiempoRespuesta   Int?                @map("tiempo_respuesta") // minutos
+  tiempoResolucion  Int?                @map("tiempo_resolucion") // horas
+
+  // Satisfacción
+  calificacion      Int?                // 1-5
+  comentario        String?             @db.Text
+
+  // Metadatos
+  metadata          Json?
+
+  @@index([codigoUnico])
+  @@index([tipoSolicitud])
+  @@index([urgencia])
+  @@index([estado])
+  @@index([telefono])
+  @@index([fechaCreacion])
+  @@map("solicitudes")
+}
+
+// ========================================
 // APROBACIONES
 // ========================================
 

@@ -26,38 +26,47 @@ const openai = new OpenAI({
 // Historial de conversaciones
 const conversaciones = {};
 
-async function crearCasoEnSistema(telefono, datos) {
+async function crearSolicitudEnSistema(telefono, datos) {
     try {
-        console.log('📝 Creando caso en el sistema...');
+        console.log('📝 Creando solicitud en el sistema...');
 
-        // Buscar o crear usuario
-        let usuario = await axios.get(`${API_URL}/usuarios?telefono=${telefono}`).catch(() => null);
+        // Mapear tipo_solicitud a formato correcto
+        const tipoMap = {
+            'mantenimiento': 'mantenimiento',
+            'pago': 'pago',
+            'reserva': 'reserva',
+            'acceso': 'acceso',
+            'emergencia': 'emergencia',
+            'consulta': 'consulta'
+        };
 
-        if (!usuario || !usuario.data || usuario.data.length === 0) {
-            // Crear usuario temporal
-            usuario = await axios.post(`${API_URL}/usuarios`, {
-                nombreCompleto: `Usuario ${telefono}`,
-                telefono: telefono,
-                tipoUsuario: 'propietario',
-                estado: 'pendiente'
-            });
-        }
+        const urgenciaMap = {
+            'critica': 'critica',
+            'alta': 'alta',
+            'media': 'media',
+            'baja': 'baja'
+        };
 
-        // Crear caso
-        const caso = await axios.post(`${API_URL}/webhooks/whatsapp/caso`, {
-            usuarioId: usuario.data.id || usuario.data[0]?.id,
-            tipo: datos.tipo || 'condominio',
+        // Crear solicitud con código único
+        const solicitud = await axios.post(`${API_URL}/solicitudes/whatsapp`, {
+            telefono: telefono,
+            nombreUsuario: conversaciones[telefono]?.nombreUsuario || null,
+            tipoSolicitud: tipoMap[datos.tipo_solicitud] || 'mantenimiento',
+            urgencia: urgenciaMap[datos.urgencia] || 'media',
             categoria: datos.categoria || 'otro',
-            descripcion: datos.descripcion,
-            prioridad: datos.urgente ? 'urgente' : 'media',
-            estado: 'nuevo'
+            descripcion: datos.descripcion || 'Sin descripción',
+            mensajesWhatsApp: conversaciones[telefono]?.mensajes || [],
+            emocionDetectada: datos.emocion_detectada || 'neutral'
         });
 
-        console.log(`✅ Caso creado: ${caso.data.numeroCaso}`);
-        return caso.data;
+        console.log(`✅ Solicitud creada: ${solicitud.data.solicitud.codigoUnico}`);
+        return {
+            numeroCaso: solicitud.data.solicitud.codigoUnico,
+            id: solicitud.data.solicitud.id
+        };
 
     } catch (error) {
-        console.error('❌ Error creando caso:', error.message);
+        console.error('❌ Error creando solicitud:', error.message);
         return null;
     }
 }
@@ -67,7 +76,8 @@ async function procesarConIA(telefono, mensaje) {
         if (!conversaciones[telefono]) {
             conversaciones[telefono] = {
                 mensajes: [],
-                datosRecopilados: {}
+                datosRecopilados: {},
+                nombreUsuario: null
             };
         }
 
@@ -81,35 +91,66 @@ async function procesarConIA(telefono, mensaje) {
             messages: [
                 {
                     role: 'system',
-                    content: `Eres un asistente de Amico Management, empresa dominicana de administración de condominios.
+                    content: `Eres Daniel, el asistente virtual profesional de Amico Management, administradora de condominios en República Dominicana.
 
-PERSONALIDAD: Amable, profesional, hablas en español dominicano con tuteo natural.
+PERSONALIDAD:
+- Profesional pero cálido (7/10 formal, 8/10 empático)
+- Eficiente y proactivo
+- Hablas español dominicano con tuteo natural
+- Usas nombres de pila para cercanía
 
-FUNCIÓN: Ayudar a reportar problemas técnicos conversacionalmente.
+NEUROCIENCIA CONVERSACIONAL:
+1. RAPPORT: Usa el nombre del residente, valida emociones
+2. EMPATÍA: Si detectas frustración ("llevo días", "nadie me ayuda"), RECONOCE primero
+3. SOLUCIÓN: Siempre ofrece próximo paso claro
+4. ANTICIPACIÓN: Pregunta "¿Necesitas algo más mientras tanto?"
 
-INFORMACIÓN A RECOPILAR:
-1. Tipo: garantía (defectos de construcción) o condominio (mantenimiento)
-2. Categoría: filtración, eléctrico, plomería, puertas/ventanas, aires, áreas comunes
-3. Descripción clara del problema
-4. Urgencia (detecta palabras como "urgente", "grave", "emergencia")
+CASOS QUE MANEJAS:
+- Mantenimiento (plomería, eléctrico, A/C, filtraciones, etc.)
+- Pagos y estados de cuenta
+- Reservas de áreas comunes
+- Autorización de visitantes
+- Emergencias
+
+FLUJO:
+1. Saluda por nombre si lo tienes
+2. Si no conoces su nombre, pregúntalo de forma natural en el primer mensaje
+3. Identifica TIPO de solicitud
+4. Clasifica URGENCIA (detecta: "urgente", "emergencia", "grave", "ya", "ahora")
+5. Recopila INFO necesaria conversacionalmente
+6. Confirma y CREA ticket
+7. Da código de ticket único
+8. Explica próximos pasos
 
 RESPONDE EN JSON:
 {
-  "respuesta": "tu respuesta conversacional",
-  "tipo_detectado": "garantia" o "condominio" (si detectaste),
-  "categoria_detectada": "filtracion", "electrico", etc (si detectaste),
-  "descripcion": "resumen del problema" (si la entendiste),
-  "urgente": true/false,
-  "crear_caso": true (solo si tienes tipo, categoría y descripción)
+  "respuesta": "tu respuesta empática y profesional",
+  "tipo_solicitud": "mantenimiento|pago|reserva|acceso|emergencia",
+  "urgencia": "baja|media|alta|critica",
+  "categoria": "filtracion|electrico|plomeria|puertas|aires|etc",
+  "descripcion": "resumen claro del problema",
+  "crear_ticket": true/false,
+  "emocion_detectada": "neutral|frustrado|satisfecho|urgente",
+  "solicitar_nombre": true/false
 }
 
-Si detectas que tiene toda la info, marca crear_caso: true.
-Sé conversacional, NO formulario.`
+EJEMPLOS DE RESPUESTAS EMPÁTICAS:
+
+Usuario: "Llevo 3 días sin agua caliente"
+Tú: "Wow, 3 días sin agua caliente debe ser muy incómodo. Lamento mucho esto. Lo priorizo como URGENTE ahora mismo. Un plomero estará en camino pronto. ¿Necesitas algo más mientras tanto?"
+
+Usuario: "Gracias"
+Tú: "Para eso estamos! Te mantengo informado. ¿Algo más en lo que pueda ayudarte?"
+
+Usuario: "Tengo una filtración en el baño"
+Tú: "Entiendo tu preocupación. Las filtraciones pueden causar daños si no se atienden rápido. Déjame crear tu solicitud ahora mismo para que un técnico vaya a revisar."
+
+IMPORTANTE: Construye confianza, muestra empatía, y siempre da seguimiento claro.`
                 },
                 ...conversaciones[telefono].mensajes.slice(-8)
             ],
-            max_tokens: 400,
-            temperature: 0.7
+            max_tokens: 500,
+            temperature: 0.8
         });
 
         const respuestaCompleta = completion.choices[0].message.content;
@@ -139,11 +180,21 @@ Sé conversacional, NO formulario.`
                 }
 
                 // Crear caso si está completo
-                if (datosExtraidos.crear_caso) {
-                    const caso = await crearCasoEnSistema(telefono, conversaciones[telefono].datosRecopilados);
+                if (datosExtraidos.crear_ticket) {
+                    const caso = await crearSolicitudEnSistema(telefono, {
+                        ...conversaciones[telefono].datosRecopilados,
+                        tipo_solicitud: datosExtraidos.tipo_solicitud,
+                        urgencia: datosExtraidos.urgencia,
+                        categoria: datosExtraidos.categoria,
+                        descripcion: datosExtraidos.descripcion
+                    });
 
                     if (caso) {
-                        respuesta += `\n\n✅ Tu caso ${caso.numeroCaso} ha sido creado exitosamente.\nUn técnico revisará tu caso pronto.`;
+                        const tiempoEstimado = datosExtraidos.urgencia === 'critica' ? '1-2 horas' :
+                                              datosExtraidos.urgencia === 'alta' ? '4-6 horas' :
+                                              datosExtraidos.urgencia === 'media' ? '24 horas' : '48-72 horas';
+
+                        respuesta += `\n\n✅ Listo! Tu solicitud ha sido creada.\n\nCódigo de seguimiento: *${caso.numeroCaso}*\nPrioridad: ${datosExtraidos.urgencia}\nTiempo estimado de atención: ${tiempoEstimado}\n\nTe mantendremos informado del progreso.`;
                     }
                 }
             }

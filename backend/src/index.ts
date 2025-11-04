@@ -32,6 +32,7 @@ import whatsappRoutes from './routes/whatsapp.routes';
 import citasRoutes from './routes/citas.routes';
 import aprobacionesRoutes from './routes/aprobaciones.routes';
 import webhooksRoutes from './routes/webhooks.routes';
+import solicitudesRoutes from './routes/solicitudes.routes';
 
 // Servicios
 import { WhatsAppService } from './services/whatsapp/WhatsAppService';
@@ -124,6 +125,7 @@ class Application {
     this.app.use(`${apiPrefix}/citas`, citasRoutes);
     this.app.use(`${apiPrefix}/aprobaciones`, aprobacionesRoutes);
     this.app.use(`${apiPrefix}/webhooks`, webhooksRoutes);
+    this.app.use(`${apiPrefix}/solicitudes`, solicitudesRoutes);
 
     // Error handlers
     this.app.use(notFoundHandler);
