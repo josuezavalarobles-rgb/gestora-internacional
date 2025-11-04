@@ -31,6 +31,7 @@ import kpisRoutes from './routes/kpis.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
 import citasRoutes from './routes/citas.routes';
 import aprobacionesRoutes from './routes/aprobaciones.routes';
+import webhooksRoutes from './routes/webhooks.routes';
 
 // Servicios
 import { WhatsAppService } from './services/whatsapp/WhatsAppService';
@@ -122,6 +123,7 @@ class Application {
     this.app.use(`${apiPrefix}/whatsapp`, whatsappRoutes);
     this.app.use(`${apiPrefix}/citas`, citasRoutes);
     this.app.use(`${apiPrefix}/aprobaciones`, aprobacionesRoutes);
+    this.app.use(`${apiPrefix}/webhooks`, webhooksRoutes);
 
     // Error handlers
     this.app.use(notFoundHandler);

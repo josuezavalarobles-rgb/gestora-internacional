@@ -44,7 +44,7 @@ async function crearCasoEnSistema(telefono, datos) {
         }
 
         // Crear caso
-        const caso = await axios.post(`${API_URL}/casos`, {
+        const caso = await axios.post(`${API_URL}/webhooks/whatsapp/caso`, {
             usuarioId: usuario.data.id || usuario.data[0]?.id,
             tipo: datos.tipo || 'condominio',
             categoria: datos.categoria || 'otro',
