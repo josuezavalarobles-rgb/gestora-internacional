@@ -7,7 +7,8 @@ import {
   BarChart3,
   Calendar,
   Plus,
-  CheckCircle
+  CheckCircle,
+  Bot
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -36,6 +37,11 @@ export default function Sidebar() {
       path: '/nuevo-caso',
       icon: Plus,
       label: 'Nuevo Caso',
+    },
+    {
+      path: '/solicitudes-ia',
+      icon: Bot,
+      label: 'Solicitudes IA',
     },
     {
       path: '/citas',
