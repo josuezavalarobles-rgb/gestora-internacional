@@ -36,10 +36,25 @@ export class CasoService {
   ): Promise<any> {
     try {
       // 1. Buscar o crear usuario
-      const usuario = await this.buscarOCrearUsuarioPorTelefono(telefono);
+      let usuario = await this.buscarOCrearUsuarioPorTelefono(telefono);
 
+      // Si no tiene condominio, asignar el primero disponible
       if (!usuario.condominioId) {
-        throw new AppError('Usuario no tiene condominio asignado', 400);
+        const primerCondominio = await prisma.condominio.findFirst({
+          where: { estado: 'activo' }
+        });
+
+        if (primerCondominio) {
+          usuario = await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: {
+              condominioId: primerCondominio.id,
+              unidad: 'Por asignar'
+            }
+          });
+        } else {
+          throw new AppError('No hay condominios disponibles en el sistema', 400);
+        }
       }
 
       // 2. Generar número de caso
