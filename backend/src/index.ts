@@ -41,6 +41,8 @@ import proveedoresRoutes from './routes/proveedores.routes';
 import contabilidadRoutes from './routes/contabilidad.routes';
 import estadosCuentaRoutes from './routes/estados-cuenta.routes';
 import iaRoutes from './routes/ia.routes';
+import adminRoutes from './routes/admin.routes';
+import importRoutes from './routes/import.routes';
 
 // Servicios
 import { WhatsAppService } from './services/whatsapp/WhatsAppService';
@@ -154,6 +156,8 @@ class Application {
     this.app.use(`${apiPrefix}/contabilidad`, contabilidadRoutes);
     this.app.use(`${apiPrefix}/estados-cuenta`, estadosCuentaRoutes);
     this.app.use(`${apiPrefix}/ia`, iaRoutes);
+    this.app.use(`${apiPrefix}/admin`, adminRoutes);
+    this.app.use(`${apiPrefix}/import`, importRoutes);
 
     // Error handlers
     this.app.use(notFoundHandler);

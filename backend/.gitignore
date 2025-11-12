@@ -18,9 +18,11 @@ build/
 # Prisma
 prisma/migrations/**/migration.sql.backup
 
-# Uploads
-uploads/
-temp/
+# Uploads (keep directory structure but ignore contents)
+uploads/*
+!uploads/temp/
+uploads/temp/*
+!uploads/temp/.gitkeep
 
 # Logs
 logs/
