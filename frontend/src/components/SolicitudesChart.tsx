@@ -10,7 +10,7 @@ const COLORS = {
   reserva: '#F59E0B', // amber
   acceso: '#8B5CF6', // purple
   emergencia: '#EF4444', // red
-  consulta: '#6B7280', // gray
+  consulta: '#06B6D4', // cyan
 };
 
 const LABELS = {
@@ -30,9 +30,9 @@ export default function SolicitudesChart({ data }: SolicitudesChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Solicitudes por Tipo</h3>
-      <ResponsiveContainer width="100%" height={300}>
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl p-6 border border-slate-700">
+      <h3 className="text-2xl font-bold text-white mb-6">Solicitudes por Tipo</h3>
+      <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie
             data={chartData}
@@ -40,28 +40,44 @@ export default function SolicitudesChart({ data }: SolicitudesChartProps) {
             cy="50%"
             labelLine={false}
             label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-            outerRadius={80}
+            outerRadius={110}
+            innerRadius={60}
             fill="#8884d8"
             dataKey="value"
+            stroke="#1e293b"
+            strokeWidth={2}
           >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[entry.tipo as keyof typeof COLORS] || '#6B7280'} />
+              <Cell key={`cell-${index}`} fill={COLORS[entry.tipo as keyof typeof COLORS] || '#06B6D4'} />
             ))}
           </Pie>
-          <Tooltip />
-          <Legend />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#1e293b',
+              border: '1px solid #475569',
+              borderRadius: '8px',
+              color: '#fff'
+            }}
+          />
+          <Legend
+            wrapperStyle={{ color: '#fff' }}
+            iconType="circle"
+          />
         </PieChart>
       </ResponsiveContainer>
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-6 grid grid-cols-2 gap-3">
         {chartData.map((item) => (
-          <div key={item.tipo} className="flex items-center space-x-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: COLORS[item.tipo as keyof typeof COLORS] || '#6B7280' }}
-            />
-            <span className="text-sm text-gray-600">
-              {item.name}: <span className="font-medium text-gray-900">{item.value}</span>
-            </span>
+          <div key={item.tipo} className="flex items-center justify-between bg-slate-700 bg-opacity-50 rounded-lg p-3 backdrop-blur-sm">
+            <div className="flex items-center space-x-2">
+              <div
+                className="w-4 h-4 rounded-full shadow-lg"
+                style={{ backgroundColor: COLORS[item.tipo as keyof typeof COLORS] || '#06B6D4' }}
+              />
+              <span className="text-sm text-gray-200 font-medium">
+                {item.name}
+              </span>
+            </div>
+            <span className="text-lg font-bold text-white">{item.value}</span>
           </div>
         ))}
       </div>

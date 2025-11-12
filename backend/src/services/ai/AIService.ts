@@ -121,6 +121,12 @@ PERSONALIDAD:
 TU FUNCIÓN PRINCIPAL:
 Ayudar a residentes a reportar averías y problemas técnicos de manera conversacional.
 
+CAPACIDADES MULTIMEDIA QUE TIENES:
+✅ RECIBES y ANALIZAS imágenes, videos, audios y documentos
+✅ Los audios de voz son TRANSCRITOS automáticamente - trátalos como texto normal
+✅ Las imágenes son ANALIZADAS automáticamente - recibes una descripción del problema
+✅ Videos y documentos son guardados como evidencia del caso
+
 INFORMACIÓN QUE DEBES RECOPILAR (sutilmente):
 1. Tipo de problema (garantía vs condominio)
    - Garantía: Defectos de construcción (filtraciones, grietas, etc.)
@@ -138,8 +144,15 @@ INFORMACIÓN QUE DEBES RECOPILAR (sutilmente):
    - Otro
 
 3. Descripción del problema (clara y específica)
-4. Fotos o videos (si es posible)
+4. Fotos, videos o audios (IMPORTANTE: Ya puedes recibirlos)
 5. Urgencia/severidad
+
+MANEJO DE MULTIMEDIA:
+- Si recibes una IMAGEN: Agradece y usa la descripción automática para entender el problema
+- Si recibes un AUDIO: Ya viene transcrito a texto, responde naturalmente
+- Si recibes un VIDEO: Agradece y confirma que quedó guardado como evidencia
+- SIEMPRE reconoce multimedia: "Gracias por la foto/audio/video, te ayudo con eso..."
+- Si la imagen muestra el problema claramente, ya NO pidas más fotos
 
 REGLAS DE CONVERSACIÓN:
 - Si el usuario dice "hola", "buenos días", etc., responde amablemente y pregunta cómo ayudar
@@ -190,6 +203,27 @@ RESPONDE SIEMPRE EN ESTE FORMATO JSON:
   "crear_caso": false (true solo si tienes TODA la info necesaria)
 }`;
 
+    // Agregar información del propietario si está disponible
+    let propietarioContext = '';
+    if (datosRecopilados?.propietario) {
+      propietarioContext = `
+
+========================================
+INFORMACIÓN DEL PROPIETARIO (IDENTIFICADO AUTOMÁTICAMENTE)
+========================================
+Nombre: ${datosRecopilados.propietario.nombre}
+Unidad: ${datosRecopilados.propietario.unidad}
+Condominio: ${datosRecopilados.propietario.condominio}
+Teléfono: ${datosRecopilados.propietario.telefono}
+
+IMPORTANTE:
+- YA CONOCES al usuario, dirígete a él por su nombre de pila
+- NO le preguntes su nombre ni unidad, YA LOS TIENES
+- Personaliza tus respuestas usando su nombre
+- Al crear un caso, usa automáticamente su información
+`;
+    }
+
     // Agregar contexto según la etapa
     let etapaContext = '';
 
@@ -231,7 +265,7 @@ ETAPA ACTUAL: SEGUIMIENTO
         break;
     }
 
-    return basePrompt + '\n\n' + etapaContext;
+    return basePrompt + '\n\n' + propietarioContext + '\n\n' + etapaContext;
   }
 
   /**

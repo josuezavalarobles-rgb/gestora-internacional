@@ -101,25 +101,25 @@ export default function Dashboard() {
   // Función para obtener el color del badge según el estado
   const getEstadoBadgeColor = (estado: string) => {
     const colors: Record<string, string> = {
-      nuevo: 'bg-blue-100 text-blue-800',
-      asignado: 'bg-purple-100 text-purple-800',
-      en_proceso: 'bg-yellow-100 text-yellow-800',
-      en_visita: 'bg-orange-100 text-orange-800',
-      resuelto: 'bg-green-100 text-green-800',
-      cerrado: 'bg-gray-100 text-gray-800',
+      nuevo: 'bg-blue-600 text-white',
+      asignado: 'bg-purple-600 text-white',
+      en_proceso: 'bg-yellow-600 text-white',
+      en_visita: 'bg-orange-600 text-white',
+      resuelto: 'bg-green-600 text-white',
+      cerrado: 'bg-gray-600 text-white',
     };
-    return colors[estado] || 'bg-gray-100 text-gray-800';
+    return colors[estado] || 'bg-gray-600 text-white';
   };
 
   // Función para obtener el color del badge según la prioridad
   const getPrioridadBadgeColor = (prioridad: string) => {
     const colors: Record<string, string> = {
-      baja: 'bg-gray-100 text-gray-800',
-      media: 'bg-blue-100 text-blue-800',
-      alta: 'bg-orange-100 text-orange-800',
-      urgente: 'bg-red-100 text-red-800',
+      baja: 'bg-gray-600 text-white',
+      media: 'bg-blue-600 text-white',
+      alta: 'bg-orange-600 text-white',
+      urgente: 'bg-red-600 text-white',
     };
-    return colors[prioridad] || 'bg-gray-100 text-gray-800';
+    return colors[prioridad] || 'bg-gray-600 text-white';
   };
 
   // Función para formatear el estado
@@ -131,8 +131,8 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando datos...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-300">Cargando datos...</p>
         </div>
       </div>
     );
@@ -140,12 +140,12 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="bg-red-900 bg-opacity-20 border border-red-500 rounded-xl p-6">
         <div className="flex items-center space-x-3">
-          <AlertTriangle className="text-red-600" size={24} />
+          <AlertTriangle className="text-red-400" size={24} />
           <div>
-            <h3 className="text-red-900 font-semibold">Error</h3>
-            <p className="text-red-700">{error}</p>
+            <h3 className="text-red-200 font-semibold">Error</h3>
+            <p className="text-red-300">{error}</p>
           </div>
         </div>
       </div>
@@ -153,11 +153,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
+        <p className="text-gray-400 text-lg">
           Vista general del sistema de gestion de casos
         </p>
       </div>
@@ -168,29 +168,37 @@ export default function Dashboard() {
           title="Casos Nuevos"
           value={stats?.casosNuevos || 0}
           icon={FileText}
-          iconColor="text-blue-600"
-          iconBgColor="bg-blue-50"
+          iconColor="text-blue-200"
+          iconBgColor="bg-blue-500 bg-opacity-20"
+          gradient="bg-gradient-to-br from-blue-600 to-blue-800"
+          glowClass="glow-blue"
         />
         <StatsCard
           title="En Proceso"
           value={stats?.casosEnProceso || 0}
           icon={Clock}
-          iconColor="text-yellow-600"
-          iconBgColor="bg-yellow-50"
+          iconColor="text-purple-200"
+          iconBgColor="bg-purple-500 bg-opacity-20"
+          gradient="bg-gradient-to-br from-purple-600 to-purple-800"
+          glowClass="glow-purple"
         />
         <StatsCard
           title="Resueltos"
           value={stats?.casosResueltos || 0}
           icon={CheckCircle}
-          iconColor="text-green-600"
-          iconBgColor="bg-green-50"
+          iconColor="text-green-200"
+          iconBgColor="bg-green-500 bg-opacity-20"
+          gradient="bg-gradient-to-br from-green-600 to-green-800"
+          glowClass="glow-green"
         />
         <StatsCard
           title="Satisfaccion"
           value={`${stats?.satisfaccionPromedio.toFixed(1) || '0.0'}/5`}
           icon={ThumbsUp}
-          iconColor="text-purple-600"
-          iconBgColor="bg-purple-50"
+          iconColor="text-orange-200"
+          iconBgColor="bg-orange-500 bg-opacity-20"
+          gradient="bg-gradient-to-br from-orange-600 to-orange-800"
+          glowClass="glow-orange"
         />
       </div>
 
@@ -202,29 +210,36 @@ export default function Dashboard() {
               title="Total Solicitudes IA"
               value={solicitudesStats.totalSolicitudes || 0}
               icon={Activity}
-              iconColor="text-indigo-600"
-              iconBgColor="bg-indigo-50"
+              iconColor="text-indigo-200"
+              iconBgColor="bg-indigo-500 bg-opacity-20"
+              gradient="bg-gradient-to-br from-indigo-600 to-indigo-800"
             />
             <StatsCard
               title="Tiempo Promedio Resolucion"
               value={`${Math.round(solicitudesStats.tiempoPromedioResolucionHoras || 0)}h`}
               icon={Clock}
-              iconColor="text-cyan-600"
-              iconBgColor="bg-cyan-50"
+              iconColor="text-cyan-200"
+              iconBgColor="bg-cyan-500 bg-opacity-20"
+              gradient="bg-gradient-to-br from-cyan-600 to-cyan-800"
+              glowClass="glow-cyan"
             />
             <StatsCard
               title="Satisfaccion IA"
               value={`${solicitudesStats.satisfaccionPromedio?.toFixed(1) || '0.0'}/5`}
               icon={ThumbsUp}
-              iconColor="text-pink-600"
-              iconBgColor="bg-pink-50"
+              iconColor="text-pink-200"
+              iconBgColor="bg-pink-500 bg-opacity-20"
+              gradient="bg-gradient-to-br from-pink-600 to-pink-800"
+              glowClass="glow-pink"
             />
             <StatsCard
               title="Tasa de Conversion"
               value={`${((solicitudesStats.totalSolicitudes / (casos.length + solicitudesStats.totalSolicitudes)) * 100).toFixed(0)}%`}
               icon={TrendingUp}
-              iconColor="text-emerald-600"
-              iconBgColor="bg-emerald-50"
+              iconColor="text-emerald-200"
+              iconBgColor="bg-emerald-500 bg-opacity-20"
+              gradient="bg-gradient-to-br from-emerald-600 to-emerald-800"
+              glowClass="glow-green"
             />
           </div>
 
@@ -243,47 +258,47 @@ export default function Dashboard() {
       {/* Casos Urgentes */}
       {casosUrgentes.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center space-x-2">
-              <AlertTriangle className="text-red-600" size={24} />
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
+              <AlertTriangle className="text-red-400" size={28} />
               <span>Casos Urgentes</span>
-              <span className="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+              <span className="bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
                 {casosUrgentes.length}
               </span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {casosUrgentes.map((caso) => (
               <Link
                 key={caso.id}
                 to={`/casos/${caso.id}`}
-                className="bg-white border-2 border-red-200 rounded-lg p-5 hover:shadow-lg transition-shadow"
+                className="bg-gradient-to-br from-red-900 to-red-950 border-2 border-red-600 rounded-xl p-6 hover:shadow-2xl hover:scale-105 transition-all glow-orange"
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                    <h3 className="font-bold text-white text-xl mb-2">
                       {caso.numeroCaso}
                     </h3>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoBadgeColor(caso.estado)}`}>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-700 text-white">
                       {formatEstado(caso.estado)}
                     </span>
                   </div>
-                  <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  <span className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                     URGENTE
                   </span>
                 </div>
-                <p className="text-gray-700 mb-3 line-clamp-2">{caso.descripcion}</p>
-                <div className="space-y-2 text-sm text-gray-600">
+                <p className="text-gray-200 mb-4 line-clamp-2">{caso.descripcion}</p>
+                <div className="space-y-2 text-sm text-gray-300">
                   <div className="flex items-center space-x-2">
-                    <User size={16} />
+                    <User size={16} className="text-red-400" />
                     <span>{caso.usuario.nombreCompleto}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <MapPin size={16} />
+                    <MapPin size={16} className="text-red-400" />
                     <span>{caso.condominio.nombre} - {caso.unidad}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Calendar size={16} />
+                    <Calendar size={16} className="text-red-400" />
                     <span>{formatDate(caso.fechaCreacion)}</span>
                   </div>
                 </div>
@@ -295,28 +310,28 @@ export default function Dashboard() {
 
       {/* Todos los Casos */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center space-x-2">
-            <Filter size={20} />
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
+            <Filter size={24} />
             <span>Todos los Casos</span>
           </h2>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-400 bg-slate-800 px-4 py-2 rounded-lg">
             Mostrando {casosFiltrados.length} de {casos.length} casos
           </span>
         </div>
 
         {/* Filtros */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Filtro por Estado */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-200 mb-2 uppercase tracking-wide">
                 Estado
               </label>
               <select
                 value={filtroEstado}
                 onChange={(e) => setFiltroEstado(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               >
                 <option value="todos">Todos</option>
                 <option value="nuevo">Nuevo</option>
@@ -329,13 +344,13 @@ export default function Dashboard() {
 
             {/* Filtro por Prioridad */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-200 mb-2 uppercase tracking-wide">
                 Prioridad
               </label>
               <select
                 value={filtroPrioridad}
                 onChange={(e) => setFiltroPrioridad(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               >
                 <option value="todas">Todas</option>
                 <option value="baja">Baja</option>
@@ -347,7 +362,7 @@ export default function Dashboard() {
 
             {/* Busqueda */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-200 mb-2 uppercase tracking-wide">
                 Buscar
               </label>
               <div className="relative">
@@ -356,7 +371,7 @@ export default function Dashboard() {
                   placeholder="Numero de caso o cliente..."
                   value={filtroBusqueda}
                   onChange={(e) => setFiltroBusqueda(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 pl-10 bg-slate-700 border border-slate-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               </div>
@@ -364,83 +379,83 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-700">
+              <thead className="bg-slate-800 bg-opacity-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
                     Caso
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
                     Cliente
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
                     Ubicacion
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
                     Estado
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
                     Prioridad
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
                     Fecha
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-700">
                 {casosFiltrados.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center">
-                      <div className="text-gray-500">
-                        <AlertTriangle className="mx-auto mb-2" size={48} />
-                        <p className="text-lg font-medium">No se encontraron casos</p>
+                      <div className="text-gray-400">
+                        <AlertTriangle className="mx-auto mb-2 text-gray-500" size={48} />
+                        <p className="text-lg font-medium text-gray-300">No se encontraron casos</p>
                         <p className="text-sm">Intenta ajustar los filtros de busqueda</p>
                       </div>
                     </td>
                   </tr>
                 ) : (
                   casosFiltrados.map((caso) => (
-                  <tr key={caso.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={caso.id} className="hover:bg-slate-700 hover:bg-opacity-30 transition-all">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-bold text-white">
                           {caso.numeroCaso}
                         </div>
-                        <div className="text-sm text-gray-500 max-w-xs truncate">
+                        <div className="text-sm text-gray-400 max-w-xs truncate">
                           {caso.categoria}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{caso.usuario.nombreCompleto}</div>
-                      <div className="text-sm text-gray-500">{caso.usuario.telefono}</div>
+                      <div className="text-sm text-white">{caso.usuario.nombreCompleto}</div>
+                      <div className="text-sm text-gray-400">{caso.usuario.telefono}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{caso.condominio.nombre}</div>
-                      <div className="text-sm text-gray-500">{caso.unidad}</div>
+                      <div className="text-sm text-white">{caso.condominio.nombre}</div>
+                      <div className="text-sm text-gray-400">{caso.unidad}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoBadgeColor(caso.estado)}`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-lg ${getEstadoBadgeColor(caso.estado)}`}>
                         {formatEstado(caso.estado)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPrioridadBadgeColor(caso.prioridad)}`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-lg ${getPrioridadBadgeColor(caso.prioridad)}`}>
                         {caso.prioridad.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                       {formatDate(caso.fechaCreacion)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <Link
                         to={`/casos/${caso.id}`}
-                        className="text-blue-600 hover:text-blue-900 font-medium flex items-center space-x-1"
+                        className="text-blue-400 hover:text-blue-300 font-bold flex items-center space-x-1 hover:scale-110 transition-transform"
                       >
                         <span>Ver detalles</span>
                         <ArrowRight size={16} />

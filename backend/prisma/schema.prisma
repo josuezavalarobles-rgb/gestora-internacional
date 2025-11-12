@@ -56,11 +56,12 @@ model Usuario {
   fechaValidacion   DateTime?      @map("fecha_validacion")
 
   // Relaciones
-  condominio        Condominio?    @relation(fields: [condominioId], references: [id])
-  casosCreados      Caso[]         @relation("CasosCreados")
-  casosAsignados    Caso[]         @relation("CasosAsignados")
+  condominio        Condominio?              @relation(fields: [condominioId], references: [id])
+  casosCreados      Caso[]                   @relation("CasosCreados")
+  casosAsignados    Caso[]                   @relation("CasosAsignados")
   notificaciones    Notificacion[]
   sesiones          Sesion[]
+  encuestas         EncuestaSatisfaccion[]
 
   @@index([telefono])
   @@index([condominioId])
@@ -217,6 +218,8 @@ model Caso {
   transferencias        Transferencia[]
   citas                 Cita[]
   aprobaciones          Aprobacion[]
+  seguimientos          SeguimientoCaso[]
+  encuestas             EncuestaSatisfaccion[]
 
   @@index([numeroCaso])
   @@index([estado])
@@ -282,6 +285,9 @@ enum TipoEvento {
   escalado
   cerrado
   reabierto
+  seguimiento_iniciado
+  seguimiento_reintento
+  seguimiento_respondido
 }
 
 model TimelineEvento {
@@ -573,10 +579,12 @@ model Cita {
   notas                   String?       @db.Text
 
   fechaCreacion           DateTime      @default(now()) @map("fecha_creacion")
+  fechaCompletada         DateTime?     @map("fecha_completada") // Para seguimiento automático
 
   // Relaciones
   caso                    Caso          @relation(fields: [casoId], references: [id], onDelete: Cascade)
   bloqueHorario           BloqueHorario @relation(fields: [bloqueHorarioId], references: [id])
+  seguimientos            SeguimientoCaso[]
 
   @@index([casoId])
   @@index([fecha])
@@ -692,4 +700,98 @@ model Aprobacion {
   @@index([casoId])
   @@index([estado])
   @@map("aprobaciones")
+}
+
+// ========================================
+// SEGUIMIENTO AUTOMÁTICO DE CASOS
+// ========================================
+
+enum MensajeSeguimiento {
+  inicial
+  reintento
+  cierre
+}
+
+model SeguimientoCaso {
+  id                    String              @id @default(uuid())
+  casoId                String              @map("caso_id")
+  citaId                String?             @map("cita_id") // Cita que generó el seguimiento
+
+  // Estado del seguimiento
+  activo                Boolean             @default(true)
+  intentos              Int                 @default(0)
+  proximoIntento        DateTime?           @map("proximo_intento")
+  ultimoIntento         DateTime?           @map("ultimo_intento")
+
+  // Tipo de mensajes enviados
+  mensajesTipo          MensajeSeguimiento  @map("mensajes_tipo")
+
+  // Respuesta del propietario
+  respuestaPropietario  String?             @map("respuesta_propietario") @db.Text
+  fechaRespuesta        DateTime?           @map("fecha_respuesta")
+
+  // Resultado del seguimiento
+  resultado             String?             // "solucionado", "no_solucionado", "sin_respuesta"
+
+  // Auditoría
+  fechaInicio           DateTime            @default(now()) @map("fecha_inicio")
+  fechaCierre           DateTime?           @map("fecha_cierre")
+
+  // Relaciones
+  caso                  Caso                @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  cita                  Cita?               @relation(fields: [citaId], references: [id])
+
+  @@index([casoId])
+  @@index([activo])
+  @@index([proximoIntento])
+  @@map("seguimientos_casos")
+}
+
+// ========================================
+// ENCUESTAS DE SATISFACCIÓN
+// ========================================
+
+enum EstadoEncuesta {
+  pendiente       // Enviada, esperando respuesta
+  completada      // Propietario respondió
+  expirada        // Expiró sin respuesta
+}
+
+model EncuestaSatisfaccion {
+  id                    String          @id @default(uuid())
+  casoId                String          @map("caso_id")
+  usuarioId             String          @map("usuario_id") // Propietario que responde
+
+  // Estado
+  estado                EstadoEncuesta  @default(pendiente)
+
+  // Calificaciones (0-5)
+  actitudIngeniero      Int?            @map("actitud_ingeniero") // Escala 0-5
+  rapidezReparacion     Int?            @map("rapidez_reparacion") // Escala 0-5
+  calidadServicio       Int?            @map("calidad_servicio") // Escala 0-5
+
+  // Promedio automático
+  promedioGeneral       Decimal?        @map("promedio_general") @db.Decimal(3, 2)
+
+  // Comentarios adicionales (opcional)
+  comentarios           String?         @db.Text
+
+  // Metadatos
+  enviadaPorWhatsApp    Boolean         @default(false) @map("enviada_whatsapp")
+  enviadaPorEmail       Boolean         @default(false) @map("enviada_email")
+
+  // Auditoría
+  fechaEnvio            DateTime        @default(now()) @map("fecha_envio")
+  fechaRespuesta        DateTime?       @map("fecha_respuesta")
+  fechaExpiracion       DateTime?       @map("fecha_expiracion") // 7 días después de envío
+
+  // Relaciones
+  caso                  Caso            @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  usuario               Usuario         @relation(fields: [usuarioId], references: [id])
+
+  @@index([casoId])
+  @@index([usuarioId])
+  @@index([estado])
+  @@index([fechaEnvio])
+  @@map("encuestas_satisfaccion")
 }

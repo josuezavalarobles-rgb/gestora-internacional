@@ -8,8 +8,7 @@ import {
   Calendar,
   Plus,
   CheckCircle,
-  Bot,
-  Home
+  Bot
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -65,11 +64,6 @@ export default function Sidebar() {
       label: 'Usuarios',
     },
     {
-      path: '/propietarios',
-      icon: Home,
-      label: 'Propietarios',
-    },
-    {
       path: '/reportes',
       icon: BarChart3,
       label: 'Reportes',
@@ -82,14 +76,14 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-slate-900 border-r border-slate-700 min-h-screen fixed left-0 top-0">
+    <div className="w-64 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-0">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-700">
+      <div className="h-16 flex items-center px-6 border-b border-gray-200">
         <Link to="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center glow-blue">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">A</span>
           </div>
-          <span className="text-lg font-semibold text-white">
+          <span className="text-lg font-semibold text-gray-900">
             Amico
           </span>
         </Link>
@@ -107,11 +101,11 @@ export default function Sidebar() {
               to={item.path}
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 active
-                  ? 'bg-blue-600 text-white shadow-lg glow-blue'
-                  : 'text-gray-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <Icon size={20} className={active ? 'text-blue-200' : 'text-gray-400'} />
+              <Icon size={20} className={active ? 'text-blue-700' : 'text-gray-500'} />
               <span>{item.label}</span>
             </Link>
           );
@@ -119,14 +113,14 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
         <div className="flex items-center space-x-3 px-3 py-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
             <span className="text-white text-sm font-medium">AD</span>
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-white">Admin</p>
-            <p className="text-xs text-gray-400">Administrador</p>
+            <p className="text-sm font-medium text-gray-900">Admin</p>
+            <p className="text-xs text-gray-500">Administrador</p>
           </div>
         </div>
       </div>

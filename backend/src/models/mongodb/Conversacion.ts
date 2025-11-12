@@ -32,6 +32,11 @@ export interface IConversacion extends Document {
     requiereHumano?: boolean;
     razonEscalamiento?: string;
     historialIntents: string[];
+    // Identificación de propietario
+    propietarioIdentificado?: boolean;
+    propietarioInfo?: any;
+    esNuevo?: boolean;
+    esperandoRegistro?: boolean;
   };
 
   // Asignación
@@ -51,6 +56,10 @@ export interface IConversacion extends Document {
 
   // Metadata
   metadata?: Record<string, any>;
+
+  // Métodos
+  actualizarActividad(): Promise<this>;
+  escalarAHumano(razon: string): Promise<this>;
 }
 
 const ConversacionSchema = new Schema<IConversacion>(
@@ -90,6 +99,11 @@ const ConversacionSchema = new Schema<IConversacion>(
       requiereHumano: Boolean,
       razonEscalamiento: String,
       historialIntents: [String],
+      // Identificación de propietario
+      propietarioIdentificado: Boolean,
+      propietarioInfo: Schema.Types.Mixed,
+      esNuevo: Boolean,
+      esperandoRegistro: Boolean,
     },
     asignadoA: String,
     tipoAsignacion: {

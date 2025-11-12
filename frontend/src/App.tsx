@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
+import Casos from './pages/Casos';
 import CasoDetalle from './pages/CasoDetalle';
 import Tecnicos from './pages/Tecnicos';
 import Usuarios from './pages/Usuarios';
@@ -10,25 +11,27 @@ import Calendario from './pages/Calendario';
 import CalendarioCitas from './pages/CalendarioCitas';
 import Aprobaciones from './pages/Aprobaciones';
 import SolicitudesIA from './pages/SolicitudesIA';
+import Propietarios from './pages/Propietarios';
 
 function App() {
   return (
-    <Router basename="/amico-app">
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/casos/:id" element={<CasoDetalle />} />
-          <Route path="/tecnicos" element={<Tecnicos />} />
-          <Route path="/usuarios" element={<Usuarios />} />
-          <Route path="/nuevo-caso" element={<NuevoCaso />} />
-          <Route path="/solicitudes-ia" element={<SolicitudesIA />} />
-          <Route path="/citas" element={<CalendarioCitas />} />
-          <Route path="/aprobaciones" element={<Aprobaciones />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="/calendario" element={<Calendario />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/casos" element={<Casos />} />
+        <Route path="/casos/:id" element={<CasoDetalle />} />
+        <Route path="/tecnicos" element={<Tecnicos />} />
+        <Route path="/usuarios" element={<Usuarios />} />
+        <Route path="/propietarios" element={<Propietarios />} />
+        <Route path="/nuevo-caso" element={<NuevoCaso />} />
+        <Route path="/solicitudes-ia" element={<SolicitudesIA />} />
+        <Route path="/citas" element={<CalendarioCitas />} />
+        <Route path="/aprobaciones" element={<Aprobaciones />} />
+        <Route path="/reportes" element={<Reportes />} />
+        <Route path="/calendario" element={<Calendario />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
   );
 }
 

@@ -250,7 +250,7 @@ export class SocketService {
     try {
       const notificaciones = await prisma.notificacion.findMany({
         where: {
-          usuarioId,
+          usuarioId: userId,
           leida: false,
         },
         orderBy: {
