@@ -9,6 +9,12 @@ import { getPrismaClient } from '../../config/database/postgres';
 import { logger } from '../../utils/logger';
 import { AppError } from '../../middleware/errorHandler';
 import { NotificacionService } from '../notifications/NotificacionService';
+import { CalendarioAsignacionService } from '../calendario/CalendarioAsignacionService';
+import { EmailNotificationService } from '../email/EmailNotificationService';
+import { WhatsAppGroupNotificationService } from '../whatsapp/WhatsAppGroupNotificationService';
+import { SeguimientoCompletoService } from '../seguimiento/SeguimientoCompletoService';
+import { WASocket } from '@whiskeysockets/baileys';
+import { config } from '../../config';
 
 const prisma = getPrismaClient();
 
@@ -18,23 +24,40 @@ interface CrearCasoWhatsAppData {
   descripcion: string;
   urgencia?: boolean;
   fotosRecibidas?: number;
+  evidencias?: {
+    imagenes: string[];
+    videos: string[];
+    audios: string[];
+    documentos: string[];
+  };
 }
 
 export class CasoService {
   private notificacionService: NotificacionService;
+  private calendarioService: CalendarioAsignacionService;
+  private emailService: EmailNotificationService;
+  private whatsappGroupService: WhatsAppGroupNotificationService;
+  private seguimientoService: SeguimientoCompletoService;
 
   constructor() {
     this.notificacionService = new NotificacionService();
+    this.calendarioService = CalendarioAsignacionService.getInstance();
+    this.emailService = EmailNotificationService.getInstance();
+    this.whatsappGroupService = WhatsAppGroupNotificationService.getInstance();
+    this.seguimientoService = SeguimientoCompletoService.getInstance();
   }
 
   /**
-   * Crear caso desde WhatsApp
+   * Crear caso desde WhatsApp con asignación automática completa
    */
   public async crearDesdeWhatsApp(
     telefono: string,
-    datos: CrearCasoWhatsAppData
+    datos: CrearCasoWhatsAppData,
+    whatsappSock?: WASocket
   ): Promise<any> {
     try {
+      logger.info(`🆕 Iniciando creación de caso desde WhatsApp para ${telefono}`);
+
       // 1. Buscar o crear usuario
       let usuario = await this.buscarOCrearUsuarioPorTelefono(telefono);
 
@@ -85,21 +108,204 @@ export class CasoService {
         },
       });
 
+      logger.info(`✅ Caso ${numeroCaso} creado`);
+
       // 6. Crear evento en timeline
       await this.crearEventoTimeline(caso.id, 'creado', 'Caso creado desde WhatsApp', {
         origen: 'whatsapp',
         telefono,
       });
 
-      // 7. Asignar técnico automáticamente si está habilitado
-      if (prioridad === PrioridadCaso.urgente) {
-        await this.asignarTecnicoAutomaticamente(caso.id);
+      // 7. 🎯 ASIGNACIÓN AUTOMÁTICA DE INGENIERO Y CALENDARIO
+      logger.info(`📅 Iniciando asignación automática para caso ${numeroCaso}`);
+
+      try {
+        // 7.1. Asignar slot automático (fecha, hora, ingeniero)
+        const slotAsignado = await this.calendarioService.asignarSlotAutomatico(
+          caso.id,
+          prioridad
+        );
+
+        logger.info(
+          `✅ Slot asignado - Fecha: ${slotAsignado.fecha.toISOString()}, Hora: ${
+            slotAsignado.bloqueHorario.horaInicio
+          } - ${slotAsignado.bloqueHorario.horaFin}`
+        );
+
+        // 7.2. Crear evento de visita programada
+        await this.crearEventoTimeline(
+          caso.id,
+          'visita_programada',
+          `Visita programada automáticamente para ${slotAsignado.fecha.toLocaleDateString()}`,
+          {
+            fecha: slotAsignado.fecha,
+            horaInicio: slotAsignado.bloqueHorario.horaInicio,
+            horaFin: slotAsignado.bloqueHorario.horaFin,
+            tecnicoId: slotAsignado.tecnicoAsignado?.id,
+          }
+        );
+
+        // 7.3. Si hay ingeniero asignado, enviar notificaciones
+        if (slotAsignado.tecnicoAsignado) {
+          logger.info(
+            `👷 Ingeniero asignado: ${slotAsignado.tecnicoAsignado.nombreCompleto}`
+          );
+
+          // 7.3.1. 📧 Enviar email al ingeniero
+          const emailExito = await this.emailService.enviarEmailAsignacionCaso({
+            caso: {
+              numeroCaso: caso.numeroCaso,
+              descripcion: caso.descripcion,
+              categoria: caso.categoria,
+              prioridad: caso.prioridad,
+              tipo: caso.tipo,
+            },
+            propietario: {
+              nombreCompleto: usuario.nombreCompleto,
+              unidad: usuario.unidad || 'No especificada',
+              telefono: usuario.telefono,
+            },
+            condominio: {
+              nombre: caso.condominio.nombre,
+              direccion: caso.condominio.direccion || '',
+            },
+            cita: {
+              fecha: slotAsignado.fecha,
+              horaInicio: slotAsignado.bloqueHorario.horaInicio,
+              horaFin: slotAsignado.bloqueHorario.horaFin,
+            },
+            ingeniero: {
+              nombreCompleto: slotAsignado.tecnicoAsignado.nombreCompleto,
+              email: slotAsignado.tecnicoAsignado.email,
+            },
+            evidencias: datos.evidencias
+              ? {
+                  imagenes: datos.evidencias.imagenes,
+                  videos: datos.evidencias.videos,
+                  audios: datos.evidencias.audios,
+                  documentos: datos.evidencias.documentos,
+                }
+              : undefined,
+          });
+
+          if (emailExito) {
+            logger.info(`✅ Email enviado al ingeniero`);
+          } else {
+            logger.warn(`⚠️  No se pudo enviar el email al ingeniero`);
+          }
+
+          // 7.3.2. 📱 Notificar al grupo de WhatsApp
+          if (whatsappSock && config.whatsapp.groupJid) {
+            const whatsappExito = await this.whatsappGroupService.notificarNuevoCaso(
+              whatsappSock,
+              config.whatsapp.groupJid,
+              {
+                caso: {
+                  numeroCaso: caso.numeroCaso,
+                  descripcion: caso.descripcion,
+                  categoria: caso.categoria,
+                  prioridad: caso.prioridad,
+                  tipo: caso.tipo,
+                },
+                propietario: {
+                  nombreCompleto: usuario.nombreCompleto,
+                  unidad: usuario.unidad || 'No especificada',
+                  telefono: usuario.telefono,
+                },
+                condominio: {
+                  nombre: caso.condominio.nombre,
+                  direccion: caso.condominio.direccion || '',
+                },
+                cita: {
+                  fecha: slotAsignado.fecha,
+                  horaInicio: slotAsignado.bloqueHorario.horaInicio,
+                  horaFin: slotAsignado.bloqueHorario.horaFin,
+                },
+                ingeniero: {
+                  nombreCompleto: slotAsignado.tecnicoAsignado.nombreCompleto,
+                  telefono: slotAsignado.tecnicoAsignado.telefono,
+                },
+                evidencias: datos.evidencias
+                  ? {
+                      totalImagenes: datos.evidencias.imagenes.length,
+                      totalVideos: datos.evidencias.videos.length,
+                      totalAudios: datos.evidencias.audios.length,
+                    }
+                  : undefined,
+              }
+            );
+
+            if (whatsappExito) {
+              logger.info(`✅ Notificación enviada al grupo de WhatsApp`);
+            } else {
+              logger.warn(`⚠️  No se pudo enviar notificación al grupo de WhatsApp`);
+            }
+
+            // 7.3.3. Si es urgente, enviar notificación urgente adicional
+            if (prioridad === PrioridadCaso.urgente) {
+              await this.whatsappGroupService.notificarCasoUrgente(
+                whatsappSock,
+                config.whatsapp.groupJid,
+                {
+                  caso: {
+                    numeroCaso: caso.numeroCaso,
+                    descripcion: caso.descripcion,
+                    categoria: caso.categoria,
+                    prioridad: caso.prioridad,
+                    tipo: caso.tipo,
+                  },
+                  propietario: {
+                    nombreCompleto: usuario.nombreCompleto,
+                    unidad: usuario.unidad || 'No especificada',
+                    telefono: usuario.telefono,
+                  },
+                  condominio: {
+                    nombre: caso.condominio.nombre,
+                    direccion: caso.condominio.direccion || '',
+                  },
+                  cita: {
+                    fecha: slotAsignado.fecha,
+                    horaInicio: slotAsignado.bloqueHorario.horaInicio,
+                    horaFin: slotAsignado.bloqueHorario.horaFin,
+                  },
+                  ingeniero: {
+                    nombreCompleto: slotAsignado.tecnicoAsignado.nombreCompleto,
+                    telefono: slotAsignado.tecnicoAsignado.telefono,
+                  },
+                }
+              );
+
+              logger.info(`🚨 Notificación urgente enviada`);
+            }
+          } else {
+            logger.warn(
+              `⚠️  WhatsApp socket no disponible o groupJid no configurado - notificación grupal omitida`
+            );
+          }
+
+          // 7.4. 📱 ENVIAR WHATSAPP DIRECTO AL TÉCNICO (NUEVO)
+          logger.info(`📱 Enviando WhatsApp directo al técnico ${slotAsignado.tecnicoAsignado.nombreCompleto}...`);
+          const whatsappTecnico = await this.seguimientoService.notificarTecnicoPorWhatsApp(
+            caso.id,
+            slotAsignado.tecnicoAsignado.id
+          );
+
+          if (whatsappTecnico) {
+            logger.info(`✅ WhatsApp enviado al técnico exitosamente`);
+          } else {
+            logger.warn(`⚠️  No se pudo enviar WhatsApp al técnico`);
+          }
+        }
+      } catch (asignacionError) {
+        logger.error('❌ Error en asignación automática:', asignacionError);
+        // El caso fue creado exitosamente, pero la asignación falló
+        // No hacemos throw para que el caso no se pierda
       }
 
-      // 8. Notificar
+      // 8. Notificación general (opcional)
       await this.notificacionService.notificarNuevoCaso(caso);
 
-      logger.info(`✅ Caso ${numeroCaso} creado exitosamente`);
+      logger.info(`✅ Caso ${numeroCaso} creado y procesado exitosamente`);
 
       return caso;
     } catch (error) {

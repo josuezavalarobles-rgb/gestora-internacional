@@ -23,6 +23,12 @@ import { config } from '../../config';
 import { AIService } from '../ai/AIService';
 import { CasoService } from '../casos/CasoService';
 import { NotificacionService } from '../notifications/NotificacionService';
+import { PropietarioIdentificationService } from '../usuarios/PropietarioIdentificationService';
+import { MultimediaService } from '../multimedia/MultimediaService';
+import { CronService } from '../cron/CronService';
+import { WhatsAppSeguimientoIntegration } from '../seguimiento/WhatsAppSeguimientoIntegration';
+import { SeguimientoCompletoService } from '../seguimiento/SeguimientoCompletoService';
+import { EncuestaSatisfaccionService } from '../encuestas/EncuestaSatisfaccionService';
 import { Mensaje } from '../../models/mongodb/Mensaje';
 import { Conversacion } from '../../models/mongodb/Conversacion';
 
@@ -35,11 +41,23 @@ export class WhatsAppService {
   private aiService: AIService;
   private casoService: CasoService;
   private notificacionService: NotificacionService;
+  private propietarioService: PropietarioIdentificationService;
+  private multimediaService: MultimediaService;
+  private cronService: CronService;
+  private seguimientoIntegration: WhatsAppSeguimientoIntegration;
+  private seguimientoService: SeguimientoCompletoService;
+  private encuestaService: EncuestaSatisfaccionService;
 
   private constructor() {
     this.aiService = AIService.getInstance();
     this.casoService = new CasoService();
     this.notificacionService = new NotificacionService();
+    this.propietarioService = PropietarioIdentificationService.getInstance();
+    this.multimediaService = MultimediaService.getInstance();
+    this.cronService = CronService.getInstance();
+    this.seguimientoIntegration = WhatsAppSeguimientoIntegration.getInstance();
+    this.seguimientoService = SeguimientoCompletoService.getInstance();
+    this.encuestaService = EncuestaSatisfaccionService.getInstance();
   }
 
   public static getInstance(): WhatsAppService {
@@ -137,6 +155,11 @@ export class WhatsAppService {
       this.isConnected = true;
       this.qrCode = null;
       logger.info('✅ WhatsApp conectado correctamente');
+
+      // Inyectar socket en CronService para envío de seguimientos automáticos
+      if (this.sock) {
+        this.cronService.setWhatsAppSocket(this.sock);
+      }
     }
   }
 
@@ -162,6 +185,133 @@ export class WhatsAppService {
       }
 
       logger.info(`📥 Mensaje recibido de ${telefono}: ${messageContent.texto}`);
+
+      // ========================================
+      // 🎯 NUEVO: VERIFICAR SI ES RESPUESTA A PREGUNTA DE STATUS (1, 2, 3)
+      // ========================================
+      const respuestaStatus = await this.seguimientoService.procesarRespuestaStatus(
+        telefono,
+        messageContent.texto
+      );
+
+      if (respuestaStatus) {
+        logger.info(`✅ Respuesta de status procesada: ${respuestaStatus.status}`);
+        return; // No procesar más, ya se manejó la respuesta
+      }
+
+      // ========================================
+      // VERIFICAR SI ES RESPUESTA A ENCUESTA DE SATISFACCIÓN
+      // ========================================
+      const usuario = await this.propietarioService.obtenerPorTelefono(telefono);
+
+      if (usuario) {
+        // Buscar encuesta pendiente para este usuario
+        const encuestaPendiente = await this.encuestaService.obtenerEncuestaPendientePorUsuario(usuario.id);
+
+        if (encuestaPendiente && this.sock) {
+          logger.info(`📋 Mensaje detectado como respuesta a encuesta de satisfacción`);
+
+          const respuesta = this.encuestaService.parsearRespuestaWhatsApp(messageContent.texto);
+
+          if (respuesta.valido) {
+            await this.encuestaService.procesarRespuesta(
+              encuestaPendiente.id,
+              respuesta.actitudIngeniero!,
+              respuesta.rapidezReparacion!,
+              respuesta.calidadServicio!,
+              respuesta.comentarios
+            );
+
+            const promedio = (
+              (respuesta.actitudIngeniero! + respuesta.rapidezReparacion! + respuesta.calidadServicio!) / 3
+            ).toFixed(2);
+
+            const mensajeGracias = `
+¡Muchas gracias por tu feedback! 😊
+
+*Tus calificaciones:*
+• Actitud del ingeniero: ${respuesta.actitudIngeniero}/5
+• Rapidez en la reparación: ${respuesta.rapidezReparacion}/5
+• Calidad del servicio: ${respuesta.calidadServicio}/5
+
+*Promedio: ${promedio}/5* ⭐
+
+Tu opinión nos ayuda a mejorar continuamente nuestro servicio.
+
+¡Gracias por confiar en Amico Management!
+            `.trim();
+
+            await this.sendMessage(telefono, mensajeGracias);
+
+            logger.info(`✅ Encuesta procesada - Promedio: ${promedio} (${encuestaPendiente.caso.numeroCaso})`);
+            return; // No continuar procesamiento normal
+          } else {
+            // Respuesta inválida, pedir que responda correctamente
+            const mensajeError = `
+Lo siento, no pude entender tu respuesta. 😕
+
+Para completar la encuesta, por favor envía 3 números del 0 al 5, separados por espacios.
+
+*Ejemplo:* 5 4 5
+
+- 0 = Muy malo
+- 5 = Excelente
+
+También puedes agregar comentarios después de los números.
+            `.trim();
+
+            await this.sendMessage(telefono, mensajeError);
+            return; // No continuar procesamiento normal
+          }
+        }
+      }
+
+      // ========================================
+      // VERIFICAR SI ES RESPUESTA A SEGUIMIENTO AUTOMÁTICO
+      // ========================================
+      const esRespuestaSeguimiento = await this.seguimientoIntegration.esRespuestaSeguimiento(telefono);
+
+      if (esRespuestaSeguimiento && this.sock) {
+        logger.info(`🔄 Mensaje detectado como respuesta a seguimiento automático`);
+        await this.seguimientoIntegration.procesarRespuestaSeguimiento(
+          this.sock,
+          telefono,
+          messageContent.texto
+        );
+        return; // No continuar procesamiento normal
+      }
+
+      // ========================================
+      // PROCESAR MULTIMEDIA (imágenes, videos, audios, documentos)
+      // ========================================
+      if (messageContent.mediaUrl === 'pending' && this.sock) {
+        const multimediaResult = await this.multimediaService.processMultimedia(message, this.sock);
+
+        if (multimediaResult.success) {
+          // Actualizar contenido con información del multimedia
+          messageContent.mediaUrl = multimediaResult.fileUrl || '';
+          messageContent.filePath = multimediaResult.filePath || '';
+
+          // Si es audio transcrito, agregar transcripción al texto
+          if (multimediaResult.transcripcion) {
+            messageContent.texto = multimediaResult.transcripcion;
+            messageContent.transcripcion = multimediaResult.transcripcion;
+            logger.info(`🎙️ Audio transcrito: ${multimediaResult.transcripcion}`);
+          }
+
+          // Si es imagen analizada, agregar análisis
+          if (multimediaResult.analisisImagen) {
+            messageContent.analisisImagen = multimediaResult.analisisImagen;
+            // Si no hay caption, usar el análisis como texto
+            if (!messageContent.texto || messageContent.texto === '[Imagen]') {
+              messageContent.texto = multimediaResult.analisisImagen;
+            }
+            logger.info(`👁️ Imagen analizada: ${multimediaResult.analisisImagen}`);
+          }
+        } else {
+          logger.warn(`⚠️ No se pudo procesar multimedia: ${multimediaResult.error}`);
+        }
+      }
 
       // Guardar mensaje en MongoDB
       await Mensaje.create({
@@ -195,13 +345,95 @@ export class WhatsAppService {
       // Actualizar actividad
       await conversacion.actualizarActividad();
 
+      // ========================================
+      // IDENTIFICACIÓN AUTOMÁTICA DE PROPIETARIO
+      // ========================================
+      const propietarioInfo = await this.propietarioService.identificarPropietario(telefono);
+
+      // Si es la primera vez que escribe (conversación nueva y no identificado antes)
+      if (conversacion.etapa === 'inicial' && !conversacion.contexto.propietarioIdentificado) {
+        // Guardar información del propietario en el contexto de la conversación
+        conversacion.contexto.propietarioIdentificado = propietarioInfo.existe;
+        conversacion.contexto.propietarioInfo = propietarioInfo.usuario || null;
+        conversacion.contexto.esNuevo = propietarioInfo.esNuevo;
+
+        await conversacion.save();
+
+        // Enviar mensaje de bienvenida/identificación
+        if (propietarioInfo.existe) {
+          logger.info(`✅ Propietario identificado automáticamente: ${propietarioInfo.usuario?.nombreCompleto}`);
+
+          // Enviar mensaje de bienvenida personalizado
+          await this.sendMessage(telefono, propietarioInfo.mensaje);
+
+          // Guardar mensaje de bienvenida en MongoDB
+          await Mensaje.create({
+            whatsappMessageId: uuidv4(),
+            telefono,
+            direccion: 'saliente',
+            tipo: 'texto',
+            contenido: propietarioInfo.mensaje,
+            enviadoPor: 'bot',
+            procesadoPorIA: true,
+            contextoIA: {
+              intent: 'identificacion_exitosa',
+              confidence: 1.0,
+              requiereHumano: false,
+            },
+            estadoEntrega: 'enviado',
+            fechaEnvio: new Date(),
+          });
+
+          // Si tiene casos activos, mencionarlos
+          const casosActivos = await this.propietarioService.obtenerCasosActivos(telefono);
+          if (casosActivos.length > 0) {
+            const mensajeCasos = `\n\n📋 *Casos activos:*\n${casosActivos
+              .map((caso: any, idx: number) => `${idx + 1}. ${caso.numeroCaso} - ${caso.estado}`)
+              .join('\n')}`;
+
+            await this.sendMessage(telefono, mensajeCasos);
+          }
+        } else {
+          logger.info(`⚠️  Número no registrado: ${telefono} - Iniciando proceso de registro`);
+
+          // Enviar mensaje para número no registrado
+          await this.sendMessage(telefono, propietarioInfo.mensaje);
+
+          // Guardar mensaje en MongoDB
+          await Mensaje.create({
+            whatsappMessageId: uuidv4(),
+            telefono,
+            direccion: 'saliente',
+            tipo: 'texto',
+            contenido: propietarioInfo.mensaje,
+            enviadoPor: 'bot',
+            procesadoPorIA: true,
+            contextoIA: {
+              intent: 'solicitar_registro',
+              confidence: 1.0,
+              requiereHumano: false,
+            },
+            estadoEntrega: 'enviado',
+            fechaEnvio: new Date(),
+          });
+
+          // Cambiar etapa a recopilando_info para registro
+          conversacion.etapa = 'recopilando_info';
+          conversacion.contexto.esperandoRegistro = true;
+          await conversacion.save();
+        }
+
+        // No procesar este mensaje con IA, solo identificar
+        return;
+      }
+
       // Marcar como leído (opcional)
       if (config.whatsapp.autoMarkRead && this.sock) {
         await this.sock.readMessages([message.key]);
       }
 
       // Procesar con IA
-      await this.processMessageWithAI(telefono, messageContent, conversacion);
+      await this.processMessageWithAI(telefono, messageContent, conversacion, propietarioInfo);
     } catch (error) {
       logger.error('❌ Error al procesar mensaje entrante:', error);
     }
@@ -213,7 +445,8 @@ export class WhatsAppService {
   private async processMessageWithAI(
     telefono: string,
     messageContent: any,
-    conversacion: any
+    conversacion: any,
+    propietarioInfo: any
   ): Promise<void> {
     try {
       // Obtener contexto de conversación reciente
@@ -222,13 +455,26 @@ export class WhatsAppService {
         .limit(config.bot.maxContextMessages)
         .lean();
 
+      // Enriquecer datos recopilados con información del propietario
+      const datosRecopiladosEnriquecidos = {
+        ...(conversacion.contexto.datosRecopilados || {}),
+        propietario: propietarioInfo.existe ? {
+          id: propietarioInfo.usuario?.id,
+          nombre: propietarioInfo.usuario?.nombreCompleto,
+          unidad: propietarioInfo.usuario?.unidad,
+          condominio: propietarioInfo.usuario?.condominio?.nombre,
+          condominioId: propietarioInfo.usuario?.condominioId,
+          telefono: propietarioInfo.usuario?.telefono,
+        } : null,
+      };
+
       // Analizar con IA
       const aiResponse = await this.aiService.processMessage({
         telefono,
         mensaje: messageContent.texto,
         mediaUrl: messageContent.mediaUrl,
         contextoConversacion: mensajesRecientes,
-        datosRecopilados: conversacion.contexto.datosRecopilados || {},
+        datosRecopilados: datosRecopiladosEnriquecidos,
         etapa: conversacion.etapa,
       });
 
@@ -393,6 +639,19 @@ export class WhatsAppService {
     } catch (error) {
       logger.error('❌ Error al enviar mensaje:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Enviar mensaje (alias con retorno boolean para SeguimientoCompletoService)
+   */
+  public async enviarMensaje(telefono: string, mensaje: string): Promise<boolean> {
+    try {
+      await this.sendMessage(telefono, mensaje);
+      return true;
+    } catch (error) {
+      logger.error('❌ Error al enviar mensaje:', error);
+      return false;
     }
   }
 
