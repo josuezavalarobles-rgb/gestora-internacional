@@ -73,9 +73,22 @@ class Application {
   private async initializeDatabases(): Promise<void> {
     logger.info('🔌 Conectando a bases de datos...');
 
+    // PostgreSQL (obligatorio)
     await connectPostgreSQL();
-    await connectMongoDB();
-    await connectRedis();
+
+    // MongoDB (opcional - para logs)
+    if (process.env.MONGODB_URI) {
+      await connectMongoDB();
+    } else {
+      logger.warn('⚠️  MongoDB no configurado - los logs se guardarán solo en PostgreSQL');
+    }
+
+    // Redis (opcional - para cache)
+    if (process.env.REDIS_URL) {
+      await connectRedis();
+    } else {
+      logger.warn('⚠️  Redis no configurado - cache deshabilitado');
+    }
 
     logger.info('✅ Bases de datos conectadas');
   }

@@ -137,13 +137,15 @@ export const config = {
 // Validaciones
 const requiredEnvVars = [
   'DATABASE_URL',
-  'MONGODB_URI',
   'JWT_SECRET',
 ];
 
+// MongoDB y Redis son opcionales - el sistema puede funcionar solo con PostgreSQL
 // OPENAI_API_KEY es opcional - el sistema funciona sin IA
 // if (config.env === 'production') {
 //   requiredEnvVars.push('OPENAI_API_KEY');
+//   requiredEnvVars.push('MONGODB_URI');
+//   requiredEnvVars.push('REDIS_URL');
 // }
 
 const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
