@@ -39,25 +39,51 @@ export class WhatsAppService {
   private isConnected: boolean = false;
 
   private aiService: AIService;
-  private casoService: CasoService;
+  private _casoService: CasoService | null = null;
   private notificacionService: NotificacionService;
   private propietarioService: PropietarioIdentificationService;
   private multimediaService: MultimediaService;
   private cronService: CronService;
-  private seguimientoIntegration: WhatsAppSeguimientoIntegration;
-  private seguimientoService: SeguimientoCompletoService;
-  private encuestaService: EncuestaSatisfaccionService;
+  private _seguimientoIntegration: WhatsAppSeguimientoIntegration | null = null;
+  private _seguimientoService: SeguimientoCompletoService | null = null;
+  private _encuestaService: EncuestaSatisfaccionService | null = null;
 
   private constructor() {
     this.aiService = AIService.getInstance();
-    this.casoService = new CasoService();
     this.notificacionService = new NotificacionService();
     this.propietarioService = PropietarioIdentificationService.getInstance();
     this.multimediaService = MultimediaService.getInstance();
     this.cronService = CronService.getInstance();
-    this.seguimientoIntegration = WhatsAppSeguimientoIntegration.getInstance();
-    this.seguimientoService = SeguimientoCompletoService.getInstance();
-    this.encuestaService = EncuestaSatisfaccionService.getInstance();
+    // No instanciar servicios con circular dependency aquí
+  }
+
+  // Lazy loading getters para evitar circular dependency
+  private get casoService(): CasoService {
+    if (!this._casoService) {
+      this._casoService = new CasoService();
+    }
+    return this._casoService;
+  }
+
+  private get seguimientoIntegration(): WhatsAppSeguimientoIntegration {
+    if (!this._seguimientoIntegration) {
+      this._seguimientoIntegration = WhatsAppSeguimientoIntegration.getInstance();
+    }
+    return this._seguimientoIntegration;
+  }
+
+  private get seguimientoService(): SeguimientoCompletoService {
+    if (!this._seguimientoService) {
+      this._seguimientoService = SeguimientoCompletoService.getInstance();
+    }
+    return this._seguimientoService;
+  }
+
+  private get encuestaService(): EncuestaSatisfaccionService {
+    if (!this._encuestaService) {
+      this._encuestaService = EncuestaSatisfaccionService.getInstance();
+    }
+    return this._encuestaService;
   }
 
   public static getInstance(): WhatsAppService {

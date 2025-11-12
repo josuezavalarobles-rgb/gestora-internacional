@@ -32,14 +32,36 @@ export interface StatusCitaRespuesta {
 
 export class SeguimientoCompletoService {
   private static instance: SeguimientoCompletoService;
-  private whatsappService: WhatsAppService;
-  private encuestaService: EncuestaSatisfaccionService;
-  private calendarioService: CalendarioAsignacionService;
+  private _whatsappService: WhatsAppService | null = null;
+  private _encuestaService: EncuestaSatisfaccionService | null = null;
+  private _calendarioService: CalendarioAsignacionService | null = null;
 
   private constructor() {
-    this.whatsappService = WhatsAppService.getInstance();
-    this.encuestaService = EncuestaSatisfaccionService.getInstance();
-    this.calendarioService = CalendarioAsignacionService.getInstance();
+    // No instanciar servicios aquí para evitar circular dependency
+  }
+
+  // Lazy loading para WhatsAppService
+  private get whatsappService(): WhatsAppService {
+    if (!this._whatsappService) {
+      this._whatsappService = WhatsAppService.getInstance();
+    }
+    return this._whatsappService;
+  }
+
+  // Lazy loading para EncuestaSatisfaccionService
+  private get encuestaService(): EncuestaSatisfaccionService {
+    if (!this._encuestaService) {
+      this._encuestaService = EncuestaSatisfaccionService.getInstance();
+    }
+    return this._encuestaService;
+  }
+
+  // Lazy loading para CalendarioAsignacionService
+  private get calendarioService(): CalendarioAsignacionService {
+    if (!this._calendarioService) {
+      this._calendarioService = CalendarioAsignacionService.getInstance();
+    }
+    return this._calendarioService;
   }
 
   public static getInstance(): SeguimientoCompletoService {

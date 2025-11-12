@@ -34,17 +34,43 @@ interface CrearCasoWhatsAppData {
 
 export class CasoService {
   private notificacionService: NotificacionService;
-  private calendarioService: CalendarioAsignacionService;
-  private emailService: EmailNotificationService;
-  private whatsappGroupService: WhatsAppGroupNotificationService;
-  private seguimientoService: SeguimientoCompletoService;
+  private _calendarioService: CalendarioAsignacionService | null = null;
+  private _emailService: EmailNotificationService | null = null;
+  private _whatsappGroupService: WhatsAppGroupNotificationService | null = null;
+  private _seguimientoService: SeguimientoCompletoService | null = null;
 
   constructor() {
     this.notificacionService = new NotificacionService();
-    this.calendarioService = CalendarioAsignacionService.getInstance();
-    this.emailService = EmailNotificationService.getInstance();
-    this.whatsappGroupService = WhatsAppGroupNotificationService.getInstance();
-    this.seguimientoService = SeguimientoCompletoService.getInstance();
+    // No instanciar servicios con getInstance aquí para evitar circular dependency
+  }
+
+  // Lazy loading getters
+  private get calendarioService(): CalendarioAsignacionService {
+    if (!this._calendarioService) {
+      this._calendarioService = CalendarioAsignacionService.getInstance();
+    }
+    return this._calendarioService;
+  }
+
+  private get emailService(): EmailNotificationService {
+    if (!this._emailService) {
+      this._emailService = EmailNotificationService.getInstance();
+    }
+    return this._emailService;
+  }
+
+  private get whatsappGroupService(): WhatsAppGroupNotificationService {
+    if (!this._whatsappGroupService) {
+      this._whatsappGroupService = WhatsAppGroupNotificationService.getInstance();
+    }
+    return this._whatsappGroupService;
+  }
+
+  private get seguimientoService(): SeguimientoCompletoService {
+    if (!this._seguimientoService) {
+      this._seguimientoService = SeguimientoCompletoService.getInstance();
+    }
+    return this._seguimientoService;
   }
 
   /**
