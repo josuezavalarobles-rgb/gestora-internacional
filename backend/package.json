@@ -1,7 +1,7 @@
 {
-  "name": "amico-backend",
+  "name": "gestora-internacional-backend",
   "version": "1.0.0",
-  "description": "Backend para Amico Management - Sistema de gestión de condominios",
+  "description": "Backend para Gestora Internacional SRL - Sistema Integral de Administración de Condominios con IA",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -23,9 +23,14 @@
     "whatsapp",
     "bot",
     "ia",
-    "crm"
+    "crm",
+    "ncf",
+    "contabilidad",
+    "dominicana",
+    "prediccion",
+    "machine-learning"
   ],
-  "author": "Amico Management",
+  "author": "Gestora Internacional SRL",
   "license": "UNLICENSED",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.3",

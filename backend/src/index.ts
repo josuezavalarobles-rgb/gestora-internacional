@@ -1,6 +1,7 @@
 /**
  * ========================================
- * AMICO MANAGEMENT - BACKEND ENTRY POINT
+ * GESTORA INTERNACIONAL SRL - BACKEND
+ * Sistema Integral de Administración de Condominios
  * ========================================
  */
 
@@ -21,7 +22,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 
-// Rutas
+// Rutas Base (Amico)
 import authRoutes from './routes/auth.routes';
 import casosRoutes from './routes/casos.routes';
 import usuariosRoutes from './routes/usuarios.routes';
@@ -34,6 +35,12 @@ import aprobacionesRoutes from './routes/aprobaciones.routes';
 import webhooksRoutes from './routes/webhooks.routes';
 import solicitudesRoutes from './routes/solicitudes.routes';
 import dashboardRoutes from './routes/dashboard.routes';
+
+// Rutas Nuevas (Gestora Internacional)
+import proveedoresRoutes from './routes/proveedores.routes';
+import contabilidadRoutes from './routes/contabilidad.routes';
+import estadosCuentaRoutes from './routes/estados-cuenta.routes';
+import iaRoutes from './routes/ia.routes';
 
 // Servicios
 import { WhatsAppService } from './services/whatsapp/WhatsAppService';
@@ -115,7 +122,7 @@ class Application {
       });
     });
 
-    // API Routes
+    // API Routes - Base (Amico)
     this.app.use(`${apiPrefix}/auth`, authRoutes);
     this.app.use(`${apiPrefix}/casos`, casosRoutes);
     this.app.use(`${apiPrefix}/usuarios`, usuariosRoutes);
@@ -128,6 +135,12 @@ class Application {
     this.app.use(`${apiPrefix}/webhooks`, webhooksRoutes);
     this.app.use(`${apiPrefix}/solicitudes`, solicitudesRoutes);
     this.app.use(`${apiPrefix}/dashboard`, dashboardRoutes);
+
+    // API Routes - Gestora Internacional (Nuevas)
+    this.app.use(`${apiPrefix}/proveedores`, proveedoresRoutes);
+    this.app.use(`${apiPrefix}/contabilidad`, contabilidadRoutes);
+    this.app.use(`${apiPrefix}/estados-cuenta`, estadosCuentaRoutes);
+    this.app.use(`${apiPrefix}/ia`, iaRoutes);
 
     // Error handlers
     this.app.use(notFoundHandler);
@@ -187,10 +200,11 @@ class Application {
     try {
       // Banner
       logger.info('');
-      logger.info('╔══════════════════════════════════════════╗');
-      logger.info('║     AMICO MANAGEMENT - BACKEND API       ║');
-      logger.info('║   Sistema de Gestión de Condominios     ║');
-      logger.info('╚══════════════════════════════════════════╝');
+      logger.info('╔════════════════════════════════════════════════╗');
+      logger.info('║     GESTORA INTERNACIONAL SRL - BACKEND        ║');
+      logger.info('║  Sistema Integral de Administración de        ║');
+      logger.info('║         Condominios con IA y NCF              ║');
+      logger.info('╚════════════════════════════════════════════════╝');
       logger.info('');
 
       // Inicializar componentes

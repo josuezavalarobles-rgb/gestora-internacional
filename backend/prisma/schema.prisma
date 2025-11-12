@@ -1,5 +1,6 @@
 // ========================================
-// AMICO MANAGEMENT - DATABASE SCHEMA
+// GESTORA INTERNACIONAL SRL - DATABASE SCHEMA
+// Sistema Integral de Administración de Condominios
 // PostgreSQL con Prisma ORM
 // ========================================
 
@@ -33,35 +34,35 @@ enum EstadoUsuario {
 }
 
 model Usuario {
-  id                String         @id @default(uuid())
-  nombreCompleto    String         @map("nombre_completo")
-  telefono          String         @unique
-  email             String?        @unique
-  password          String?        // Solo para admin/técnicos
-  tipoUsuario       TipoUsuario    @map("tipo_usuario")
-  estado            EstadoUsuario  @default(pendiente)
-  condominioId      String?        @map("condominio_id")
-  unidad            String?        // Apt 402, Casa 12, etc.
-  puedeVotar        Boolean        @default(false) @map("puede_votar")
+  id             String        @id @default(uuid())
+  nombreCompleto String        @map("nombre_completo")
+  telefono       String        @unique
+  email          String?       @unique
+  password       String? // Solo para admin/técnicos
+  tipoUsuario    TipoUsuario   @map("tipo_usuario")
+  estado         EstadoUsuario @default(pendiente)
+  condominioId   String?       @map("condominio_id")
+  unidad         String? // Apt 402, Casa 12, etc.
+  puedeVotar     Boolean       @default(false) @map("puede_votar")
 
   // Metadatos
-  avatarUrl         String?        @map("avatar_url")
-  notas             String?        @db.Text
-  metadata          Json?
+  avatarUrl String? @map("avatar_url")
+  notas     String? @db.Text
+  metadata  Json?
 
   // Auditoría
-  fechaRegistro     DateTime       @default(now()) @map("fecha_registro")
-  ultimoAcceso      DateTime?      @map("ultimo_acceso")
-  validadoPor       String?        @map("validado_por")
-  fechaValidacion   DateTime?      @map("fecha_validacion")
+  fechaRegistro   DateTime  @default(now()) @map("fecha_registro")
+  ultimoAcceso    DateTime? @map("ultimo_acceso")
+  validadoPor     String?   @map("validado_por")
+  fechaValidacion DateTime? @map("fecha_validacion")
 
   // Relaciones
-  condominio        Condominio?              @relation(fields: [condominioId], references: [id])
-  casosCreados      Caso[]                   @relation("CasosCreados")
-  casosAsignados    Caso[]                   @relation("CasosAsignados")
-  notificaciones    Notificacion[]
-  sesiones          Sesion[]
-  encuestas         EncuestaSatisfaccion[]
+  condominio     Condominio?            @relation(fields: [condominioId], references: [id])
+  casosCreados   Caso[]                 @relation("CasosCreados")
+  casosAsignados Caso[]                 @relation("CasosAsignados")
+  notificaciones Notificacion[]
+  sesiones       Sesion[]
+  encuestas      EncuestaSatisfaccion[]
 
   @@index([telefono])
   @@index([condominioId])
@@ -80,39 +81,39 @@ enum EstadoCondominio {
 }
 
 model Condominio {
-  id                String              @id @default(uuid())
-  nombre            String
-  direccion         String              @db.Text
-  ciudad            String
-  provincia         String
-  codigoPostal      String?             @map("codigo_postal")
-  telefono          String?
-  email             String?
+  id           String  @id @default(uuid())
+  nombre       String
+  direccion    String  @db.Text
+  ciudad       String
+  provincia    String
+  codigoPostal String? @map("codigo_postal")
+  telefono     String?
+  email        String?
 
   // Configuración
-  estado            EstadoCondominio    @default(activo)
-  totalUnidades     Int                 @map("total_unidades")
-  fechaEntrega      DateTime?           @map("fecha_entrega") // Para cálculo de garantía
+  estado        EstadoCondominio @default(activo)
+  totalUnidades Int              @map("total_unidades")
+  fechaEntrega  DateTime?        @map("fecha_entrega") // Para cálculo de garantía
 
   // SLA específico del condominio
-  slaGarantia       Int                 @default(24) @map("sla_garantia") // horas
-  slaCondominio     Int                 @default(72) @map("sla_condominio") // horas
+  slaGarantia   Int @default(24) @map("sla_garantia") // horas
+  slaCondominio Int @default(72) @map("sla_condominio") // horas
 
   // Horarios
-  horarioAtencion   Json?               @map("horario_atencion")
+  horarioAtencion Json? @map("horario_atencion")
 
   // Metadatos
-  logo              String?
-  metadata          Json?
+  logo     String?
+  metadata Json?
 
   // Auditoría
-  fechaCreacion     DateTime            @default(now()) @map("fecha_creacion")
-  fechaActualizacion DateTime           @updatedAt @map("fecha_actualizacion")
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
 
   // Relaciones
-  usuarios          Usuario[]
-  casos             Caso[]
-  amenidades        Amenidad[]
+  usuarios   Usuario[]
+  casos      Caso[]
+  amenidades Amenidad[]
 
   @@index([estado])
   @@map("condominios")
@@ -160,66 +161,66 @@ enum CategoriaCaso {
 }
 
 model Caso {
-  id                    String          @id @default(uuid())
-  numeroCaso            String          @unique @map("numero_caso") // AMC-2024-0157
+  id         String @id @default(uuid())
+  numeroCaso String @unique @map("numero_caso") // AMC-2024-0157
 
   // Usuario y ubicación
-  usuarioId             String          @map("usuario_id")
-  condominioId          String          @map("condominio_id")
-  unidad                String
+  usuarioId    String @map("usuario_id")
+  condominioId String @map("condominio_id")
+  unidad       String
 
   // Clasificación
-  tipo                  TipoCaso
-  categoria             CategoriaCaso
-  subcategoria          String?
-  descripcion           String          @db.Text
+  tipo         TipoCaso
+  categoria    CategoriaCaso
+  subcategoria String?
+  descripcion  String        @db.Text
 
   // Estado y prioridad
-  estado                EstadoCaso      @default(nuevo)
-  prioridad             PrioridadCaso   @default(media)
+  estado    EstadoCaso    @default(nuevo)
+  prioridad PrioridadCaso @default(media)
 
   // Asignación
-  tecnicoAsignadoId     String?         @map("tecnico_asignado_id")
-  fechaAsignacion       DateTime?       @map("fecha_asignacion")
+  tecnicoAsignadoId String?   @map("tecnico_asignado_id")
+  fechaAsignacion   DateTime? @map("fecha_asignacion")
 
   // Diagnóstico y resolución
-  diagnostico           String?         @db.Text
-  solucionAplicada      String?         @map("solucion_aplicada") @db.Text
-  tiempoEstimado        String?         @map("tiempo_estimado")
+  diagnostico      String? @db.Text
+  solucionAplicada String? @map("solucion_aplicada") @db.Text
+  tiempoEstimado   String? @map("tiempo_estimado")
 
   // Fechas
-  fechaCreacion         DateTime        @default(now()) @map("fecha_creacion")
-  fechaVisita           DateTime?       @map("fecha_visita")
-  fechaResolucion       DateTime?       @map("fecha_resolucion")
-  fechaCierre           DateTime?       @map("fecha_cierre")
+  fechaCreacion   DateTime  @default(now()) @map("fecha_creacion")
+  fechaVisita     DateTime? @map("fecha_visita")
+  fechaResolucion DateTime? @map("fecha_resolucion")
+  fechaCierre     DateTime? @map("fecha_cierre")
 
   // SLA
-  slaViolado            Boolean         @default(false) @map("sla_violado")
-  tiempoRespuesta       Int?            @map("tiempo_respuesta") // minutos
-  tiempoResolucion      Int?            @map("tiempo_resolucion") // horas
+  slaViolado       Boolean @default(false) @map("sla_violado")
+  tiempoRespuesta  Int?    @map("tiempo_respuesta") // minutos
+  tiempoResolucion Int?    @map("tiempo_resolucion") // horas
 
   // Satisfacción
-  satisfaccionCliente   Int?            @map("satisfaccion_cliente") // 1-5
-  comentarioCliente     String?         @map("comentario_cliente") @db.Text
+  satisfaccionCliente Int?    @map("satisfaccion_cliente") // 1-5
+  comentarioCliente   String? @map("comentario_cliente") @db.Text
 
   // Costos (opcional)
-  costoEstimado         Decimal?        @map("costo_estimado") @db.Decimal(10, 2)
-  costoReal             Decimal?        @map("costo_real") @db.Decimal(10, 2)
+  costoEstimado Decimal? @map("costo_estimado") @db.Decimal(10, 2)
+  costoReal     Decimal? @map("costo_real") @db.Decimal(10, 2)
 
   // Metadatos
-  metadata              Json?
+  metadata Json?
 
   // Relaciones
-  usuario               Usuario         @relation("CasosCreados", fields: [usuarioId], references: [id])
-  condominio            Condominio      @relation(fields: [condominioId], references: [id])
-  tecnicoAsignado       Usuario?        @relation("CasosAsignados", fields: [tecnicoAsignadoId], references: [id])
-  adjuntos              Adjunto[]
-  timelineEventos       TimelineEvento[]
-  transferencias        Transferencia[]
-  citas                 Cita[]
-  aprobaciones          Aprobacion[]
-  seguimientos          SeguimientoCaso[]
-  encuestas             EncuestaSatisfaccion[]
+  usuario         Usuario                @relation("CasosCreados", fields: [usuarioId], references: [id])
+  condominio      Condominio             @relation(fields: [condominioId], references: [id])
+  tecnicoAsignado Usuario?               @relation("CasosAsignados", fields: [tecnicoAsignadoId], references: [id])
+  adjuntos        Adjunto[]
+  timelineEventos TimelineEvento[]
+  transferencias  Transferencia[]
+  citas           Cita[]
+  aprobaciones    Aprobacion[]
+  seguimientos    SeguimientoCaso[]
+  encuestas       EncuestaSatisfaccion[]
 
   @@index([numeroCaso])
   @@index([estado])
@@ -243,23 +244,23 @@ enum TipoAdjunto {
 }
 
 model Adjunto {
-  id                String        @id @default(uuid())
-  casoId            String        @map("caso_id")
-  tipo              TipoAdjunto
-  url               String
-  nombreArchivo     String        @map("nombre_archivo")
-  tamanoBytes       BigInt        @map("tamano_bytes")
-  mimeType          String        @map("mime_type")
+  id            String      @id @default(uuid())
+  casoId        String      @map("caso_id")
+  tipo          TipoAdjunto
+  url           String
+  nombreArchivo String      @map("nombre_archivo")
+  tamanoBytes   BigInt      @map("tamano_bytes")
+  mimeType      String      @map("mime_type")
 
   // Metadata del archivo
-  ancho             Int?          // Para imágenes
-  alto              Int?          // Para imágenes
-  duracion          Int?          // Para videos/audios (segundos)
+  ancho    Int? // Para imágenes
+  alto     Int? // Para imágenes
+  duracion Int? // Para videos/audios (segundos)
 
-  fechaSubida       DateTime      @default(now()) @map("fecha_subida")
+  fechaSubida DateTime @default(now()) @map("fecha_subida")
 
   // Relaciones
-  caso              Caso          @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  caso Caso @relation(fields: [casoId], references: [id], onDelete: Cascade)
 
   @@index([casoId])
   @@map("adjuntos")
@@ -291,23 +292,23 @@ enum TipoEvento {
 }
 
 model TimelineEvento {
-  id                String      @id @default(uuid())
-  casoId            String      @map("caso_id")
-  tipoEvento        TipoEvento  @map("tipo_evento")
-  titulo            String
-  descripcion       String?     @db.Text
+  id          String     @id @default(uuid())
+  casoId      String     @map("caso_id")
+  tipoEvento  TipoEvento @map("tipo_evento")
+  titulo      String
+  descripcion String?    @db.Text
 
   // Usuario responsable
-  usuarioId         String?     @map("usuario_id")
-  usuarioNombre     String?     @map("usuario_nombre")
+  usuarioId     String? @map("usuario_id")
+  usuarioNombre String? @map("usuario_nombre")
 
   // Datos adicionales
-  metadata          Json?
+  metadata Json?
 
-  fecha             DateTime    @default(now())
+  fecha DateTime @default(now())
 
   // Relaciones
-  caso              Caso        @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  caso Caso @relation(fields: [casoId], references: [id], onDelete: Cascade)
 
   @@index([casoId])
   @@index([fecha])
@@ -326,20 +327,20 @@ enum TipoTransferencia {
 }
 
 model Transferencia {
-  id                  String              @id @default(uuid())
-  casoId              String              @map("caso_id")
-  tipo                TipoTransferencia
+  id     String            @id @default(uuid())
+  casoId String            @map("caso_id")
+  tipo   TipoTransferencia
 
-  deAgenteId          String?             @map("de_agente_id")
-  aAgenteId           String?             @map("a_agente_id")
+  deAgenteId String? @map("de_agente_id")
+  aAgenteId  String? @map("a_agente_id")
 
-  motivo              String?             @db.Text
-  notas               String?             @db.Text
+  motivo String? @db.Text
+  notas  String? @db.Text
 
-  fechaTransferencia  DateTime            @default(now()) @map("fecha_transferencia")
+  fechaTransferencia DateTime @default(now()) @map("fecha_transferencia")
 
   // Relaciones
-  caso                Caso                @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  caso Caso @relation(fields: [casoId], references: [id], onDelete: Cascade)
 
   @@index([casoId])
   @@map("transferencias")
@@ -370,26 +371,26 @@ enum PrioridadNotificacion {
 }
 
 model Notificacion {
-  id                String                  @id @default(uuid())
-  usuarioId         String                  @map("usuario_id")
-  tipo              TipoNotificacion
-  prioridad         PrioridadNotificacion   @default(media)
+  id        String                @id @default(uuid())
+  usuarioId String                @map("usuario_id")
+  tipo      TipoNotificacion
+  prioridad PrioridadNotificacion @default(media)
 
-  casoId            String?                 @map("caso_id")
+  casoId String? @map("caso_id")
 
-  titulo            String
-  mensaje           String                  @db.Text
-  urlAccion         String?                 @map("url_accion")
+  titulo    String
+  mensaje   String  @db.Text
+  urlAccion String? @map("url_accion")
 
-  leida             Boolean                 @default(false)
-  fechaLeida        DateTime?               @map("fecha_leida")
+  leida      Boolean   @default(false)
+  fechaLeida DateTime? @map("fecha_leida")
 
-  metadata          Json?
+  metadata Json?
 
-  fechaCreacion     DateTime                @default(now()) @map("fecha_creacion")
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
 
   // Relaciones
-  usuario           Usuario                 @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@index([usuarioId])
   @@index([leida])
@@ -409,22 +410,22 @@ enum EstadoSesion {
 }
 
 model Sesion {
-  id                    String          @id @default(uuid())
-  usuarioId             String          @map("usuario_id")
-  estado                EstadoSesion    @default(online)
+  id        String       @id @default(uuid())
+  usuarioId String       @map("usuario_id")
+  estado    EstadoSesion @default(online)
 
-  conversacionesActivas Int             @default(0) @map("conversaciones_activas")
+  conversacionesActivas Int @default(0) @map("conversaciones_activas")
 
-  socketId              String?         @map("socket_id")
-  ipAddress             String?         @map("ip_address")
-  userAgent             String?         @map("user_agent")
+  socketId  String? @map("socket_id")
+  ipAddress String? @map("ip_address")
+  userAgent String? @map("user_agent")
 
-  ultimaActividad       DateTime        @default(now()) @updatedAt @map("ultima_actividad")
-  fechaLogin            DateTime        @default(now()) @map("fecha_login")
-  fechaLogout           DateTime?       @map("fecha_logout")
+  ultimaActividad DateTime  @default(now()) @updatedAt @map("ultima_actividad")
+  fechaLogin      DateTime  @default(now()) @map("fecha_login")
+  fechaLogout     DateTime? @map("fecha_logout")
 
   // Relaciones
-  usuario               Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@index([usuarioId])
   @@index([estado])
@@ -448,24 +449,24 @@ enum TipoAmenidad {
 }
 
 model Amenidad {
-  id                String          @id @default(uuid())
-  condominioId      String          @map("condominio_id")
-  nombre            String
-  tipo              TipoAmenidad
-  descripcion       String?         @db.Text
-  capacidad         Int?
+  id           String       @id @default(uuid())
+  condominioId String       @map("condominio_id")
+  nombre       String
+  tipo         TipoAmenidad
+  descripcion  String?      @db.Text
+  capacidad    Int?
 
-  activa            Boolean         @default(true)
-  requiereReserva   Boolean         @default(true) @map("requiere_reserva")
+  activa          Boolean @default(true)
+  requiereReserva Boolean @default(true) @map("requiere_reserva")
 
-  costoReserva      Decimal?        @map("costo_reserva") @db.Decimal(10, 2)
+  costoReserva Decimal? @map("costo_reserva") @db.Decimal(10, 2)
 
-  metadata          Json?
+  metadata Json?
 
-  fechaCreacion     DateTime        @default(now()) @map("fecha_creacion")
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
 
   // Relaciones
-  condominio        Condominio      @relation(fields: [condominioId], references: [id])
+  condominio Condominio @relation(fields: [condominioId], references: [id])
 
   @@index([condominioId])
   @@map("amenidades")
@@ -482,38 +483,38 @@ enum PlataformaKPI {
 }
 
 model KPIDiario {
-  id                      String          @id @default(uuid())
-  fecha                   DateTime        @db.Date
-  condominioId            String?         @map("condominio_id")
-  plataforma              PlataformaKPI   @default(whatsapp)
+  id           String        @id @default(uuid())
+  fecha        DateTime      @db.Date
+  condominioId String?       @map("condominio_id")
+  plataforma   PlataformaKPI @default(whatsapp)
 
   // Métricas de casos
-  casosNuevos             Int             @default(0) @map("casos_nuevos")
-  casosAsignados          Int             @default(0) @map("casos_asignados")
-  casosResueltos          Int             @default(0) @map("casos_resueltos")
-  casosCerrados           Int             @default(0) @map("casos_cerrados")
+  casosNuevos    Int @default(0) @map("casos_nuevos")
+  casosAsignados Int @default(0) @map("casos_asignados")
+  casosResueltos Int @default(0) @map("casos_resueltos")
+  casosCerrados  Int @default(0) @map("casos_cerrados")
 
   // Métricas de mensajes
-  mensajesEnviados        Int             @default(0) @map("mensajes_enviados")
-  mensajesRecibidos       Int             @default(0) @map("mensajes_recibidos")
-  mensajesBot             Int             @default(0) @map("mensajes_bot")
-  mensajesHumano          Int             @default(0) @map("mensajes_humano")
+  mensajesEnviados  Int @default(0) @map("mensajes_enviados")
+  mensajesRecibidos Int @default(0) @map("mensajes_recibidos")
+  mensajesBot       Int @default(0) @map("mensajes_bot")
+  mensajesHumano    Int @default(0) @map("mensajes_humano")
 
   // Métricas de tiempo
-  tiempoRespuestaPromedio Int?            @map("tiempo_respuesta_promedio") // segundos
-  tiempoResolucionPromedio Int?           @map("tiempo_resolucion_promedio") // horas
+  tiempoRespuestaPromedio  Int? @map("tiempo_respuesta_promedio") // segundos
+  tiempoResolucionPromedio Int? @map("tiempo_resolucion_promedio") // horas
 
   // Métricas de satisfacción
-  satisfaccionPromedio    Decimal?        @map("satisfaccion_promedio") @db.Decimal(3, 2)
+  satisfaccionPromedio Decimal? @map("satisfaccion_promedio") @db.Decimal(3, 2)
 
   // SLA
-  slasCumplidos           Int             @default(0) @map("slas_cumplidos")
-  slasViolados            Int             @default(0) @map("slas_violados")
+  slasCumplidos Int @default(0) @map("slas_cumplidos")
+  slasViolados  Int @default(0) @map("slas_violados")
 
   // Conversión
-  tasaConversion          Decimal?        @map("tasa_conversion") @db.Decimal(5, 2)
+  tasaConversion Decimal? @map("tasa_conversion") @db.Decimal(5, 2)
 
-  fechaCreacion           DateTime        @default(now()) @map("fecha_creacion")
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
 
   @@unique([fecha, condominioId, plataforma])
   @@index([fecha])
@@ -534,14 +535,14 @@ enum DiaSemana {
 }
 
 model BloqueHorario {
-  id            String      @id @default(uuid())
-  diaSemana     DiaSemana   @map("dia_semana")
-  horaInicio    String      @map("hora_inicio") // "09:00"
-  horaFin       String      @map("hora_fin")    // "11:00"
-  capacidad     Int         @default(5)
-  activo        Boolean     @default(true)
+  id         String    @id @default(uuid())
+  diaSemana  DiaSemana @map("dia_semana")
+  horaInicio String    @map("hora_inicio") // "09:00"
+  horaFin    String    @map("hora_fin") // "11:00"
+  capacidad  Int       @default(5)
+  activo     Boolean   @default(true)
 
-  citas         Cita[]
+  citas Cita[]
 
   @@map("bloques_horarios")
 }
@@ -558,33 +559,33 @@ enum EstadoCita {
 }
 
 model Cita {
-  id                      String        @id @default(uuid())
-  casoId                  String        @map("caso_id")
-  fecha                   DateTime      @db.Date
-  bloqueHorarioId         String        @map("bloque_horario_id")
-  tecnicoId               String?       @map("tecnico_id")
+  id              String   @id @default(uuid())
+  casoId          String   @map("caso_id")
+  fecha           DateTime @db.Date
+  bloqueHorarioId String   @map("bloque_horario_id")
+  tecnicoId       String?  @map("tecnico_id")
 
-  estado                  EstadoCita    @default(pendiente)
-  propietarioConfirmo     Boolean       @default(false) @map("propietario_confirmo")
-  ingenieriaConfirmo      Boolean       @default(false) @map("ingenieria_confirmo")
+  estado              EstadoCita @default(pendiente)
+  propietarioConfirmo Boolean    @default(false) @map("propietario_confirmo")
+  ingenieriaConfirmo  Boolean    @default(false) @map("ingenieria_confirmo")
 
-  fechaConfirmacionProp   DateTime?     @map("fecha_confirmacion_prop")
-  fechaConfirmacionIng    DateTime?     @map("fecha_confirmacion_ing")
+  fechaConfirmacionProp DateTime? @map("fecha_confirmacion_prop")
+  fechaConfirmacionIng  DateTime? @map("fecha_confirmacion_ing")
 
-  visitaRealizada         Boolean       @default(false) @map("visita_realizada")
-  solucionado             Boolean?
-  comentarioPropietario   String?       @db.Text @map("comentario_propietario")
+  visitaRealizada       Boolean  @default(false) @map("visita_realizada")
+  solucionado           Boolean?
+  comentarioPropietario String?  @map("comentario_propietario") @db.Text
 
-  motivoCancelacion       String?       @db.Text @map("motivo_cancelacion")
-  notas                   String?       @db.Text
+  motivoCancelacion String? @map("motivo_cancelacion") @db.Text
+  notas             String? @db.Text
 
-  fechaCreacion           DateTime      @default(now()) @map("fecha_creacion")
-  fechaCompletada         DateTime?     @map("fecha_completada") // Para seguimiento automático
+  fechaCreacion   DateTime  @default(now()) @map("fecha_creacion")
+  fechaCompletada DateTime? @map("fecha_completada") // Para seguimiento automático
 
   // Relaciones
-  caso                    Caso          @relation(fields: [casoId], references: [id], onDelete: Cascade)
-  bloqueHorario           BloqueHorario @relation(fields: [bloqueHorarioId], references: [id])
-  seguimientos            SeguimientoCaso[]
+  caso          Caso              @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  bloqueHorario BloqueHorario     @relation(fields: [bloqueHorarioId], references: [id])
+  seguimientos  SeguimientoCaso[]
 
   @@index([casoId])
   @@index([fecha])
@@ -620,41 +621,41 @@ enum EstadoSolicitud {
 }
 
 model Solicitud {
-  id                String              @id @default(uuid())
-  codigoUnico       String              @unique @map("codigo_unico") // AMICO-URG-2024-0001
+  id          String @id @default(uuid())
+  codigoUnico String @unique @map("codigo_unico") // AMICO-URG-2024-0001
 
   // Clasificación
-  tipoSolicitud     TipoSolicitud       @map("tipo_solicitud")
-  urgencia          UrgenciaSolicitud
-  categoria         String?
+  tipoSolicitud TipoSolicitud     @map("tipo_solicitud")
+  urgencia      UrgenciaSolicitud
+  categoria     String?
 
   // Usuario y contacto
-  usuarioId         String?             @map("usuario_id")
-  telefono          String
-  nombreUsuario     String?             @map("nombre_usuario")
-  descripcion       String              @db.Text
+  usuarioId     String? @map("usuario_id")
+  telefono      String
+  nombreUsuario String? @map("nombre_usuario")
+  descripcion   String  @db.Text
 
   // Estado y asignación
-  estado            EstadoSolicitud     @default(nueva)
-  asignadoA         String?             @map("asignado_a")
-  fechaAsignacion   DateTime?           @map("fecha_asignacion")
+  estado          EstadoSolicitud @default(nueva)
+  asignadoA       String?         @map("asignado_a")
+  fechaAsignacion DateTime?       @map("fecha_asignacion")
 
   // Conversación WhatsApp
-  mensajesWhatsApp  Json?               @map("mensajes_whatsapp") // Historial completo
-  emocionDetectada  String?             @map("emocion_detectada") // neutral, frustrado, urgente, etc
+  mensajesWhatsApp Json?   @map("mensajes_whatsapp") // Historial completo
+  emocionDetectada String? @map("emocion_detectada") // neutral, frustrado, urgente, etc
 
   // Tracking de tiempos
-  fechaCreacion     DateTime            @default(now()) @map("fecha_creacion")
-  fechaResolucion   DateTime?           @map("fecha_resolucion")
-  tiempoRespuesta   Int?                @map("tiempo_respuesta") // minutos
-  tiempoResolucion  Int?                @map("tiempo_resolucion") // horas
+  fechaCreacion    DateTime  @default(now()) @map("fecha_creacion")
+  fechaResolucion  DateTime? @map("fecha_resolucion")
+  tiempoRespuesta  Int?      @map("tiempo_respuesta") // minutos
+  tiempoResolucion Int?      @map("tiempo_resolucion") // horas
 
   // Satisfacción
-  calificacion      Int?                // 1-5
-  comentario        String?             @db.Text
+  calificacion Int? // 1-5
+  comentario   String? @db.Text
 
   // Metadatos
-  metadata          Json?
+  metadata Json?
 
   @@index([codigoUnico])
   @@index([tipoSolicitud])
@@ -677,25 +678,25 @@ enum EstadoAprobacion {
 }
 
 model Aprobacion {
-  id                String            @id @default(uuid())
-  casoId            String            @map("caso_id")
-  tipoAprobacion    String            @map("tipo_aprobacion") // "nueva_visita", "materiales", "costo_extra"
+  id             String @id @default(uuid())
+  casoId         String @map("caso_id")
+  tipoAprobacion String @map("tipo_aprobacion") // "nueva_visita", "materiales", "costo_extra"
 
-  descripcion       String            @db.Text
-  costoEstimado     Decimal?          @db.Decimal(10, 2) @map("costo_estimado")
-  justificacion     String?           @db.Text
+  descripcion   String   @db.Text
+  costoEstimado Decimal? @map("costo_estimado") @db.Decimal(10, 2)
+  justificacion String?  @db.Text
 
-  solicitadoPor     String            @map("solicitado_por") // ID del técnico
-  estado            EstadoAprobacion  @default(pendiente)
+  solicitadoPor String           @map("solicitado_por") // ID del técnico
+  estado        EstadoAprobacion @default(pendiente)
 
-  aprobadoPor       String?           @map("aprobado_por")
-  fechaSolicitud    DateTime          @default(now()) @map("fecha_solicitud")
-  fechaRespuesta    DateTime?         @map("fecha_respuesta")
+  aprobadoPor    String?   @map("aprobado_por")
+  fechaSolicitud DateTime  @default(now()) @map("fecha_solicitud")
+  fechaRespuesta DateTime? @map("fecha_respuesta")
 
-  comentarios       String?           @db.Text
+  comentarios String? @db.Text
 
   // Relaciones
-  caso              Caso              @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  caso Caso @relation(fields: [casoId], references: [id], onDelete: Cascade)
 
   @@index([casoId])
   @@index([estado])
@@ -713,33 +714,33 @@ enum MensajeSeguimiento {
 }
 
 model SeguimientoCaso {
-  id                    String              @id @default(uuid())
-  casoId                String              @map("caso_id")
-  citaId                String?             @map("cita_id") // Cita que generó el seguimiento
+  id     String  @id @default(uuid())
+  casoId String  @map("caso_id")
+  citaId String? @map("cita_id") // Cita que generó el seguimiento
 
   // Estado del seguimiento
-  activo                Boolean             @default(true)
-  intentos              Int                 @default(0)
-  proximoIntento        DateTime?           @map("proximo_intento")
-  ultimoIntento         DateTime?           @map("ultimo_intento")
+  activo         Boolean   @default(true)
+  intentos       Int       @default(0)
+  proximoIntento DateTime? @map("proximo_intento")
+  ultimoIntento  DateTime? @map("ultimo_intento")
 
   // Tipo de mensajes enviados
-  mensajesTipo          MensajeSeguimiento  @map("mensajes_tipo")
+  mensajesTipo MensajeSeguimiento @map("mensajes_tipo")
 
   // Respuesta del propietario
-  respuestaPropietario  String?             @map("respuesta_propietario") @db.Text
-  fechaRespuesta        DateTime?           @map("fecha_respuesta")
+  respuestaPropietario String?   @map("respuesta_propietario") @db.Text
+  fechaRespuesta       DateTime? @map("fecha_respuesta")
 
   // Resultado del seguimiento
-  resultado             String?             // "solucionado", "no_solucionado", "sin_respuesta"
+  resultado String? // "solucionado", "no_solucionado", "sin_respuesta"
 
   // Auditoría
-  fechaInicio           DateTime            @default(now()) @map("fecha_inicio")
-  fechaCierre           DateTime?           @map("fecha_cierre")
+  fechaInicio DateTime  @default(now()) @map("fecha_inicio")
+  fechaCierre DateTime? @map("fecha_cierre")
 
   // Relaciones
-  caso                  Caso                @relation(fields: [casoId], references: [id], onDelete: Cascade)
-  cita                  Cita?               @relation(fields: [citaId], references: [id])
+  caso Caso  @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  cita Cita? @relation(fields: [citaId], references: [id])
 
   @@index([casoId])
   @@index([activo])
@@ -752,46 +753,1330 @@ model SeguimientoCaso {
 // ========================================
 
 enum EstadoEncuesta {
-  pendiente       // Enviada, esperando respuesta
-  completada      // Propietario respondió
-  expirada        // Expiró sin respuesta
+  pendiente // Enviada, esperando respuesta
+  completada // Propietario respondió
+  expirada // Expiró sin respuesta
 }
 
 model EncuestaSatisfaccion {
-  id                    String          @id @default(uuid())
-  casoId                String          @map("caso_id")
-  usuarioId             String          @map("usuario_id") // Propietario que responde
+  id        String @id @default(uuid())
+  casoId    String @map("caso_id")
+  usuarioId String @map("usuario_id") // Propietario que responde
 
   // Estado
-  estado                EstadoEncuesta  @default(pendiente)
+  estado EstadoEncuesta @default(pendiente)
 
   // Calificaciones (0-5)
-  actitudIngeniero      Int?            @map("actitud_ingeniero") // Escala 0-5
-  rapidezReparacion     Int?            @map("rapidez_reparacion") // Escala 0-5
-  calidadServicio       Int?            @map("calidad_servicio") // Escala 0-5
+  actitudIngeniero  Int? @map("actitud_ingeniero") // Escala 0-5
+  rapidezReparacion Int? @map("rapidez_reparacion") // Escala 0-5
+  calidadServicio   Int? @map("calidad_servicio") // Escala 0-5
 
   // Promedio automático
-  promedioGeneral       Decimal?        @map("promedio_general") @db.Decimal(3, 2)
+  promedioGeneral Decimal? @map("promedio_general") @db.Decimal(3, 2)
 
   // Comentarios adicionales (opcional)
-  comentarios           String?         @db.Text
+  comentarios String? @db.Text
 
   // Metadatos
-  enviadaPorWhatsApp    Boolean         @default(false) @map("enviada_whatsapp")
-  enviadaPorEmail       Boolean         @default(false) @map("enviada_email")
+  enviadaPorWhatsApp Boolean @default(false) @map("enviada_whatsapp")
+  enviadaPorEmail    Boolean @default(false) @map("enviada_email")
 
   // Auditoría
-  fechaEnvio            DateTime        @default(now()) @map("fecha_envio")
-  fechaRespuesta        DateTime?       @map("fecha_respuesta")
-  fechaExpiracion       DateTime?       @map("fecha_expiracion") // 7 días después de envío
+  fechaEnvio      DateTime  @default(now()) @map("fecha_envio")
+  fechaRespuesta  DateTime? @map("fecha_respuesta")
+  fechaExpiracion DateTime? @map("fecha_expiracion") // 7 días después de envío
 
   // Relaciones
-  caso                  Caso            @relation(fields: [casoId], references: [id], onDelete: Cascade)
-  usuario               Usuario         @relation(fields: [usuarioId], references: [id])
+  caso    Caso    @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
 
   @@index([casoId])
   @@index([usuarioId])
   @@index([estado])
   @@index([fechaEnvio])
   @@map("encuestas_satisfaccion")
+}
+
+// ========================================
+// GESTORA INTERNACIONAL - EXTENSIONES
+// Sistema Multi-Condominio y Contabilidad
+// ========================================
+
+// ========================================
+// ORGANIZACIONES (Multi-Tenant)
+// ========================================
+
+model Organizacion {
+  id     String @id @default(uuid())
+  nombre String // "Gestora Internacional SRL"
+  slug   String @unique // "ges-internacional"
+
+  // Datos legales
+  rnc       String? @unique // RNC Dominicano
+  direccion String? @db.Text
+  telefono  String?
+  email     String?
+  logo      String?
+
+  // Configuración
+  activa   Boolean @default(true)
+  metadata Json?
+
+  // Auditoría
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  condominios   CondominioExtendido[]
+  proveedores   Proveedor[]
+  personal      Personal[]
+  planesCuentas PlanCuentas[]
+  ncfSecuencias NCFSecuencia[]
+
+  @@map("organizaciones")
+}
+
+// ========================================
+// CONDOMINIO EXTENDIDO
+// ========================================
+
+model CondominioExtendido {
+  id               String  @id @default(uuid())
+  organizacionId   String  @map("organizacion_id")
+  condominioBaseId String? @unique @map("condominio_base_id") // Link a Condominio original
+
+  nombre       String
+  direccion    String  @db.Text
+  ciudad       String
+  provincia    String
+  codigoPostal String? @map("codigo_postal")
+
+  // Datos legales
+  rnc      String? @unique
+  telefono String?
+  email    String?
+
+  // Configuración
+  activo        Boolean   @default(true)
+  totalUnidades Int       @map("total_unidades")
+  fechaEntrega  DateTime? @map("fecha_entrega")
+
+  // Administración
+  administradorId String? @map("administrador_id") // Usuario admin del condo
+  logo            String?
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  organizacion      Organizacion          @relation(fields: [organizacionId], references: [id])
+  unidades          Unidad[]
+  proveedores       CondominioProveedor[]
+  gastos            Gasto[]
+  ingresos          Ingreso[]
+  areasComunes      AreaComun[]
+  visitas           Visita[]
+  estadosCuenta     EstadoCuenta[]
+  calendarioEventos CalendarioEvento[]
+  documentos        Documento[]
+
+  @@index([organizacionId])
+  @@map("condominios_extendidos")
+}
+
+// ========================================
+// UNIDADES (Apartamentos/Locales)
+// ========================================
+
+enum TipoUnidad {
+  apartamento
+  local_comercial
+  oficina
+  deposito
+  estacionamiento
+}
+
+enum EstadoUnidad {
+  ocupada
+  vacia
+  en_renta
+  en_venta
+}
+
+model Unidad {
+  id           String @id @default(uuid())
+  condominioId String @map("condominio_id")
+
+  // Identificación
+  numero   String // "402", "12-A", etc
+  edificio String? // "Torre A"
+  piso     Int?
+  tipo     TipoUnidad
+
+  // Detalles
+  metrosCuadrados  Decimal? @map("metros_cuadrados") @db.Decimal(8, 2)
+  habitaciones     Int?
+  banos            Int?
+  estacionamientos Int?     @default(0)
+
+  // Propiedad
+  propietarioId String?      @map("propietario_id") // Usuario propietario
+  inquilinoId   String?      @map("inquilino_id") // Usuario inquilino actual
+  estado        EstadoUnidad @default(ocupada)
+
+  // Alícuota (para distribución de gastos)
+  alicuota Decimal @db.Decimal(8, 6) // Ej: 0.012500 = 1.25%
+
+  // Contactos adicionales
+  telefonoEmergencia String? @map("telefono_emergencia")
+  emailContacto      String? @map("email_contacto")
+
+  // Metadatos
+  notas    String? @db.Text
+  metadata Json?
+
+  // Auditoría
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  condominio         CondominioExtendido @relation(fields: [condominioId], references: [id])
+  dependientes       Dependiente[]
+  vehiculos          Vehiculo[]
+  distribucionGastos DistribucionGasto[]
+  transacciones      TransaccionCuenta[]
+  reservas           ReservaArea[]
+  visitasSolicitadas Visita[]
+
+  @@unique([condominioId, numero])
+  @@index([condominioId])
+  @@index([propietarioId])
+  @@index([inquilinoId])
+  @@map("unidades")
+}
+
+// ========================================
+// DEPENDIENTES (Familiares)
+// ========================================
+
+enum TipoDependiente {
+  conyuge
+  hijo
+  padre
+  otro_familiar
+  empleado_domestico
+}
+
+model Dependiente {
+  id       String @id @default(uuid())
+  unidadId String @map("unidad_id")
+
+  nombreCompleto String          @map("nombre_completo")
+  cedula         String?         @unique
+  relacion       TipoDependiente
+  telefono       String?
+
+  activo Boolean @default(true)
+
+  // Foto para control de acceso
+  fotoUrl String? @map("foto_url")
+
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  // Relaciones
+  unidad Unidad @relation(fields: [unidadId], references: [id], onDelete: Cascade)
+
+  @@index([unidadId])
+  @@map("dependientes")
+}
+
+// ========================================
+// VEHÍCULOS
+// ========================================
+
+enum TipoVehiculo {
+  automovil
+  motocicleta
+  camioneta
+  camion
+  bicicleta
+  otro
+}
+
+model Vehiculo {
+  id       String @id @default(uuid())
+  unidadId String @map("unidad_id")
+
+  tipo   TipoVehiculo
+  marca  String?
+  modelo String?
+  color  String?
+  placa  String       @unique
+
+  activo Boolean @default(true)
+
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  // Relaciones
+  unidad  Unidad   @relation(fields: [unidadId], references: [id], onDelete: Cascade)
+  visitas Visita[]
+
+  @@index([unidadId])
+  @@index([placa])
+  @@map("vehiculos")
+}
+
+// ========================================
+// PROVEEDORES
+// ========================================
+
+enum TipoProveedor {
+  mantenimiento
+  construccion
+  limpieza
+  seguridad
+  jardineria
+  electricidad
+  plomeria
+  aire_acondicionado
+  fumigacion
+  suministros
+  otro
+}
+
+model Proveedor {
+  id             String @id @default(uuid())
+  organizacionId String @map("organizacion_id")
+
+  // Identificación
+  nombre          String
+  nombreComercial String?       @map("nombre_comercial")
+  rnc             String?       @unique // RNC o cédula
+  tipo            TipoProveedor
+
+  // Contacto
+  telefono  String
+  email     String?
+  direccion String? @db.Text
+
+  // Contactos adicionales
+  personaContacto  String? @map("persona_contacto")
+  telefonoContacto String? @map("telefono_contacto")
+
+  // Bancarios
+  banco        String?
+  numeroCuenta String? @map("numero_cuenta")
+  tipoCuenta   String? @map("tipo_cuenta") // "Ahorro", "Corriente"
+
+  // Estado
+  activo       Boolean  @default(true)
+  calificacion Decimal? @db.Decimal(3, 2) // Promedio de evaluaciones
+
+  // Metadatos
+  notas    String? @db.Text
+  metadata Json?
+
+  // Auditoría
+  fechaRegistro      DateTime @default(now()) @map("fecha_registro")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  organizacion Organizacion          @relation(fields: [organizacionId], references: [id])
+  condominios  CondominioProveedor[]
+  gastos       Gasto[]
+  evaluaciones EvaluacionProveedor[]
+
+  @@index([organizacionId])
+  @@index([tipo])
+  @@map("proveedores")
+}
+
+// Relación muchos a muchos: Condominio <-> Proveedor
+model CondominioProveedor {
+  condominioId String @map("condominio_id")
+  proveedorId  String @map("proveedor_id")
+
+  fechaAsociacion DateTime @default(now()) @map("fecha_asociacion")
+  activo          Boolean  @default(true)
+
+  condominio CondominioExtendido @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  proveedor  Proveedor           @relation(fields: [proveedorId], references: [id], onDelete: Cascade)
+
+  @@id([condominioId, proveedorId])
+  @@map("condominio_proveedor")
+}
+
+// ========================================
+// EVALUACIÓN DE PROVEEDORES
+// ========================================
+
+model EvaluacionProveedor {
+  id          String  @id @default(uuid())
+  proveedorId String  @map("proveedor_id")
+  gastoId     String? @map("gasto_id") // Gasto relacionado (opcional)
+
+  // Calificaciones (1-5)
+  calidad      Int // Calidad del trabajo
+  puntualidad  Int // Entrega a tiempo
+  precioJusto  Int @map("precio_justo") // Precio vs calidad
+  comunicacion Int // Comunicación y trato
+
+  // Promedio automático
+  promedioGeneral Decimal @map("promedio_general") @db.Decimal(3, 2)
+
+  // Comentarios
+  comentarios String? @db.Text
+
+  // Auditoría
+  evaluadoPor     String   @map("evaluado_por") // Usuario que evaluó
+  fechaEvaluacion DateTime @default(now()) @map("fecha_evaluacion")
+
+  // Relaciones
+  proveedor Proveedor @relation(fields: [proveedorId], references: [id])
+  gasto     Gasto?    @relation(fields: [gastoId], references: [id])
+
+  @@index([proveedorId])
+  @@index([gastoId])
+  @@map("evaluaciones_proveedor")
+}
+
+// ========================================
+// PLAN DE CUENTAS (Contabilidad)
+// ========================================
+
+enum TipoCuenta {
+  activo
+  pasivo
+  patrimonio
+  ingreso
+  gasto
+}
+
+model PlanCuentas {
+  id             String @id @default(uuid())
+  organizacionId String @map("organizacion_id")
+
+  // Identificación contable
+  codigo      String // "1.1.01", "4.2.03"
+  nombre      String
+  descripcion String? @db.Text
+
+  tipo          TipoCuenta
+  nivel         Int // 1, 2, 3 (para jerarquía)
+  cuentaPadreId String?    @map("cuenta_padre_id")
+
+  // Estado
+  activa            Boolean @default(true)
+  aceptaMovimientos Boolean @default(true) @map("acepta_movimientos") // Cuentas de último nivel
+
+  // Auditoría
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  organizacion Organizacion  @relation(fields: [organizacionId], references: [id])
+  cuentaPadre  PlanCuentas?  @relation("SubCuentas", fields: [cuentaPadreId], references: [id])
+  subCuentas   PlanCuentas[] @relation("SubCuentas")
+  gastos       Gasto[]
+  ingresos     Ingreso[]
+
+  @@unique([organizacionId, codigo])
+  @@index([organizacionId])
+  @@index([tipo])
+  @@map("plan_cuentas")
+}
+
+// ========================================
+// NCF (Números de Comprobante Fiscal)
+// República Dominicana
+// ========================================
+
+enum TipoNCF {
+  B01 // Facturas de Crédito Fiscal
+  B02 // Facturas de Consumo
+  B14 // Nota de Crédito
+  B15 // Nota de Débito
+  B16 // Comprobante de Compras
+}
+
+model NCFSecuencia {
+  id             String @id @default(uuid())
+  organizacionId String @map("organizacion_id")
+
+  tipo            TipoNCF
+  serie           String // "E310000000001"
+  secuenciaInicio BigInt  @map("secuencia_inicio") // 1
+  secuenciaFin    BigInt  @map("secuencia_fin") // 1000
+  secuenciaActual BigInt  @map("secuencia_actual") // 543
+
+  // Vigencia
+  fechaVencimiento DateTime @map("fecha_vencimiento")
+
+  activa Boolean @default(true)
+
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  organizacion Organizacion @relation(fields: [organizacionId], references: [id])
+  gastos       Gasto[]
+  ingresos     Ingreso[]
+
+  @@index([organizacionId])
+  @@index([tipo])
+  @@map("ncf_secuencias")
+}
+
+// ========================================
+// GASTOS
+// ========================================
+
+enum TipoGasto {
+  servicios_publicos // Electricidad, agua, gas
+  mantenimiento // Reparaciones generales
+  limpieza
+  seguridad
+  jardineria
+  personal // Nómina
+  suministros
+  impuestos
+  seguros
+  honorarios_profesionales
+  reparaciones
+  mejoras
+  otro
+}
+
+enum FormaPago {
+  efectivo
+  cheque
+  transferencia
+  tarjeta_credito
+  tarjeta_debito
+}
+
+model Gasto {
+  id               String  @id @default(uuid())
+  condominioId     String  @map("condominio_id")
+  cuentaContableId String  @map("cuenta_contable_id")
+  proveedorId      String? @map("proveedor_id")
+  ncfSecuenciaId   String? @map("ncf_secuencia_id")
+
+  // Identificación
+  numeroFactura String?   @map("numero_factura")
+  ncf           String?   @unique // NCF completo: E31000000001234567800000123
+  tipo          TipoGasto
+
+  // Detalles
+  concepto    String  @db.Text
+  descripcion String? @db.Text
+
+  // Montos
+  subtotal Decimal @db.Decimal(12, 2)
+  itbis    Decimal @default(0) @db.Decimal(12, 2) // IVA Dominicano (18%)
+  total    Decimal @db.Decimal(12, 2)
+
+  // Pago
+  formaPago    FormaPago @map("forma_pago")
+  fechaEmision DateTime  @map("fecha_emision")
+  fechaPago    DateTime? @map("fecha_pago")
+  pagado       Boolean   @default(false)
+
+  // Distribución
+  distribuirUnidades Boolean @default(true) @map("distribuir_unidades") // Distribuir a propietarios
+
+  // Adjuntos (facturas escaneadas)
+  adjuntoUrl     String? @map("adjunto_url")
+  procesadoPorIA Boolean @default(false) @map("procesado_por_ia")
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  creadoPor          String   @map("creado_por")
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  condominio     CondominioExtendido   @relation(fields: [condominioId], references: [id])
+  cuentaContable PlanCuentas           @relation(fields: [cuentaContableId], references: [id])
+  proveedor      Proveedor?            @relation(fields: [proveedorId], references: [id])
+  ncfSecuencia   NCFSecuencia?         @relation(fields: [ncfSecuenciaId], references: [id])
+  distribucion   DistribucionGasto[]
+  facturaIA      FacturaIAProcesada?
+  evaluaciones   EvaluacionProveedor[]
+
+  @@index([condominioId])
+  @@index([proveedorId])
+  @@index([tipo])
+  @@index([fechaEmision])
+  @@index([pagado])
+  @@map("gastos")
+}
+
+// ========================================
+// DISTRIBUCIÓN DE GASTOS
+// ========================================
+
+model DistribucionGasto {
+  id       String @id @default(uuid())
+  gastoId  String @map("gasto_id")
+  unidadId String @map("unidad_id")
+
+  montoAsignado Decimal   @map("monto_asignado") @db.Decimal(12, 2)
+  pagado        Boolean   @default(false)
+  fechaPago     DateTime? @map("fecha_pago")
+
+  // Auditoría
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  gasto  Gasto  @relation(fields: [gastoId], references: [id], onDelete: Cascade)
+  unidad Unidad @relation(fields: [unidadId], references: [id])
+
+  @@unique([gastoId, unidadId])
+  @@index([gastoId])
+  @@index([unidadId])
+  @@index([pagado])
+  @@map("distribucion_gastos")
+}
+
+// ========================================
+// INGRESOS
+// ========================================
+
+enum TipoIngreso {
+  cuota_mantenimiento
+  multa
+  reserva_area_comun
+  alquiler
+  intereses
+  donacion
+  venta_activo
+  otro
+}
+
+model Ingreso {
+  id               String  @id @default(uuid())
+  condominioId     String  @map("condominio_id")
+  cuentaContableId String  @map("cuenta_contable_id")
+  ncfSecuenciaId   String? @map("ncf_secuencia_id")
+
+  // Identificación
+  numeroRecibo String?     @unique @map("numero_recibo")
+  ncf          String?     @unique
+  tipo         TipoIngreso
+
+  // Detalles
+  concepto    String  @db.Text
+  descripcion String? @db.Text
+
+  // Montos
+  monto Decimal @db.Decimal(12, 2)
+
+  // Pago
+  formaPago    FormaPago @map("forma_pago")
+  fechaEmision DateTime  @map("fecha_emision")
+  fechaCobro   DateTime? @map("fecha_cobro")
+  cobrado      Boolean   @default(false)
+
+  // Relación con unidad (si aplica)
+  unidadId String? @map("unidad_id")
+
+  // Adjuntos
+  adjuntoUrl String? @map("adjunto_url")
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  creadoPor          String   @map("creado_por")
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  condominio     CondominioExtendido @relation(fields: [condominioId], references: [id])
+  cuentaContable PlanCuentas         @relation(fields: [cuentaContableId], references: [id])
+  ncfSecuencia   NCFSecuencia?       @relation(fields: [ncfSecuenciaId], references: [id])
+
+  @@index([condominioId])
+  @@index([tipo])
+  @@index([fechaEmision])
+  @@index([cobrado])
+  @@index([unidadId])
+  @@map("ingresos")
+}
+
+// ========================================
+// FACTURAS PROCESADAS CON IA
+// ========================================
+
+model FacturaIAProcesada {
+  id      String @id @default(uuid())
+  gastoId String @unique @map("gasto_id")
+
+  // Datos extraídos por OCR + Claude
+  textoExtraido      String? @map("texto_extraido") @db.Text
+  datosEstructurados Json?   @map("datos_estructurados") // JSON con todos los campos
+
+  // Confianza del procesamiento
+  confianza Decimal? @db.Decimal(3, 2) // 0.00 - 1.00
+
+  // Validación
+  validada        Boolean   @default(false)
+  validadaPor     String?   @map("validada_por")
+  fechaValidacion DateTime? @map("fecha_validacion")
+
+  // Auditoría
+  fechaProcesamiento DateTime @default(now()) @map("fecha_procesamiento")
+
+  // Relaciones
+  gasto Gasto @relation(fields: [gastoId], references: [id], onDelete: Cascade)
+
+  @@index([gastoId])
+  @@map("facturas_ia_procesadas")
+}
+
+// ========================================
+// PREDICCIONES IA (Machine Learning)
+// ========================================
+
+enum TipoPrediccion {
+  gasto_mensual
+  consumo_energia
+  consumo_agua
+  mantenimiento_preventivo
+  flujo_caja
+}
+
+model PrediccionIA {
+  id           String         @id @default(uuid())
+  condominioId String         @map("condominio_id")
+  tipo         TipoPrediccion
+
+  // Predicción
+  periodo       String // "2024-12", "2024-Q4"
+  valorPredicho Decimal  @map("valor_predicho") @db.Decimal(12, 2)
+  valorReal     Decimal? @map("valor_real") @db.Decimal(12, 2)
+
+  // Métricas
+  confianza   Decimal  @db.Decimal(3, 2) // 0.85 = 85%
+  margenError Decimal? @map("margen_error") @db.Decimal(12, 2)
+
+  // Modelo
+  modeloUsado        String @map("modelo_usado") // "linear_regression", "random_forest"
+  datosEntrenamiento Json?  @map("datos_entrenamiento")
+
+  // Auditoría
+  fechaPrediccion    DateTime  @default(now()) @map("fecha_prediccion")
+  fechaActualizacion DateTime? @map("fecha_actualizacion")
+
+  @@index([condominioId])
+  @@index([tipo])
+  @@map("predicciones_ia")
+}
+
+// ========================================
+// PERSONAL Y NÓMINA
+// ========================================
+
+enum TipoPersonal {
+  administrativo
+  mantenimiento
+  limpieza
+  seguridad
+  jardineria
+  otro
+}
+
+enum EstadoPersonal {
+  activo
+  inactivo
+  vacaciones
+  suspendido
+}
+
+model Personal {
+  id             String @id @default(uuid())
+  organizacionId String @map("organizacion_id")
+
+  // Identificación
+  nombreCompleto String  @map("nombre_completo")
+  cedula         String  @unique
+  telefono       String
+  email          String?
+  direccion      String? @db.Text
+
+  // Laboral
+  tipo         TipoPersonal
+  puesto       String
+  fechaIngreso DateTime       @map("fecha_ingreso")
+  fechaSalida  DateTime?      @map("fecha_salida")
+  estado       EstadoPersonal @default(activo)
+
+  // Salario
+  salarioMensual Decimal @map("salario_mensual") @db.Decimal(12, 2)
+
+  // Seguridad Social (República Dominicana)
+  afiliacionAFP String? @map("afiliacion_afp") // Número AFP
+  afiliacionARS String? @map("afiliacion_ars") // Número ARS
+
+  // Bancarios
+  banco        String?
+  numeroCuenta String? @map("numero_cuenta")
+
+  // Foto
+  fotoUrl String? @map("foto_url")
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  fechaRegistro      DateTime @default(now()) @map("fecha_registro")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  organizacion Organizacion @relation(fields: [organizacionId], references: [id])
+  nominas      Nomina[]
+
+  @@index([organizacionId])
+  @@index([tipo])
+  @@index([estado])
+  @@map("personal")
+}
+
+// NÓMINA
+model Nomina {
+  id         String @id @default(uuid())
+  personalId String @map("personal_id")
+
+  // Período
+  periodo   String // "2024-12"
+  fechaPago DateTime @map("fecha_pago")
+
+  // Salario
+  salarioBase    Decimal @map("salario_base") @db.Decimal(12, 2)
+  bonificaciones Decimal @default(0) @db.Decimal(12, 2)
+  horasExtra     Decimal @default(0) @map("horas_extra") @db.Decimal(12, 2)
+
+  // Deducciones República Dominicana
+  deduccionAFP     Decimal @default(0) @map("deduccion_afp") @db.Decimal(12, 2) // 2.87%
+  deduccionARS     Decimal @default(0) @map("deduccion_ars") @db.Decimal(12, 2) // 3.04%
+  deduccionISR     Decimal @default(0) @map("deduccion_isr") @db.Decimal(12, 2) // Escala progresiva
+  otrasDeducciones Decimal @default(0) @map("otras_deducciones") @db.Decimal(12, 2)
+
+  // Total
+  totalDevengado   Decimal @map("total_devengado") @db.Decimal(12, 2) // Base + bonos + extras
+  totalDeducciones Decimal @map("total_deducciones") @db.Decimal(12, 2)
+  salarioNeto      Decimal @map("salario_neto") @db.Decimal(12, 2)
+
+  // Estado
+  pagado Boolean @default(false)
+
+  // Metadatos
+  notas    String? @db.Text
+  metadata Json?
+
+  // Auditoría
+  creadoPor     String   @map("creado_por")
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  personal Personal @relation(fields: [personalId], references: [id])
+
+  @@unique([personalId, periodo])
+  @@index([personalId])
+  @@index([periodo])
+  @@index([pagado])
+  @@map("nominas")
+}
+
+// ========================================
+// ÁREAS COMUNES (Extendido)
+// ========================================
+
+enum TipoAreaComun {
+  salon_eventos
+  salon_fiestas
+  gimnasio
+  piscina
+  cancha_tenis
+  cancha_padel
+  cancha_basketball
+  area_bbq
+  gazebo
+  terraza
+  salon_ninos
+  sala_juegos
+  salon_conferencias
+  coworking
+  otro
+}
+
+enum EstadoAreaComun {
+  disponible
+  en_mantenimiento
+  fuera_servicio
+}
+
+model AreaComun {
+  id           String @id @default(uuid())
+  condominioId String @map("condominio_id")
+
+  nombre      String
+  tipo        TipoAreaComun
+  descripcion String?       @db.Text
+  ubicacion   String? // "Edificio A, Planta Baja"
+
+  // Capacidad y características
+  capacidad       Int? // Personas
+  metrosCuadrados Decimal? @map("metros_cuadrados") @db.Decimal(8, 2)
+  equipamiento    Json? // Lista de equipos disponibles
+
+  // Disponibilidad
+  estado          EstadoAreaComun @default(disponible)
+  requiereReserva Boolean         @default(true) @map("requiere_reserva")
+
+  // Horarios
+  horaApertura    String? @map("hora_apertura") // "08:00"
+  horaCierre      String? @map("hora_cierre") // "22:00"
+  diasDisponibles Json?   @map("dias_disponibles") // ["lunes", "martes", ...]
+
+  // Costos
+  costoReserva     Decimal? @map("costo_reserva") @db.Decimal(10, 2)
+  requiereDeposito Boolean  @default(false) @map("requiere_deposito")
+  montoDeposito    Decimal? @map("monto_deposito") @db.Decimal(10, 2)
+
+  // Reglas
+  tiempoMaximoReserva Int? @map("tiempo_maximo_reserva") // En horas
+  anticipacionMinima  Int? @map("anticipacion_minima") // Días de anticipación
+
+  // Multimedia
+  fotos Json? // Array de URLs
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  condominio CondominioExtendido @relation(fields: [condominioId], references: [id])
+  reservas   ReservaArea[]
+
+  @@index([condominioId])
+  @@index([tipo])
+  @@index([estado])
+  @@map("areas_comunes")
+}
+
+// RESERVAS DE ÁREAS COMUNES
+enum EstadoReserva {
+  pendiente
+  confirmada
+  cancelada
+  completada
+  no_show
+}
+
+model ReservaArea {
+  id        String @id @default(uuid())
+  areaId    String @map("area_id")
+  unidadId  String @map("unidad_id")
+  usuarioId String @map("usuario_id")
+
+  // Fechas y horarios
+  fechaReserva DateTime @map("fecha_reserva")
+  horaInicio   String   @map("hora_inicio") // "14:00"
+  horaFin      String   @map("hora_fin") // "18:00"
+
+  // Estado
+  estado EstadoReserva @default(pendiente)
+
+  // Participantes
+  numeroPersonas Int?    @map("numero_personas")
+  tipoEvento     String? @map("tipo_evento") // "Cumpleaños", "Reunión familiar"
+
+  // Costos
+  costoReserva     Decimal? @map("costo_reserva") @db.Decimal(10, 2)
+  depositoPagado   Decimal? @map("deposito_pagado") @db.Decimal(10, 2)
+  depositoDevuelto Boolean  @default(false) @map("deposito_devuelto")
+
+  // Notas
+  notas             String? @db.Text
+  motivoCancelacion String? @map("motivo_cancelacion") @db.Text
+
+  // Auditoría
+  fechaSolicitud     DateTime @default(now()) @map("fecha_solicitud")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+  canceladoPor       String?  @map("cancelado_por")
+
+  // Relaciones
+  area   AreaComun @relation(fields: [areaId], references: [id])
+  unidad Unidad    @relation(fields: [unidadId], references: [id])
+
+  @@index([areaId])
+  @@index([unidadId])
+  @@index([usuarioId])
+  @@index([fechaReserva])
+  @@index([estado])
+  @@map("reservas_areas")
+}
+
+// ========================================
+// CONTROL DE VISITAS (Garita de Seguridad)
+// ========================================
+
+enum TipoVisita {
+  personal
+  proveedor
+  delivery
+  uber_taxi
+  mudanza
+  otro
+}
+
+enum EstadoVisita {
+  esperada // Pre-autorizada
+  en_espera // Llegó y espera aprobación
+  autorizada // Autorizada por residente
+  ingresada // Ya ingresó
+  rechazada // No autorizada
+  salida_registrada // Salió
+}
+
+model Visita {
+  id           String @id @default(uuid())
+  condominioId String @map("condominio_id")
+  unidadId     String @map("unidad_id")
+
+  // Información del visitante
+  nombreVisitante String  @map("nombre_visitante")
+  cedula          String?
+  telefono        String?
+  vehiculoId      String? @map("vehiculo_id") // Si llega en vehículo
+
+  // Clasificación
+  tipo   TipoVisita
+  estado EstadoVisita @default(en_espera)
+
+  // Fechas y horarios
+  fechaEsperada    DateTime? @map("fecha_esperada") // Para visitas pre-autorizadas
+  fechaHoraLlegada DateTime? @map("fecha_hora_llegada")
+  fechaHoraSalida  DateTime? @map("fecha_hora_salida")
+
+  // Autorización
+  autorizadoPor     String?   @map("autorizado_por") // Usuario que autorizó
+  fechaAutorizacion DateTime? @map("fecha_autorizacion")
+  motivoRechazo     String?   @map("motivo_rechazo") @db.Text
+
+  // Seguridad
+  fotoVisitante String? @map("foto_visitante") // Captura en garita
+  fotoVehiculo  String? @map("foto_vehiculo")
+
+  // Observaciones
+  observaciones String? @db.Text
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  registradoPor String   @map("registrado_por") // Guardia de seguridad
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  // Relaciones
+  condominio        CondominioExtendido @relation(fields: [condominioId], references: [id])
+  unidad            Unidad              @relation(fields: [unidadId], references: [id])
+  vehiculo          Vehiculo?           @relation(fields: [vehiculoId], references: [id])
+  visitaFrecuente   VisitaFrecuente?    @relation(fields: [visitaFrecuenteId], references: [id])
+  visitaFrecuenteId String?             @map("visita_frecuente_id")
+
+  @@index([condominioId])
+  @@index([unidadId])
+  @@index([estado])
+  @@index([fechaHoraLlegada])
+  @@index([tipo])
+  @@map("visitas")
+}
+
+// VISITAS FRECUENTES (Pre-autorizadas permanentemente)
+model VisitaFrecuente {
+  id       String @id @default(uuid())
+  unidadId String @map("unidad_id")
+
+  // Información
+  nombreCompleto String  @map("nombre_completo")
+  cedula         String? @unique
+  telefono       String?
+  relacion       String // "Empleada doméstica", "Familiar", "Proveedor"
+
+  // Autorización permanente
+  autorizacionActiva Boolean @default(true) @map("autorizacion_activa")
+  diasAutorizados    Json?   @map("dias_autorizados") // ["lunes", "miercoles", "viernes"]
+  horarioAutorizado  Json?   @map("horario_autorizado") // {"inicio": "08:00", "fin": "17:00"}
+
+  // Multimedia
+  fotoUrl String? @map("foto_url")
+
+  // Auditoría
+  autorizadoPor     String    @map("autorizado_por")
+  fechaAutorizacion DateTime  @default(now()) @map("fecha_autorizacion")
+  fechaVencimiento  DateTime? @map("fecha_vencimiento")
+
+  // Relaciones
+  visitas Visita[]
+
+  @@index([unidadId])
+  @@index([autorizacionActiva])
+  @@map("visitas_frecuentes")
+}
+
+// ========================================
+// ESTADOS DE CUENTA
+// ========================================
+
+enum TipoEstadoCuenta {
+  mensual
+  trimestral
+  anual
+}
+
+model EstadoCuenta {
+  id           String @id @default(uuid())
+  condominioId String @map("condominio_id")
+  unidadId     String @map("unidad_id")
+
+  // Período
+  periodo     String // "2024-12"
+  tipo        TipoEstadoCuenta
+  fechaInicio DateTime         @map("fecha_inicio")
+  fechaFin    DateTime         @map("fecha_fin")
+
+  // Saldos
+  saldoAnterior Decimal @map("saldo_anterior") @db.Decimal(12, 2)
+  totalCargos   Decimal @map("total_cargos") @db.Decimal(12, 2)
+  totalPagos    Decimal @map("total_pagos") @db.Decimal(12, 2)
+  saldoActual   Decimal @map("saldo_actual") @db.Decimal(12, 2)
+
+  // Desglose de cargos
+  cuotaMantenimiento Decimal? @map("cuota_mantenimiento") @db.Decimal(12, 2)
+  gastosDistribuidos Decimal? @map("gastos_distribuidos") @db.Decimal(12, 2)
+  multas             Decimal? @default(0) @db.Decimal(12, 2)
+  interesesMora      Decimal? @default(0) @map("intereses_mora") @db.Decimal(12, 2)
+  otros              Decimal? @default(0) @db.Decimal(12, 2)
+
+  // Estado
+  pagado           Boolean  @default(false)
+  fechaVencimiento DateTime @map("fecha_vencimiento")
+
+  // PDF generado
+  pdfUrl          String?   @map("pdf_url")
+  fechaGeneracion DateTime? @map("fecha_generacion")
+
+  // Notificaciones
+  enviadoPorEmail    Boolean @default(false) @map("enviado_email")
+  enviadoPorWhatsApp Boolean @default(false) @map("enviado_whatsapp")
+
+  // Auditoría
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  condominio    CondominioExtendido @relation(fields: [condominioId], references: [id])
+  transacciones TransaccionCuenta[]
+
+  @@unique([condominioId, unidadId, periodo])
+  @@index([condominioId])
+  @@index([unidadId])
+  @@index([periodo])
+  @@index([pagado])
+  @@map("estados_cuenta")
+}
+
+// TRANSACCIONES INDIVIDUALES
+enum TipoTransaccion {
+  cargo
+  pago
+  ajuste
+  nota_credito
+  nota_debito
+}
+
+model TransaccionCuenta {
+  id             String  @id @default(uuid())
+  estadoCuentaId String? @map("estado_cuenta_id")
+  unidadId       String  @map("unidad_id")
+
+  // Clasificación
+  tipo       TipoTransaccion
+  concepto   String          @db.Text
+  referencia String? // Número de factura, recibo, etc
+
+  // Monto
+  monto Decimal @db.Decimal(12, 2) // Positivo para cargos, negativo para pagos
+  saldo Decimal @db.Decimal(12, 2) // Saldo después de esta transacción
+
+  // Fecha
+  fecha              DateTime
+  fechaProcesamiento DateTime? @map("fecha_procesamiento")
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  creadoPor     String   @map("creado_por")
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  estadoCuenta EstadoCuenta? @relation(fields: [estadoCuentaId], references: [id])
+  unidad       Unidad        @relation(fields: [unidadId], references: [id])
+
+  @@index([estadoCuentaId])
+  @@index([unidadId])
+  @@index([tipo])
+  @@index([fecha])
+  @@map("transacciones_cuenta")
+}
+
+// ========================================
+// CALENDARIO Y RECORDATORIOS
+// ========================================
+
+enum TipoEventoCalendario {
+  asamblea
+  reunion_junta
+  mantenimiento_programado
+  corte_servicio
+  evento_social
+  fecha_limite_pago
+  otro
+}
+
+model CalendarioEvento {
+  id           String @id @default(uuid())
+  condominioId String @map("condominio_id")
+
+  titulo      String
+  descripcion String?              @db.Text
+  tipo        TipoEventoCalendario
+
+  // Fecha y hora
+  fechaInicio DateTime  @map("fecha_inicio")
+  fechaFin    DateTime? @map("fecha_fin")
+  todoElDia   Boolean   @default(false) @map("todo_el_dia")
+
+  // Ubicación
+  ubicacion String?
+
+  // Participantes
+  esPublico         Boolean @default(true) @map("es_publico") // Visible para todos
+  unidadesInvitadas Json?   @map("unidades_invitadas") // IDs específicas si no es público
+
+  // Recordatorios
+  recordatorios Recordatorio[]
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  creadoPor          String   @map("creado_por")
+  fechaCreacion      DateTime @default(now()) @map("fecha_creacion")
+  fechaActualizacion DateTime @updatedAt @map("fecha_actualizacion")
+
+  // Relaciones
+  condominio CondominioExtendido @relation(fields: [condominioId], references: [id])
+
+  @@index([condominioId])
+  @@index([tipo])
+  @@index([fechaInicio])
+  @@map("calendario_eventos")
+}
+
+// RECORDATORIOS
+enum CanalRecordatorio {
+  email
+  whatsapp
+  notificacion_app
+  sms
+}
+
+model Recordatorio {
+  id       String @id @default(uuid())
+  eventoId String @map("evento_id")
+
+  // Configuración
+  canal        CanalRecordatorio
+  minutosAntes Int               @map("minutos_antes") // 1440 = 24 horas
+
+  // Ejecución
+  enviado    Boolean   @default(false)
+  fechaEnvio DateTime? @map("fecha_envio")
+
+  // Auditoría
+  fechaCreacion DateTime @default(now()) @map("fecha_creacion")
+
+  // Relaciones
+  evento CalendarioEvento @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+
+  @@index([eventoId])
+  @@index([enviado])
+  @@map("recordatorios")
+}
+
+// ========================================
+// DOCUMENTOS Y ARCHIVOS
+// ========================================
+
+enum TipoDocumento {
+  acta_asamblea
+  reglamento
+  contrato
+  factura
+  recibo
+  certificado
+  plano
+  manual
+  otro
+}
+
+model Documento {
+  id           String @id @default(uuid())
+  condominioId String @map("condominio_id")
+
+  // Identificación
+  nombre      String
+  tipo        TipoDocumento
+  descripcion String?       @db.Text
+
+  // Archivo
+  url           String
+  nombreArchivo String @map("nombre_archivo")
+  tamanoBytes   BigInt @map("tamano_bytes")
+  mimeType      String @map("mime_type")
+
+  // Organización
+  carpeta   String? // "Asambleas/2024"
+  etiquetas Json? // ["importante", "legal", "2024"]
+
+  // Acceso
+  esPublico         Boolean @default(false) @map("es_publico")
+  unidadesConAcceso Json?   @map("unidades_con_acceso")
+
+  // Metadatos
+  metadata Json?
+
+  // Auditoría
+  subidoPor   String   @map("subido_por")
+  fechaSubida DateTime @default(now()) @map("fecha_subida")
+
+  // Relaciones
+  condominio CondominioExtendido @relation(fields: [condominioId], references: [id])
+
+  @@index([condominioId])
+  @@index([tipo])
+  @@index([carpeta])
+  @@map("documentos")
 }
