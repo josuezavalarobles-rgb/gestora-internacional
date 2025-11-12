@@ -55,6 +55,7 @@ export const config = {
     businessName: process.env.WHATSAPP_BUSINESS_NAME || 'Amico Management',
     autoRead: process.env.WHATSAPP_AUTO_READ === 'true',
     autoMarkRead: process.env.WHATSAPP_AUTO_MARK_READ === 'true',
+    groupJid: process.env.WHATSAPP_GROUP_JID || '', // JID del grupo de administradores e ingenieros
   },
 
   // File Upload
