@@ -43,6 +43,12 @@ import estadosCuentaRoutes from './routes/estados-cuenta.routes';
 import iaRoutes from './routes/ia.routes';
 import adminRoutes from './routes/admin.routes';
 import importRoutes from './routes/import.routes';
+import areasComunesRoutes from './routes/areas-comunes.routes';
+import visitasRoutes from './routes/visitas.routes';
+import personalRoutes from './routes/personal.routes';
+import unidadesRoutes from './routes/unidades.routes';
+import calendarioRoutes from './routes/calendario.routes';
+import documentosRoutes from './routes/documentos.routes';
 
 // Servicios
 import { WhatsAppService } from './services/whatsapp/WhatsAppService';
@@ -158,6 +164,12 @@ class Application {
     this.app.use(`${apiPrefix}/ia`, iaRoutes);
     this.app.use(`${apiPrefix}/admin`, adminRoutes);
     this.app.use(`${apiPrefix}/import`, importRoutes);
+    this.app.use(`${apiPrefix}/areas-comunes`, areasComunesRoutes);
+    this.app.use(`${apiPrefix}/visitas`, visitasRoutes);
+    this.app.use(`${apiPrefix}/personal`, personalRoutes);
+    this.app.use(`${apiPrefix}/unidades`, unidadesRoutes);
+    this.app.use(`${apiPrefix}/calendario`, calendarioRoutes);
+    this.app.use(`${apiPrefix}/documentos`, documentosRoutes);
 
     // Error handlers
     this.app.use(notFoundHandler);
