@@ -7,7 +7,7 @@
 
 import { Router } from 'express';
 import * as adminController from '../controllers/admin.controller';
-import { authenticate } from '../middleware/auth';
+import { authenticate } from '../middleware/auth.middleware';
 import { requireRole } from '../middleware/requireRole';
 
 const router = Router();

@@ -9,7 +9,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import * as importController from '../controllers/import.controller';
-import { authenticate } from '../middleware/auth';
+import { authenticate } from '../middleware/auth.middleware';
 import { requireRole } from '../middleware/requireRole';
 
 const router = Router();
