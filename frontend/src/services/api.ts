@@ -1,5 +1,22 @@
 import axios from 'axios';
-import type { Caso, KPIStats } from '../types';
+import type {
+  Caso,
+  KPIStats,
+  HunterEmailResult,
+  HunterDomainSearch,
+  HunterVerification,
+  ApolloContact,
+  ApolloOrganization,
+  LinkedInProfile,
+  PhantomJob,
+  SmartEnrichResult,
+  ProspectingStatus,
+  FindEmailData,
+  SearchPeopleData,
+  SearchOrganizationsData,
+  LinkedInSearchData,
+  SmartEnrichData,
+} from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
@@ -267,6 +284,213 @@ export const visitasApi = {
 
   update: async (id: string, data: any): Promise<any> => {
     const response = await api.put(`/visitas/${id}`, data);
+    return response.data;
+  },
+};
+
+// ============ PROSPECTING API ============
+
+export const prospectingApi = {
+  // ============ STATUS & CONFIGURATION ============
+
+  getStatus: async (): Promise<ProspectingStatus> => {
+    const response = await api.get('/prospecting/status');
+    return response.data;
+  },
+
+  configure: async (provider: 'HUNTER' | 'APOLLO' | 'PHANTOMBUSTER', apiKey: string, isActive?: boolean): Promise<any> => {
+    const response = await api.post('/prospecting/configure', { provider, apiKey, isActive });
+    return response.data;
+  },
+
+  // ============ HUNTER.IO ENDPOINTS ============
+
+  hunterFindEmail: async (data: FindEmailData): Promise<HunterEmailResult> => {
+    const response = await api.post('/prospecting/hunter/find-email', data);
+    return response.data;
+  },
+
+  hunterSearchDomain: async (domain: string, type?: 'personal' | 'generic', limit?: number): Promise<HunterDomainSearch> => {
+    const response = await api.post('/prospecting/hunter/search-domain', {
+      domain,
+      type,
+      limit,
+    });
+    return response.data;
+  },
+
+  hunterVerifyEmail: async (email: string): Promise<HunterVerification> => {
+    const response = await api.post('/prospecting/hunter/verify-email', { email });
+    return response.data;
+  },
+
+  hunterVerifyBatch: async (emails: string[]): Promise<HunterVerification[]> => {
+    const response = await api.post('/prospecting/hunter/verify-batch', { emails });
+    return response.data;
+  },
+
+  hunterEnrichLead: async (companyDomain: string, firstName?: string, lastName?: string): Promise<any> => {
+    const response = await api.post('/prospecting/hunter/enrich-lead', {
+      companyDomain,
+      firstName,
+      lastName,
+    });
+    return response.data;
+  },
+
+  hunterGetAccount: async (): Promise<any> => {
+    const response = await api.get('/prospecting/hunter/account');
+    return response.data;
+  },
+
+  // ============ APOLLO.IO ENDPOINTS ============
+
+  apolloSearchPeople: async (data: SearchPeopleData): Promise<{ contacts: ApolloContact[]; total: number }> => {
+    const response = await api.post('/prospecting/apollo/search-people', data);
+    return response.data;
+  },
+
+  apolloSearchOrganizations: async (data: SearchOrganizationsData): Promise<{ organizations: ApolloOrganization[]; total: number }> => {
+    const response = await api.post('/prospecting/apollo/search-organizations', data);
+    return response.data;
+  },
+
+  apolloEnrichPerson: async (firstName?: string, lastName?: string, organizationDomain?: string, email?: string, linkedinUrl?: string): Promise<ApolloContact> => {
+    const response = await api.post('/prospecting/apollo/enrich-person', {
+      firstName,
+      lastName,
+      organizationDomain,
+      email,
+      linkedinUrl,
+    });
+    return response.data;
+  },
+
+  apolloEnrichOrganization: async (domain: string): Promise<ApolloOrganization> => {
+    const response = await api.post('/prospecting/apollo/enrich-organization', { domain });
+    return response.data;
+  },
+
+  apolloGetCompanyContacts: async (companyDomain: string, titles?: string[], limit?: number): Promise<ApolloContact[]> => {
+    const response = await api.post('/prospecting/apollo/company-contacts', {
+      companyDomain,
+      titles,
+      limit,
+    });
+    return response.data;
+  },
+
+  apolloFindDecisionMakers: async (industry: string, location?: string, companySize?: string, titles?: string[], limit?: number): Promise<ApolloContact[]> => {
+    const response = await api.post('/prospecting/apollo/find-decision-makers', {
+      industry,
+      location,
+      companySize,
+      titles,
+      limit,
+    });
+    return response.data;
+  },
+
+  apolloGetAccount: async (): Promise<any> => {
+    const response = await api.get('/prospecting/apollo/account');
+    return response.data;
+  },
+
+  // ============ PHANTOMBUSTER ENDPOINTS ============
+
+  phantomBusterListAgents: async (): Promise<any[]> => {
+    const response = await api.get('/prospecting/phantombuster/agents');
+    return response.data;
+  },
+
+  phantomBusterLaunchAgent: async (agentId: string, argument?: any, saveToCloud?: boolean): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/launch', {
+      agentId,
+      argument,
+      saveToCloud,
+    });
+    return response.data;
+  },
+
+  phantomBusterGetContainerStatus: async (containerId: string): Promise<any> => {
+    const response = await api.get(`/prospecting/phantombuster/container/${containerId}`);
+    return response.data;
+  },
+
+  phantomBusterExtractLinkedInProfiles: async (searchUrl: string, numberOfPages?: number, emailDiscovery?: boolean): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/linkedin/extract-profiles', {
+      searchUrl,
+      numberOfPages,
+      emailDiscovery,
+    });
+    return response.data;
+  },
+
+  phantomBusterSearchLinkedIn: async (data: LinkedInSearchData): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/linkedin/search', data);
+    return response.data;
+  },
+
+  phantomBusterExtractLinkedInCompany: async (companyUrl: string, extractEmployees?: boolean): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/linkedin/extract-company', {
+      companyUrl,
+      extractEmployees,
+    });
+    return response.data;
+  },
+
+  phantomBusterSendLinkedInMessages: async (profileUrls: string[], message: string, useProfileTag?: boolean): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/linkedin/send-messages', {
+      profileUrls,
+      message,
+      useProfileTag,
+    });
+    return response.data;
+  },
+
+  phantomBusterSendConnectionRequests: async (profileUrls: string[], personalizedMessage?: string, maxRequestsPerDay?: number): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/linkedin/send-connections', {
+      profileUrls,
+      personalizedMessage,
+      maxRequestsPerDay,
+    });
+    return response.data;
+  },
+
+  phantomBusterExtractInstagramFollowers: async (username: string, maxFollowers?: number): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/instagram/extract-followers', {
+      username,
+      maxFollowers,
+    });
+    return response.data;
+  },
+
+  phantomBusterExtractFacebookPosts: async (pageUrl: string, maxPosts?: number): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/facebook/extract-posts', {
+      pageUrl,
+      maxPosts,
+    });
+    return response.data;
+  },
+
+  phantomBusterScrapeWebsite: async (url: string, selectors?: { [key: string]: string }, waitTime?: number): Promise<PhantomJob> => {
+    const response = await api.post('/prospecting/phantombuster/web-scrape', {
+      url,
+      selectors,
+      waitTime,
+    });
+    return response.data;
+  },
+
+  phantomBusterGetAccount: async (): Promise<any> => {
+    const response = await api.get('/prospecting/phantombuster/account');
+    return response.data;
+  },
+
+  // ============ COMBINED/SMART ENDPOINTS ============
+
+  smartEnrich: async (data: SmartEnrichData): Promise<SmartEnrichResult> => {
+    const response = await api.post('/prospecting/smart-enrich', data);
     return response.data;
   },
 };

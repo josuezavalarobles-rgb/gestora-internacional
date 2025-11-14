@@ -162,6 +162,29 @@ export default function Dashboard() {
         </p>
       </div>
 
+      {/* Prospecting Quick Access */}
+      <Link
+        to="/prospecting"
+        className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl p-6 mb-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 glow-blue"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="bg-white bg-opacity-20 rounded-full p-4">
+              <Search size={32} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-1">
+                Prospección Inteligente
+              </h2>
+              <p className="text-blue-100">
+                Busca y enriquece datos de empresas y contactos con Hunter.io, Apollo.io y PhantomBuster
+              </p>
+            </div>
+          </div>
+          <ArrowRight size={32} className="text-white" />
+        </div>
+      </Link>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard

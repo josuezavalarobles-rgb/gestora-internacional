@@ -9,7 +9,8 @@ import {
   Plus,
   CheckCircle,
   Bot,
-  Home
+  Home,
+  Search
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -38,6 +39,11 @@ export default function Sidebar() {
       path: '/nuevo-caso',
       icon: Plus,
       label: 'Nuevo Caso',
+    },
+    {
+      path: '/prospecting',
+      icon: Search,
+      label: 'Prospección',
     },
     {
       path: '/solicitudes-ia',

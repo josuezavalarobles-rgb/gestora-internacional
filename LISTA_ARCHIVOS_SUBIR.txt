@@ -1,0 +1,246 @@
+═══════════════════════════════════════════════════════════════════
+  LISTA EXACTA DE ARCHIVOS A SUBIR A BLUEHOST - GESTORA INTERNACIONAL
+═══════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════
+PARTE 1: BACKEND
+═══════════════════════════════════════════════════════════════════
+
+📂 ORIGEN (tu PC):
+c:\Users\josue\mis-sitios-bluehost\public_html\ges-internacional\backend\
+
+📂 DESTINO (Bluehost):
+/home/tuusuario/gestora-backend/
+
+───────────────────────────────────────────────────────────────────
+CARPETAS Y ARCHIVOS A SUBIR:
+───────────────────────────────────────────────────────────────────
+
+✅ dist/                                  [TODO EL CONTENIDO]
+   ├── index.js
+   ├── config/
+   ├── controllers/
+   ├── middleware/
+   ├── routes/
+   ├── services/
+   ├── utils/
+   └── ... (todo lo que esté en dist/)
+
+✅ node_modules/                          [TODO EL CONTENIDO]
+   └── ... (todas las dependencias)
+   ⚠️ NOTA: Puede tardar 15-20 minutos
+   💡 ALTERNATIVA: No subir y ejecutar "npm install" por SSH
+
+✅ prisma/                                [TODO EL CONTENIDO]
+   ├── schema.prisma
+   ├── seed.ts
+   └── migrations/
+       └── ... (todas las migraciones)
+
+✅ uploads/                               [CARPETA VACÍA]
+   └── temp/
+       └── .gitkeep
+
+✅ .env.production                        [ARCHIVO INDIVIDUAL]
+   ⚠️ IMPORTANTE: Renombrar a ".env" después de subirlo
+
+✅ package.json                           [ARCHIVO INDIVIDUAL]
+
+✅ package-lock.json                      [ARCHIVO INDIVIDUAL]
+
+───────────────────────────────────────────────────────────────────
+NO SUBIR (archivos de desarrollo):
+───────────────────────────────────────────────────────────────────
+
+❌ src/                    (código fuente TypeScript)
+❌ .git/                   (repositorio git)
+❌ .gitignore              (solo para git)
+❌ .env                    (archivo local)
+❌ .env.example            (solo ejemplo)
+❌ tsconfig.json           (configuración TypeScript)
+❌ *.ts                    (archivos TypeScript individuales)
+❌ README.md               (documentación)
+❌ node_modules.backup/    (backups)
+
+═══════════════════════════════════════════════════════════════════
+PARTE 2: FRONTEND
+═══════════════════════════════════════════════════════════════════
+
+📂 ORIGEN (tu PC):
+c:\Users\josue\mis-sitios-bluehost\public_html\ges-internacional\frontend\dist\
+
+📂 DESTINO (Bluehost):
+/home/tuusuario/public_html/gestora-internacional/
+
+───────────────────────────────────────────────────────────────────
+CARPETAS Y ARCHIVOS A SUBIR:
+───────────────────────────────────────────────────────────────────
+
+⚠️ IMPORTANTE: Subir SOLO el CONTENIDO de frontend/dist/
+   NO subir la carpeta "dist" en sí
+
+✅ index.html                             [ARCHIVO INDIVIDUAL]
+
+✅ assets/                                [TODO EL CONTENIDO]
+   ├── index-[hash].js
+   ├── index-[hash].css
+   ├── logo-[hash].svg
+   └── ... (todos los archivos con hash)
+
+✅ vite.svg                               [ARCHIVO INDIVIDUAL]
+
+✅ favicon.ico                            [ARCHIVO INDIVIDUAL]
+   (si existe)
+
+✅ robots.txt                             [ARCHIVO INDIVIDUAL]
+   (si existe)
+
+───────────────────────────────────────────────────────────────────
+CREAR MANUALMENTE EN BLUEHOST:
+───────────────────────────────────────────────────────────────────
+
+📝 .htaccess
+   - Ubicación: /home/tuusuario/public_html/gestora-internacional/.htaccess
+   - Contenido: Ver PASOS_RAPIDOS_FILEZILLA.md paso 7
+
+───────────────────────────────────────────────────────────────────
+NO SUBIR (archivos de desarrollo):
+───────────────────────────────────────────────────────────────────
+
+❌ src/                    (código fuente React)
+❌ node_modules/           (dependencias desarrollo)
+❌ public/                 (archivos sin compilar)
+❌ .git/                   (repositorio git)
+❌ .gitignore              (solo para git)
+❌ .env                    (archivo local)
+❌ .env.development        (desarrollo)
+❌ vite.config.ts          (configuración Vite)
+❌ package.json            (no necesario en producción)
+❌ tsconfig.json           (configuración TypeScript)
+❌ *.tsx                   (archivos React TypeScript)
+❌ README.md               (documentación)
+
+═══════════════════════════════════════════════════════════════════
+VERIFICACIÓN RÁPIDA
+═══════════════════════════════════════════════════════════════════
+
+Después de subir, deberías ver en Bluehost:
+
+📁 /home/tuusuario/gestora-backend/
+   ├── dist/
+   ├── node_modules/
+   ├── prisma/
+   ├── uploads/
+   ├── .env
+   ├── package.json
+   └── package-lock.json
+
+📁 /home/tuusuario/public_html/gestora-internacional/
+   ├── index.html
+   ├── assets/
+   ├── vite.svg
+   └── .htaccess
+
+═══════════════════════════════════════════════════════════════════
+TAMAÑOS APROXIMADOS
+═══════════════════════════════════════════════════════════════════
+
+Backend:
+  dist/                ~5-10 MB
+  node_modules/        ~200-300 MB  ⚠️ PESADO
+  prisma/              ~1 MB
+  Total:               ~205-310 MB
+
+Frontend:
+  Todos los archivos   ~2-5 MB
+  Total:               ~2-5 MB
+
+TIEMPO ESTIMADO DE SUBIDA (conexión promedio 10 Mbps):
+  Backend:   15-25 minutos
+  Frontend:  1-3 minutos
+  Total:     ~20-30 minutos
+
+═══════════════════════════════════════════════════════════════════
+CONSEJOS PARA ACELERAR LA SUBIDA
+═══════════════════════════════════════════════════════════════════
+
+1. 🚀 NO subir node_modules por FileZilla
+   - Es MUY pesado (200-300 MB)
+   - Mejor: Instalarlo por SSH después
+
+   ```bash
+   ssh tuusuario@tudominio.com
+   cd ~/gestora-backend
+   npm install --production
+   ```
+
+2. ⚡ Comprimir antes de subir
+   - Crear gestora-backend.zip localmente
+   - Subir solo el .zip
+   - Descomprimir por SSH
+
+   ```bash
+   ssh tuusuario@tudominio.com
+   cd ~
+   unzip gestora-backend.zip
+   ```
+
+3. 🔄 Usar rsync si está disponible
+   - Más rápido que FileZilla
+   - Solo sube archivos cambiados
+
+   ```bash
+   rsync -avz --progress backend/ tuusuario@tudominio.com:~/gestora-backend/
+   ```
+
+═══════════════════════════════════════════════════════════════════
+ORDEN RECOMENDADO DE SUBIDA
+═══════════════════════════════════════════════════════════════════
+
+1. Backend: package.json + package-lock.json
+2. Backend: prisma/
+3. Backend: dist/
+4. Backend: .env.production
+5. Backend: uploads/ (carpeta vacía)
+6. SSH: npm install --production
+7. Frontend: TODO el contenido de dist/
+8. Bluehost: Crear .htaccess
+
+═══════════════════════════════════════════════════════════════════
+PERMISOS DE ARCHIVOS RECOMENDADOS
+═══════════════════════════════════════════════════════════════════
+
+Después de subir, por SSH:
+
+```bash
+# Backend
+cd ~/gestora-backend
+chmod 644 package.json
+chmod 644 .env
+chmod -R 755 dist/
+chmod -R 755 node_modules/
+chmod -R 777 uploads/
+
+# Frontend
+cd ~/public_html/gestora-internacional
+chmod 644 index.html
+chmod 644 .htaccess
+chmod -R 755 assets/
+```
+
+═══════════════════════════════════════════════════════════════════
+ARCHIVOS DE CONFIGURACIÓN A EDITAR DESPUÉS DE SUBIR
+═══════════════════════════════════════════════════════════════════
+
+1. Backend: .env
+   - DATABASE_URL (credenciales PostgreSQL)
+   - JWT_SECRET (cambiar valor por defecto)
+   - OPENAI_API_KEY (tu API key)
+   - ANTHROPIC_API_KEY (tu API key)
+   - CORS_ORIGIN (tu dominio real)
+
+2. Frontend: (ya compilado, no necesita cambios)
+
+═══════════════════════════════════════════════════════════════════
+ÚLTIMA ACTUALIZACIÓN: 2024-01-15
+═══════════════════════════════════════════════════════════════════

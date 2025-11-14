@@ -12,6 +12,7 @@ import CalendarioCitas from './pages/CalendarioCitas';
 import Aprobaciones from './pages/Aprobaciones';
 import SolicitudesIA from './pages/SolicitudesIA';
 import Propietarios from './pages/Propietarios';
+import Prospecting from './pages/Prospecting';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/aprobaciones" element={<Aprobaciones />} />
         <Route path="/reportes" element={<Reportes />} />
         <Route path="/calendario" element={<Calendario />} />
+        <Route path="/prospecting" element={<Prospecting />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
