@@ -4,7 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/amico-app/',
+  base: '/ges-internacional/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -14,7 +14,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://amico-management-production.up.railway.app',
+        target: 'https://gestora-internacional-production.up.railway.app',
         changeOrigin: true,
       },
     },
