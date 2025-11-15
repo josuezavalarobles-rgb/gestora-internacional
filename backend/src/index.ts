@@ -118,12 +118,15 @@ class Application {
           if (!origin) return callback(null, true);
 
           if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error('Not allowed by CORS'));
+            return callback(null, true);
           }
+
+          // Rechazar pero sin error (para evitar crashes)
+          return callback(null, false);
         },
         credentials: config.cors.credentials,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       })
     );
 
