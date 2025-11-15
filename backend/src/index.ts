@@ -117,11 +117,23 @@ class Application {
           // Permitir requests sin origin (mobile apps, curl, etc)
           if (!origin) return callback(null, true);
 
+          // Verificar si el origin está en la lista exacta
           if (allowedOrigins.includes(origin)) {
             return callback(null, true);
           }
 
-          // Rechazar pero sin error (para evitar crashes)
+          // Permitir dominios de Bluehost (*.mybluehost.me)
+          if (origin.includes('mybluehost.me')) {
+            return callback(null, true);
+          }
+
+          // Permitir localhost para desarrollo
+          if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+            return callback(null, true);
+          }
+
+          // Rechazar otros orígenes pero sin error (para evitar crashes)
+          logger.warn(`CORS: Origin rechazado - ${origin}`);
           return callback(null, false);
         },
         credentials: config.cors.credentials,
