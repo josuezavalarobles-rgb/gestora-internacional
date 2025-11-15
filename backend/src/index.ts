@@ -250,6 +250,10 @@ class Application {
       const port = config.port;
       const host = '0.0.0.0'; // Escuchar en todas las interfaces (requerido para Railway/Docker)
 
+      logger.info(`🔧 DEBUG: PORT variable = ${process.env.PORT || 'undefined'}`);
+      logger.info(`🔧 DEBUG: Using port = ${port}`);
+      logger.info(`🔧 DEBUG: Using host = ${host}`);
+
       this.httpServer.listen(port, host, () => {
         logger.info('');
         logger.info('✅ Servidor iniciado correctamente');
@@ -258,6 +262,9 @@ class Application {
         logger.info(`🌍 Environment: ${config.env}`);
         logger.info(`📱 WhatsApp Bot: ${config.bot.enabled ? 'Habilitado' : 'Deshabilitado'}`);
         logger.info('');
+      }).on('error', (err) => {
+        logger.error('❌ Error al iniciar servidor:', err);
+        process.exit(1);
       });
 
       // Graceful shutdown
