@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc && prisma generate",
-    "start": "npx prisma migrate deploy || true && tsx src/index.ts",
+    "start": "tsx src/minimal-server.ts",
+    "start:full": "npx prisma migrate deploy || true && tsx src/index.ts",
     "start:prod": "prisma migrate deploy && node dist/index.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
