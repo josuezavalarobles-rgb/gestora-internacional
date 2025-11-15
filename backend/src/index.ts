@@ -203,10 +203,10 @@ class Application {
     const shutdown = async (signal: string) => {
       logger.info(`${signal} recibido. Cerrando aplicación gracefully...`);
 
-      // Cerrar WhatsApp
-      if (this.whatsappService) {
-        await this.whatsappService.disconnect();
-      }
+      // Cerrar WhatsApp (TEMPORALMENTE DESHABILITADO)
+      // if (this.whatsappService) {
+      //   await this.whatsappService.disconnect();
+      // }
 
       // Cerrar servidor HTTP
       this.httpServer.close(() => {
@@ -241,7 +241,7 @@ class Application {
       this.initializeMiddlewares();
       this.initializeRoutes();
       this.initializeSockets();
-      await this.initializeWhatsApp();
+      // TEMPORALMENTE DESHABILITADO: await this.initializeWhatsApp();
 
       // Iniciar jobs programados
       iniciarTodosLosJobs();
