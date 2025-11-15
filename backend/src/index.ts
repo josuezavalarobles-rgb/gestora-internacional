@@ -133,15 +133,8 @@ class Application {
   private initializeRoutes(): void {
     const apiPrefix = `/api/${config.apiVersion}`;
 
-    // Health check
-    this.app.get('/health', (req, res) => {
-      res.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        environment: config.env,
-      });
-    });
+    // Health check ya está registrado en start() antes de inicializar las rutas
+    // para que esté disponible INMEDIATAMENTE para Railway healthchecks
 
     // API Routes - Base (Amico)
     this.app.use(`${apiPrefix}/auth`, authRoutes);
@@ -236,17 +229,7 @@ class Application {
       logger.info('╚════════════════════════════════════════════════╝');
       logger.info('');
 
-      // Inicializar componentes
-      await this.initializeDatabases();
-      this.initializeMiddlewares();
-      this.initializeRoutes();
-      this.initializeSockets();
-      // TEMPORALMENTE DESHABILITADO: await this.initializeWhatsApp();
-
-      // Iniciar jobs programados
-      iniciarTodosLosJobs();
-
-      // Iniciar servidor
+      // CRÍTICO: Iniciar servidor HTTP PRIMERO para que Railway pueda hacer healthchecks
       const port = config.port;
       const host = '0.0.0.0'; // Escuchar en todas las interfaces (requerido para Railway/Docker)
 
@@ -254,18 +237,48 @@ class Application {
       logger.info(`🔧 DEBUG: Using port = ${port}`);
       logger.info(`🔧 DEBUG: Using host = ${host}`);
 
-      this.httpServer.listen(port, host, () => {
-        logger.info('');
-        logger.info('✅ Servidor iniciado correctamente');
-        logger.info(`🚀 API disponible en: http://${host}:${port}`);
-        logger.info(`📚 API Docs: http://${host}:${port}/api-docs`);
-        logger.info(`🌍 Environment: ${config.env}`);
-        logger.info(`📱 WhatsApp Bot: ${config.bot.enabled ? 'Habilitado' : 'Deshabilitado'}`);
-        logger.info('');
-      }).on('error', (err) => {
-        logger.error('❌ Error al iniciar servidor:', err);
-        process.exit(1);
+      // Configurar middlewares básicos ANTES de iniciar servidor
+      this.initializeMiddlewares();
+
+      // Health endpoint disponible INMEDIATAMENTE (antes de todo lo demás)
+      this.app.get('/health', (req, res) => {
+        res.json({
+          status: 'ok',
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+          environment: config.env,
+        });
       });
+
+      // Iniciar servidor HTTP AHORA (antes de DB, rutas, jobs, etc.)
+      await new Promise<void>((resolve, reject) => {
+        this.httpServer.listen(port, host, () => {
+          logger.info('');
+          logger.info('✅ Servidor HTTP iniciado - Railway puede hacer healthchecks');
+          logger.info(`🚀 API disponible en: http://${host}:${port}`);
+          logger.info(`🌍 Environment: ${config.env}`);
+          logger.info('');
+          resolve();
+        }).on('error', (err) => {
+          logger.error('❌ Error al iniciar servidor HTTP:', err);
+          reject(err);
+        });
+      });
+
+      // AHORA sí, inicializar el resto en background
+      logger.info('🔌 Inicializando servicios en background...');
+
+      await this.initializeDatabases();
+      this.initializeRoutes();
+      this.initializeSockets();
+      // TEMPORALMENTE DESHABILITADO: await this.initializeWhatsApp();
+
+      // Iniciar jobs programados
+      iniciarTodosLosJobs();
+
+      logger.info('✅ Todos los servicios iniciados correctamente');
+      logger.info(`📚 API Docs: http://${host}:${port}/api-docs`);
+      logger.info(`📱 WhatsApp Bot: ${config.bot.enabled ? 'Habilitado' : 'Deshabilitado'}`);
 
       // Graceful shutdown
       this.handleGracefulShutdown();
