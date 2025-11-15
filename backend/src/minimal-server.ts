@@ -18,9 +18,24 @@ const app = express();
 const port = parseInt(process.env.PORT || '3000', 10);
 const host = '0.0.0.0';
 
-// CORS básico
+// CORS para permitir requests desde Bluehost y localhost
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://kbj.ebq.mybluehost.me'
+];
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // Permitir requests sin origin (curl, Postman, etc)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`⚠️ CORS bloqueado para origin: ${origin}`);
+      callback(null, false);
+    }
+  },
   credentials: true
 }));
 

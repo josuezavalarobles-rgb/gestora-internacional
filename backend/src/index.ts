@@ -67,9 +67,12 @@ class Application {
   constructor() {
     this.app = express();
     this.httpServer = createServer(this.app);
+
+    // Socket.IO con CORS para múltiples orígenes
+    const allowedOrigins = config.cors.origin.split(',').map(o => o.trim());
     this.io = new SocketIOServer(this.httpServer, {
       cors: {
-        origin: config.cors.origin,
+        origin: allowedOrigins,
         credentials: config.cors.credentials,
       },
     });
@@ -105,10 +108,20 @@ class Application {
     // Seguridad
     this.app.use(helmet());
 
-    // CORS
+    // CORS - permitir múltiples orígenes
+    const allowedOrigins = config.cors.origin.split(',').map(o => o.trim());
     this.app.use(
       cors({
-        origin: config.cors.origin,
+        origin: (origin, callback) => {
+          // Permitir requests sin origin (mobile apps, curl, etc)
+          if (!origin) return callback(null, true);
+
+          if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Not allowed by CORS'));
+          }
+        },
         credentials: config.cors.credentials,
       })
     );

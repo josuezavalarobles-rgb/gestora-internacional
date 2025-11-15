@@ -68,9 +68,7 @@ export const config = {
 
   // CORS
   cors: {
-    origin: process.env.CORS_ORIGIN
-      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-      : ['http://localhost:5173', 'https://kbj.ebq.mybluehost.me'],
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173,https://kbj.ebq.mybluehost.me',
     credentials: true,
   },
 
