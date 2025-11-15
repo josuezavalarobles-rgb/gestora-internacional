@@ -77,8 +77,9 @@ class Application {
       },
     });
 
-    this.whatsappService = WhatsAppService.getInstance();
-    this.socketService = SocketService.getInstance(this.io);
+    // NO inicializar servicios aquí - se inicializarán después del servidor HTTP
+    // this.whatsappService = WhatsAppService.getInstance();
+    // this.socketService = SocketService.getInstance(this.io);
   }
 
   private async initializeDatabases(): Promise<void> {
@@ -286,10 +287,24 @@ class Application {
       this.initializeDatabases()
         .then(() => {
           logger.info('✅ Base de datos conectada');
+
+          // Inicializar servicios que dependen de DB
+          this.whatsappService = WhatsAppService.getInstance();
+          this.socketService = SocketService.getInstance(this.io);
+
           this.initializeRoutes();
           logger.info('✅ Rutas inicializadas');
           this.initializeSockets();
           logger.info('✅ Sockets inicializados');
+
+          // Iniciar WhatsApp si está habilitado
+          if (config.bot.enabled) {
+            this.initializeWhatsApp().catch((error) => {
+              logger.error('❌ Error al iniciar WhatsApp:', error);
+              logger.warn('⚠️  WhatsApp Bot no disponible');
+            });
+          }
+
           // Iniciar jobs programados
           iniciarTodosLosJobs();
           logger.info('✅ Jobs programados iniciados');
