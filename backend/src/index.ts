@@ -265,20 +265,29 @@ class Application {
         });
       });
 
-      // AHORA sí, inicializar el resto en background
-      logger.info('🔌 Inicializando servicios en background...');
+      // AHORA sí, inicializar el resto en background (SIN AWAIT - NO BLOQUEANTE)
+      logger.info('🔌 Inicializando servicios en background (no bloqueante)...');
 
-      await this.initializeDatabases();
-      this.initializeRoutes();
-      this.initializeSockets();
-      // TEMPORALMENTE DESHABILITADO: await this.initializeWhatsApp();
-
-      // Iniciar jobs programados
-      iniciarTodosLosJobs();
-
-      logger.info('✅ Todos los servicios iniciados correctamente');
-      logger.info(`📚 API Docs: http://${host}:${port}/api-docs`);
-      logger.info(`📱 WhatsApp Bot: ${config.bot.enabled ? 'Habilitado' : 'Deshabilitado'}`);
+      // Inicializar servicios de forma NO BLOQUEANTE
+      // Si fallan, el servidor HTTP sigue funcionando
+      this.initializeDatabases()
+        .then(() => {
+          logger.info('✅ Base de datos conectada');
+          this.initializeRoutes();
+          logger.info('✅ Rutas inicializadas');
+          this.initializeSockets();
+          logger.info('✅ Sockets inicializados');
+          // Iniciar jobs programados
+          iniciarTodosLosJobs();
+          logger.info('✅ Jobs programados iniciados');
+          logger.info('✅ TODOS los servicios iniciados correctamente');
+          logger.info(`📚 API Docs: http://${host}:${port}/api-docs`);
+          logger.info(`📱 WhatsApp Bot: ${config.bot.enabled ? 'Habilitado' : 'Deshabilitado'}`);
+        })
+        .catch((error) => {
+          logger.error('❌ Error al inicializar servicios en background:', error);
+          logger.warn('⚠️  Servidor HTTP sigue funcionando, pero con funcionalidad limitada');
+        });
 
       // Graceful shutdown
       this.handleGracefulShutdown();
