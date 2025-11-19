@@ -123,14 +123,14 @@ export default function Nomina() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-          <Users className="text-green-400" size={40} />
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <Users className="text-green-600" size={36} />
           Gestión de Nómina
         </h1>
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-600">
           Control de salarios y deducciones de ley según normativa dominicana
         </p>
       </div>
@@ -171,16 +171,16 @@ export default function Nomina() {
       </div>
 
       {/* Filters and Actions */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex gap-4 items-center">
-            <label className="text-sm font-bold text-gray-200 uppercase tracking-wide">
+            <label className="text-sm font-medium text-gray-700">
               Periodo:
             </label>
             <select
               value={periodoSeleccionado}
               onChange={(e) => setPeriodoSeleccionado(e.target.value)}
-              className="px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               {periodos.map(periodo => (
                 <option key={periodo.value} value={periodo.value}>{periodo.label}</option>
@@ -188,10 +188,10 @@ export default function Nomina() {
             </select>
           </div>
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all glow-green whitespace-nowrap">
+            <button className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow transition-all whitespace-nowrap">
               Procesar Nómina
             </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all glow-blue whitespace-nowrap">
+            <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow transition-all whitespace-nowrap">
               <Plus size={20} />
               Nuevo Empleado
             </button>
@@ -200,97 +200,97 @@ export default function Nomina() {
       </div>
 
       {/* Tabla de Nómina */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 overflow-hidden">
-        <div className="p-6 border-b border-slate-700">
-          <h2 className="text-2xl font-bold text-white">
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900">
             Registro de Nómina ({empleados.length})
           </h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-700">
-            <thead className="bg-slate-800 bg-opacity-50">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Empleado
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Puesto
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Salario Base
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Bonos
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Deducciones
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Neto a Pagar
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {empleados.map((empleado: Empleado) => {
                 const totalDeducciones = empleado.deducciones.afp + empleado.deducciones.ars + empleado.deducciones.isr;
                 return (
-                  <tr key={empleado.id} className="hover:bg-slate-700 hover:bg-opacity-30 transition-all">
+                  <tr key={empleado.id} className="hover:bg-gray-50 transition-all">
                     <td className="px-6 py-4">
-                      <div className="text-sm font-bold text-white">{empleado.nombre}</div>
+                      <div className="text-sm font-bold text-gray-900">{empleado.nombre}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-300">{empleado.puesto}</span>
+                      <span className="text-sm text-gray-700">{empleado.puesto}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className="text-sm font-mono text-white">
+                      <span className="text-sm font-mono text-gray-900">
                         {formatCurrency(empleado.salarioBase)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className="text-sm font-mono text-green-400">
+                      <span className="text-sm font-mono text-green-600">
                         +{formatCurrency(empleado.bonos)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="text-sm font-mono text-red-400">
+                      <div className="text-sm font-mono text-red-600">
                         -{formatCurrency(totalDeducciones)}
                       </div>
-                      <div className="text-xs text-gray-400 space-y-0.5 mt-1">
+                      <div className="text-xs text-gray-600 space-y-0.5 mt-1">
                         <div>AFP: {formatCurrency(empleado.deducciones.afp)}</div>
                         <div>ARS: {formatCurrency(empleado.deducciones.ars)}</div>
                         <div>ISR: {formatCurrency(empleado.deducciones.isr)}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className="text-lg font-bold text-white font-mono">
+                      <span className="text-lg font-bold text-gray-900 font-mono">
                         {formatCurrency(empleado.salarioNeto)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-lg ${getEstadoBadgeColor(empleado.estado)}`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow ${getEstadoBadgeColor(empleado.estado)}`}>
                         {empleado.estado}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         {empleado.estado === 'Pendiente' && (
-                          <button className="px-3 py-1.5 bg-blue-600 bg-opacity-20 hover:bg-opacity-30 text-blue-400 rounded-lg transition-all text-sm font-medium">
+                          <button className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all text-sm font-medium">
                             Procesar
                           </button>
                         )}
                         {empleado.estado === 'Procesado' && (
-                          <button className="px-3 py-1.5 bg-green-600 bg-opacity-20 hover:bg-opacity-30 text-green-400 rounded-lg transition-all text-sm font-medium">
+                          <button className="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-lg transition-all text-sm font-medium">
                             Pagar
                           </button>
                         )}
-                        <button className="px-3 py-1.5 bg-purple-600 bg-opacity-20 hover:bg-opacity-30 text-purple-400 rounded-lg transition-all text-sm font-medium">
+                        <button className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg transition-all text-sm font-medium">
                           Ver Recibo
                         </button>
                       </div>
@@ -305,63 +305,63 @@ export default function Nomina() {
 
       {/* Resumen de Deducciones por Tipo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Shield className="text-purple-400" size={20} />
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Shield className="text-purple-600" size={20} />
             AFP (Fondo de Pensiones)
           </h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Total Empleados:</span>
-              <span className="text-white font-bold">{formatCurrency(totalAFP)}</span>
+              <span className="text-gray-600">Total Empleados:</span>
+              <span className="text-gray-900 font-bold">{formatCurrency(totalAFP)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Porcentaje:</span>
-              <span className="text-white font-bold">7.30%</span>
+              <span className="text-gray-600">Porcentaje:</span>
+              <span className="text-gray-900 font-bold">7.30%</span>
             </div>
-            <div className="pt-2 border-t border-slate-700 text-xs text-gray-400">
+            <div className="pt-2 border-t border-gray-200 text-xs text-gray-600">
               Aporte obligatorio según ley 87-01
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Shield className="text-orange-400" size={20} />
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Shield className="text-orange-600" size={20} />
             ARS (Seguro de Salud)
           </h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Total Empleados:</span>
-              <span className="text-white font-bold">{formatCurrency(totalARS)}</span>
+              <span className="text-gray-600">Total Empleados:</span>
+              <span className="text-gray-900 font-bold">{formatCurrency(totalARS)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Porcentaje:</span>
-              <span className="text-white font-bold">3.04%</span>
+              <span className="text-gray-600">Porcentaje:</span>
+              <span className="text-gray-900 font-bold">3.04%</span>
             </div>
-            <div className="pt-2 border-t border-slate-700 text-xs text-gray-400">
+            <div className="pt-2 border-t border-gray-200 text-xs text-gray-600">
               Seguro Familiar de Salud (SFS)
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <TrendingDown className="text-red-400" size={20} />
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <TrendingDown className="text-red-600" size={20} />
             ISR (Impuesto Sobre la Renta)
           </h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Total Empleados:</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600">Total Empleados:</span>
+              <span className="text-gray-900 font-bold">
                 {formatCurrency(empleados.reduce((sum: number, e: Empleado) => sum + e.deducciones.isr, 0))}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Escala:</span>
-              <span className="text-white font-bold">Progresiva</span>
+              <span className="text-gray-600">Escala:</span>
+              <span className="text-gray-900 font-bold">Progresiva</span>
             </div>
-            <div className="pt-2 border-t border-slate-700 text-xs text-gray-400">
+            <div className="pt-2 border-t border-gray-200 text-xs text-gray-600">
               Retención según escala DGII
             </div>
           </div>
@@ -369,16 +369,16 @@ export default function Nomina() {
       </div>
 
       {/* Información Legal */}
-      <div className="bg-gradient-to-br from-blue-900 to-blue-950 bg-opacity-20 border border-blue-500 rounded-xl p-6">
-        <h3 className="text-lg font-bold text-blue-400 mb-3 flex items-center gap-2">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
           <Shield size={20} />
           Normativa República Dominicana
         </h3>
-        <div className="text-gray-300 space-y-2 text-sm">
+        <div className="text-gray-700 space-y-2 text-sm">
           <p><strong>AFP (7.30%):</strong> Aporte obligatorio al sistema de pensiones según Ley 87-01</p>
           <p><strong>ARS (3.04%):</strong> Seguro Familiar de Salud, descontado del salario del empleado</p>
           <p><strong>ISR:</strong> Impuesto sobre la renta según escala progresiva de la DGII</p>
-          <p className="text-yellow-400"><strong>Nota:</strong> El empleador también debe aportar 7.10% AFP y 7.09% ARS adicionales</p>
+          <p className="text-yellow-700"><strong>Nota:</strong> El empleador también debe aportar 7.10% AFP y 7.09% ARS adicionales</p>
         </div>
       </div>
     </div>

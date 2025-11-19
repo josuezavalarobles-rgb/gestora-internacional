@@ -102,14 +102,14 @@ export default function Ingresos() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-          <TrendingUp className="text-green-400" size={40} />
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <TrendingUp className="text-green-600" size={36} />
           Gestión de Ingresos
         </h1>
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-600">
           Control de cuotas de mantenimiento y otros ingresos del condominio
         </p>
       </div>
@@ -151,80 +151,80 @@ export default function Ingresos() {
 
       {/* Actions */}
       <div className="flex justify-end">
-        <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all glow-blue">
+        <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow transition-all">
           <Plus size={20} />
           Nuevo Ingreso
         </button>
       </div>
 
       {/* Tabla de Ingresos */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 overflow-hidden">
-        <div className="p-6 border-b border-slate-700">
-          <h2 className="text-2xl font-bold text-white">
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900">
             Registro de Ingresos ({ingresos.length})
           </h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-700">
-            <thead className="bg-slate-800 bg-opacity-50">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Fecha
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Concepto
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Unidad
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Monto
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Recibo
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {ingresos.map((ingreso: Ingreso) => (
-                <tr key={ingreso.id} className="hover:bg-slate-700 hover:bg-opacity-30 transition-all">
+                <tr key={ingreso.id} className="hover:bg-gray-50 transition-all">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-300">{formatDate(ingreso.fecha)}</span>
+                    <span className="text-sm text-gray-700">{formatDate(ingreso.fecha)}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-white">{ingreso.concepto}</div>
+                    <div className="text-sm font-medium text-gray-900">{ingreso.concepto}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-300">{ingreso.unidad}</span>
+                    <span className="text-sm text-gray-700">{ingreso.unidad}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <span className="text-sm font-bold text-white font-mono">
+                    <span className="text-sm font-bold text-gray-900 font-mono">
                       {formatCurrency(ingreso.monto)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-lg ${getEstadoBadgeColor(ingreso.estado)}`}>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow ${getEstadoBadgeColor(ingreso.estado)}`}>
                       {ingreso.estado}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className="text-sm font-mono text-blue-400">{ingreso.recibo}</span>
+                    <span className="text-sm font-mono text-blue-600">{ingreso.recibo}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-2">
                       {ingreso.estado !== 'Cobrado' && (
-                        <button className="px-3 py-1.5 bg-green-600 bg-opacity-20 hover:bg-opacity-30 text-green-400 rounded-lg transition-all text-sm font-medium">
+                        <button className="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-lg transition-all text-sm font-medium">
                           Marcar Cobrado
                         </button>
                       )}
-                      <button className="px-3 py-1.5 bg-purple-600 bg-opacity-20 hover:bg-opacity-30 text-purple-400 rounded-lg transition-all text-sm font-medium">
+                      <button className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg transition-all text-sm font-medium">
                         Imprimir Recibo
                       </button>
                     </div>
@@ -238,54 +238,54 @@ export default function Ingresos() {
 
       {/* Resumen por concepto */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Mantenimiento Mensual</h3>
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Mantenimiento Mensual</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Total:</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600">Total:</span>
+              <span className="text-gray-900 font-bold">
                 {formatCurrency(ingresos.filter((i: Ingreso) => i.concepto.includes('Mantenimiento')).reduce((sum: number, i: Ingreso) => sum + i.monto, 0))}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Unidades:</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600">Unidades:</span>
+              <span className="text-gray-900 font-bold">
                 {ingresos.filter((i: Ingreso) => i.concepto.includes('Mantenimiento')).length}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Cuotas Extraordinarias</h3>
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Cuotas Extraordinarias</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Total:</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600">Total:</span>
+              <span className="text-gray-900 font-bold">
                 {formatCurrency(ingresos.filter((i: Ingreso) => i.concepto.includes('Extraordinaria')).reduce((sum: number, i: Ingreso) => sum + i.monto, 0))}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Unidades:</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600">Unidades:</span>
+              <span className="text-gray-900 font-bold">
                 {ingresos.filter((i: Ingreso) => i.concepto.includes('Extraordinaria')).length}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Otros Ingresos</h3>
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Otros Ingresos</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Total:</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600">Total:</span>
+              <span className="text-gray-900 font-bold">
                 {formatCurrency(ingresos.filter((i: Ingreso) => !i.concepto.includes('Mantenimiento') && !i.concepto.includes('Extraordinaria')).reduce((sum: number, i: Ingreso) => sum + i.monto, 0))}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Conceptos:</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600">Conceptos:</span>
+              <span className="text-gray-900 font-bold">
                 {ingresos.filter((i: Ingreso) => !i.concepto.includes('Mantenimiento') && !i.concepto.includes('Extraordinaria')).length}
               </span>
             </div>

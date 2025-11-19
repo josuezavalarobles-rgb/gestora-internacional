@@ -115,23 +115,23 @@ export default function ProveedoresPage() {
           <Star
             key={star}
             size={16}
-            className={star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}
+            className={star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
           />
         ))}
-        <span className="text-sm text-gray-300 ml-1">{rating.toFixed(1)}</span>
+        <span className="text-sm text-gray-700 ml-1">{rating.toFixed(1)}</span>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-          <Store className="text-purple-400" size={40} />
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <Store className="text-purple-600" size={36} />
           Gestión de Proveedores
         </h1>
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-600">
           Directorio de proveedores y evaluación de servicios
         </p>
       </div>
@@ -172,7 +172,7 @@ export default function ProveedoresPage() {
       </div>
 
       {/* Search and Actions */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative flex-1 w-full">
             <input
@@ -180,11 +180,11 @@ export default function ProveedoresPage() {
               placeholder="Buscar por nombre, RNC o tipo de servicio..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 pl-10 bg-slate-700 border border-slate-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 pl-10 bg-white border border-gray-300 text-gray-900 placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           </div>
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all glow-blue whitespace-nowrap">
+          <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow transition-all whitespace-nowrap">
             <Plus size={20} />
             Nuevo Proveedor
           </button>
@@ -192,56 +192,56 @@ export default function ProveedoresPage() {
       </div>
 
       {/* Tabla de Proveedores */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl border border-slate-700 overflow-hidden">
-        <div className="p-6 border-b border-slate-700">
-          <h2 className="text-2xl font-bold text-white">
+      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900">
             Directorio de Proveedores ({proveedoresFiltrados.length})
           </h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-700">
-            <thead className="bg-slate-800 bg-opacity-50">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Nombre
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   RNC
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Tipo de Servicio
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Contacto
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Calificación
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {proveedoresFiltrados.map((proveedor: Proveedor) => (
-                <tr key={proveedor.id} className="hover:bg-slate-700 hover:bg-opacity-30 transition-all">
+                <tr key={proveedor.id} className="hover:bg-gray-50 transition-all">
                   <td className="px-6 py-4">
                     <div>
-                      <div className="text-sm font-bold text-white">{proveedor.nombre}</div>
-                      <div className="text-xs text-gray-400">{proveedor.email}</div>
+                      <div className="text-sm font-bold text-gray-900">{proveedor.nombre}</div>
+                      <div className="text-xs text-gray-600">{proveedor.email}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-mono text-gray-300">{proveedor.rnc}</span>
+                    <span className="text-sm font-mono text-gray-700">{proveedor.rnc}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-lg bg-blue-600 text-white">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow bg-blue-600 text-white">
                       {proveedor.tipo}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-300">{proveedor.telefono}</div>
+                    <div className="text-sm text-gray-700">{proveedor.telefono}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex justify-center">
@@ -250,10 +250,10 @@ export default function ProveedoresPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <button className="px-3 py-1.5 bg-blue-600 bg-opacity-20 hover:bg-opacity-30 text-blue-400 rounded-lg transition-all text-sm font-medium">
+                      <button className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all text-sm font-medium">
                         Ver Detalles
                       </button>
-                      <button className="px-3 py-1.5 bg-purple-600 bg-opacity-20 hover:bg-opacity-30 text-purple-400 rounded-lg transition-all text-sm font-medium">
+                      <button className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg transition-all text-sm font-medium">
                         Editar
                       </button>
                     </div>
@@ -266,8 +266,8 @@ export default function ProveedoresPage() {
 
         {proveedoresFiltrados.length === 0 && (
           <div className="p-12 text-center">
-            <Store size={64} className="mx-auto text-gray-600 mb-4" />
-            <p className="text-gray-400 text-lg mb-2">No se encontraron proveedores</p>
+            <Store size={64} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-600 text-lg mb-2">No se encontraron proveedores</p>
             <p className="text-gray-500 text-sm">
               Intenta ajustar los filtros de búsqueda
             </p>
@@ -276,9 +276,9 @@ export default function ProveedoresPage() {
       </div>
 
       {/* Top Proveedores del Mes */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-xl border border-slate-700 p-6">
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <Award className="text-yellow-400" size={24} />
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Award className="text-yellow-600" size={24} />
           Top Proveedores del Mes
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -286,14 +286,14 @@ export default function ProveedoresPage() {
             .sort((a: Proveedor, b: Proveedor) => (b.gastosDelMes || 0) - (a.gastosDelMes || 0))
             .slice(0, 4)
             .map((proveedor: Proveedor, index: number) => (
-              <div key={proveedor.id} className="bg-slate-700 bg-opacity-30 rounded-lg p-4 border border-slate-600">
+              <div key={proveedor.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <div className="flex items-start justify-between mb-2">
-                  <span className="text-2xl font-bold text-yellow-400">#{index + 1}</span>
+                  <span className="text-2xl font-bold text-yellow-600">#{index + 1}</span>
                   {renderStars(proveedor.calificacion)}
                 </div>
-                <h4 className="text-white font-bold mb-1">{proveedor.nombre}</h4>
-                <p className="text-sm text-gray-400 mb-2">{proveedor.tipo}</p>
-                <p className="text-lg font-bold text-green-400">{formatCurrency(proveedor.gastosDelMes)}</p>
+                <h4 className="text-gray-900 font-bold mb-1">{proveedor.nombre}</h4>
+                <p className="text-sm text-gray-600 mb-2">{proveedor.tipo}</p>
+                <p className="text-lg font-bold text-green-600">{formatCurrency(proveedor.gastosDelMes)}</p>
               </div>
             ))}
         </div>
