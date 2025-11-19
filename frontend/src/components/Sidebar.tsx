@@ -10,7 +10,16 @@ import {
   CheckCircle,
   Bot,
   Home,
-  Search
+  Search,
+  Mail,
+  Settings,
+  BookOpen,
+  Receipt,
+  TrendingUp,
+  Building2,
+  DoorOpen,
+  UserCheck,
+  Wallet
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -76,9 +85,54 @@ export default function Sidebar() {
       label: 'Propietarios',
     },
     {
+      path: '/contabilidad',
+      icon: BookOpen,
+      label: 'Contabilidad',
+    },
+    {
+      path: '/gastos',
+      icon: Receipt,
+      label: 'Gastos',
+    },
+    {
+      path: '/ingresos',
+      icon: TrendingUp,
+      label: 'Ingresos',
+    },
+    {
+      path: '/proveedores',
+      icon: Building2,
+      label: 'Proveedores',
+    },
+    {
+      path: '/areas-comunes',
+      icon: DoorOpen,
+      label: 'Áreas Comunes',
+    },
+    {
+      path: '/control-visitas',
+      icon: UserCheck,
+      label: 'Control de Visitas',
+    },
+    {
+      path: '/nomina',
+      icon: Wallet,
+      label: 'Nómina',
+    },
+    {
       path: '/reportes',
       icon: BarChart3,
       label: 'Reportes',
+    },
+    {
+      path: '/email-marketing',
+      icon: Mail,
+      label: 'Email Marketing',
+    },
+    {
+      path: '/configuracion',
+      icon: Settings,
+      label: 'Configuración',
     },
     {
       path: '/calendario',

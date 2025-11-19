@@ -18,7 +18,7 @@ import type {
   SmartEnrichData,
 } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -491,6 +491,210 @@ export const prospectingApi = {
 
   smartEnrich: async (data: SmartEnrichData): Promise<SmartEnrichResult> => {
     const response = await api.post('/prospecting/smart-enrich', data);
+    return response.data;
+  },
+};
+
+// ============ PROVEEDORES API ============
+export const proveedoresAPI = {
+  obtenerTodos: async (params?: any) => {
+    const response = await api.get('/proveedores', { params });
+    return response.data;
+  },
+  obtenerPorId: async (id: string) => {
+    const response = await api.get(`/proveedores/${id}`);
+    return response.data;
+  },
+  crear: async (data: any) => {
+    const response = await api.post('/proveedores', data);
+    return response.data;
+  },
+  actualizar: async (id: string, data: any) => {
+    const response = await api.put(`/proveedores/${id}`, data);
+    return response.data;
+  },
+  eliminar: async (id: string) => {
+    const response = await api.delete(`/proveedores/${id}`);
+    return response.data;
+  },
+  evaluar: async (id: string, evaluacion: any) => {
+    const response = await api.post(`/proveedores/${id}/evaluar`, evaluacion);
+    return response.data;
+  },
+};
+
+// ============ GASTOS API ============
+export const gastosAPI = {
+  obtenerTodos: async (params?: any) => {
+    const response = await api.get('/gastos', { params });
+    return response.data;
+  },
+  obtenerPorId: async (id: string) => {
+    const response = await api.get(`/gastos/${id}`);
+    return response.data;
+  },
+  crear: async (data: any) => {
+    const response = await api.post('/gastos', data);
+    return response.data;
+  },
+  actualizar: async (id: string, data: any) => {
+    const response = await api.put(`/gastos/${id}`, data);
+    return response.data;
+  },
+  marcarComoPagado: async (id: string) => {
+    const response = await api.put(`/gastos/${id}/pagar`);
+    return response.data;
+  },
+  obtenerEstadisticas: async (params?: any) => {
+    const response = await api.get('/gastos/estadisticas', { params });
+    return response.data;
+  },
+};
+
+// ============ INGRESOS API ============
+export const ingresosAPI = {
+  obtenerTodos: async (params?: any) => {
+    const response = await api.get('/ingresos', { params });
+    return response.data;
+  },
+  obtenerPorId: async (id: string) => {
+    const response = await api.get(`/ingresos/${id}`);
+    return response.data;
+  },
+  crear: async (data: any) => {
+    const response = await api.post('/ingresos', data);
+    return response.data;
+  },
+  actualizar: async (id: string, data: any) => {
+    const response = await api.put(`/ingresos/${id}`, data);
+    return response.data;
+  },
+  marcarComoCobrado: async (id: string) => {
+    const response = await api.put(`/ingresos/${id}/cobrar`);
+    return response.data;
+  },
+  generarRecibo: async (id: string) => {
+    const response = await api.get(`/ingresos/${id}/recibo`);
+    return response.data;
+  },
+  obtenerEstadisticas: async (params?: any) => {
+    const response = await api.get('/ingresos/estadisticas', { params });
+    return response.data;
+  },
+};
+
+// ============ CONTABILIDAD API ============
+export const contabilidadAPI = {
+  obtenerPlanCuentas: async (params?: any) => {
+    const response = await api.get('/contabilidad/plan-cuentas', { params });
+    return response.data;
+  },
+  crearCuenta: async (data: any) => {
+    const response = await api.post('/contabilidad/plan-cuentas', data);
+    return response.data;
+  },
+  actualizarCuenta: async (id: string, data: any) => {
+    const response = await api.put(`/contabilidad/plan-cuentas/${id}`, data);
+    return response.data;
+  },
+  obtenerBalanceGeneral: async (params?: any) => {
+    const response = await api.get('/contabilidad/balance-general', { params });
+    return response.data;
+  },
+  obtenerEstadoResultados: async (params?: any) => {
+    const response = await api.get('/contabilidad/estado-resultados', { params });
+    return response.data;
+  },
+};
+
+// ============ AREAS COMUNES API ============
+export const areasComunesAPI = {
+  obtenerTodas: async (params?: any) => {
+    const response = await api.get('/areas-comunes', { params });
+    return response.data;
+  },
+  obtenerPorId: async (id: string) => {
+    const response = await api.get(`/areas-comunes/${id}`);
+    return response.data;
+  },
+  crear: async (data: any) => {
+    const response = await api.post('/areas-comunes', data);
+    return response.data;
+  },
+  actualizar: async (id: string, data: any) => {
+    const response = await api.put(`/areas-comunes/${id}`, data);
+    return response.data;
+  },
+  obtenerReservas: async (areaId: string, params?: any) => {
+    const response = await api.get(`/areas-comunes/${areaId}/reservas`, { params });
+    return response.data;
+  },
+  crearReserva: async (data: any) => {
+    const response = await api.post('/areas-comunes/reservas', data);
+    return response.data;
+  },
+  cancelarReserva: async (id: string) => {
+    const response = await api.delete(`/areas-comunes/reservas/${id}`);
+    return response.data;
+  },
+};
+
+// ============ VISITAS API ============
+export const visitasAPI = {
+  obtenerTodas: async (params?: any) => {
+    const response = await api.get('/visitas', { params });
+    return response.data;
+  },
+  obtenerPorId: async (id: string) => {
+    const response = await api.get(`/visitas/${id}`);
+    return response.data;
+  },
+  registrarLlegada: async (data: any) => {
+    const response = await api.post('/visitas', data);
+    return response.data;
+  },
+  registrarSalida: async (id: string) => {
+    const response = await api.put(`/visitas/${id}/salida`);
+    return response.data;
+  },
+  autorizar: async (id: string) => {
+    const response = await api.put(`/visitas/${id}/autorizar`);
+    return response.data;
+  },
+  rechazar: async (id: string) => {
+    const response = await api.put(`/visitas/${id}/rechazar`);
+    return response.data;
+  },
+  obtenerEstadisticas: async (params?: any) => {
+    const response = await api.get('/visitas/estadisticas', { params });
+    return response.data;
+  },
+};
+
+// ============ NOMINA API ============
+export const nominaAPI = {
+  obtenerTodas: async (params?: any) => {
+    const response = await api.get('/nomina', { params });
+    return response.data;
+  },
+  obtenerPorId: async (id: string) => {
+    const response = await api.get(`/nomina/${id}`);
+    return response.data;
+  },
+  generar: async (data: any) => {
+    const response = await api.post('/nomina', data);
+    return response.data;
+  },
+  aprobar: async (id: string) => {
+    const response = await api.put(`/nomina/${id}/aprobar`);
+    return response.data;
+  },
+  pagar: async (id: string) => {
+    const response = await api.put(`/nomina/${id}/pagar`);
+    return response.data;
+  },
+  obtenerEstadisticas: async (params?: any) => {
+    const response = await api.get('/nomina/estadisticas', { params });
     return response.data;
   },
 };

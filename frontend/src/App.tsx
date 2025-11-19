@@ -13,6 +13,15 @@ import Aprobaciones from './pages/Aprobaciones';
 import SolicitudesIA from './pages/SolicitudesIA';
 import Propietarios from './pages/Propietarios';
 import Prospecting from './pages/Prospecting';
+import EmailMarketingDashboard from './pages/EmailMarketingDashboard';
+import EmailSettings from './pages/EmailSettings';
+import Contabilidad from './pages/Contabilidad';
+import Gastos from './pages/Gastos';
+import Ingresos from './pages/Ingresos';
+import ProveedoresPage from './pages/ProveedoresPage';
+import AreasComunes from './pages/AreasComunes';
+import ControlVisitas from './pages/ControlVisitas';
+import Nomina from './pages/Nomina';
 
 function App() {
   return (
@@ -31,6 +40,15 @@ function App() {
         <Route path="/reportes" element={<Reportes />} />
         <Route path="/calendario" element={<Calendario />} />
         <Route path="/prospecting" element={<Prospecting />} />
+        <Route path="/email-marketing" element={<EmailMarketingDashboard />} />
+        <Route path="/configuracion" element={<EmailSettings />} />
+        <Route path="/contabilidad" element={<Contabilidad />} />
+        <Route path="/gastos" element={<Gastos />} />
+        <Route path="/ingresos" element={<Ingresos />} />
+        <Route path="/proveedores" element={<ProveedoresPage />} />
+        <Route path="/areas-comunes" element={<AreasComunes />} />
+        <Route path="/control-visitas" element={<ControlVisitas />} />
+        <Route path="/nomina" element={<Nomina />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
