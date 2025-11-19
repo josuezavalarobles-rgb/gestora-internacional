@@ -146,11 +146,11 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-slate-700">
         <Link to="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center glow-blue">
-            <span className="text-white font-bold text-lg">A</span>
+          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg flex items-center justify-center glow-blue">
+            <span className="text-white font-bold text-lg">GI</span>
           </div>
           <span className="text-lg font-semibold text-white">
-            Amico
+            Gestora Internacional
           </span>
         </Link>
       </div>
