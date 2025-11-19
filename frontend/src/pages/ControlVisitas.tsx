@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserCheck, Search, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
-import { visitasAPI } from '../services/api';
 
 interface Visita {
   id: string;
@@ -18,52 +16,78 @@ interface Visita {
 export default function ControlVisitas() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
-  const queryClient = useQueryClient();
 
-  // Cargar visitas desde el API
-  const { data: visitas = [], isLoading, error } = useQuery({
-    queryKey: ['visitas'],
-    queryFn: () => visitasAPI.obtenerTodas(),
-  });
-
-  // Cargar estadísticas
-  const { data: estadisticas } = useQuery({
-    queryKey: ['visitas-estadisticas'],
-    queryFn: () => visitasAPI.obtenerEstadisticas(),
-  });
-
-  // Mutación para autorizar visita
-  const autorizarMutation = useMutation({
-    mutationFn: (id: string) => visitasAPI.autorizar(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['visitas'] });
-      queryClient.invalidateQueries({ queryKey: ['visitas-estadisticas'] });
+  // Datos mock de visitas
+  const [visitas] = useState<Visita[]>([
+    {
+      id: '1',
+      visitante: 'Carlos Rodríguez',
+      cedula: '001-1234567-8',
+      unidad: 'Apto 101',
+      tipo: 'Invitado',
+      horaLlegada: '10:30 AM',
+      estado: 'En Espera',
+      motivo: 'Visita familiar'
     },
-  });
-
-  // Mutación para rechazar visita
-  const rechazarMutation = useMutation({
-    mutationFn: (id: string) => visitasAPI.rechazar(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['visitas'] });
-      queryClient.invalidateQueries({ queryKey: ['visitas-estadisticas'] });
+    {
+      id: '2',
+      visitante: 'María González',
+      cedula: '001-9876543-2',
+      unidad: 'Apto 202',
+      tipo: 'Invitado',
+      horaLlegada: '11:15 AM',
+      estado: 'En Espera',
+      motivo: 'Reunión social'
     },
-  });
-
-  // Mutación para registrar salida
-  const registrarSalidaMutation = useMutation({
-    mutationFn: (id: string) => visitasAPI.registrarSalida(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['visitas'] });
-      queryClient.invalidateQueries({ queryKey: ['visitas-estadisticas'] });
+    {
+      id: '3',
+      visitante: 'Plomería Express',
+      cedula: '131-55667-7',
+      unidad: 'Apto 305',
+      tipo: 'Proveedor',
+      horaLlegada: '09:00 AM',
+      estado: 'Dentro',
+      motivo: 'Reparación de tubería'
     },
-  });
+    {
+      id: '4',
+      visitante: 'Juan Delivery',
+      cedula: '001-4567890-1',
+      unidad: 'Apto 101',
+      tipo: 'Delivery',
+      horaLlegada: '12:45 PM',
+      horaSalida: '12:55 PM',
+      estado: 'Salió',
+      motivo: 'Entrega de paquete'
+    },
+    {
+      id: '5',
+      visitante: 'Ana Martínez',
+      cedula: '001-2345678-9',
+      unidad: 'Apto 405',
+      tipo: 'Invitado',
+      horaLlegada: '08:30 AM',
+      horaSalida: '10:00 AM',
+      estado: 'Salió',
+      motivo: 'Visita de cortesía'
+    },
+    {
+      id: '6',
+      visitante: 'Pedro López',
+      cedula: '001-5678901-2',
+      unidad: 'Apto 201',
+      tipo: 'Invitado',
+      horaLlegada: '02:00 PM',
+      estado: 'Rechazada',
+      motivo: 'No autorizado'
+    }
+  ]);
 
   // Calcular estadísticas
-  const visitasHoy = estadisticas?.visitasHoy || visitas.length;
-  const enEspera = estadisticas?.enEspera || visitas.filter((v: Visita) => v.estado === 'En Espera').length;
-  const autorizadas = estadisticas?.autorizadas || visitas.filter((v: Visita) => v.estado === 'Autorizada' || v.estado === 'Dentro').length;
-  const rechazadas = estadisticas?.rechazadas || visitas.filter((v: Visita) => v.estado === 'Rechazada').length;
+  const visitasHoy = visitas.length;
+  const enEspera = visitas.filter((v: Visita) => v.estado === 'En Espera').length;
+  const autorizadas = visitas.filter((v: Visita) => v.estado === 'Autorizada' || v.estado === 'Dentro').length;
+  const rechazadas = visitas.filter((v: Visita) => v.estado === 'Rechazada').length;
 
   // Filtrar visitas
   const visitasFiltradas = visitas.filter((visita: Visita) => {
@@ -97,31 +121,6 @@ export default function ControlVisitas() {
     };
     return colors[tipo] || 'bg-gray-600 text-white';
   };
-
-  // Mostrar estado de carga
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Cargando visitas...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <UserCheck size={64} className="mx-auto text-red-500 mb-4" />
-          <p className="text-red-400 text-lg mb-2">Error al cargar visitas</p>
-          <p className="text-gray-500 text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">

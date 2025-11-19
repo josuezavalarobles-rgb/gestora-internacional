@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, DollarSign, TrendingDown, Shield, Plus } from 'lucide-react';
-import { nominaAPI } from '../services/api';
 
 interface Empleado {
   id: string;
@@ -20,43 +18,86 @@ interface Empleado {
 
 export default function Nomina() {
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('2024-11');
-  const queryClient = useQueryClient();
 
-  // Cargar nómina desde el API
-  const { data: empleados = [], isLoading, error } = useQuery({
-    queryKey: ['nomina', periodoSeleccionado],
-    queryFn: () => nominaAPI.obtenerTodas({ periodo: periodoSeleccionado }),
-  });
-
-  // Cargar estadísticas
-  const { data: estadisticas } = useQuery({
-    queryKey: ['nomina-estadisticas', periodoSeleccionado],
-    queryFn: () => nominaAPI.obtenerEstadisticas({ periodo: periodoSeleccionado }),
-  });
-
-  // Mutación para aprobar nómina
-  const aprobarMutation = useMutation({
-    mutationFn: (id: string) => nominaAPI.aprobar(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['nomina'] });
-      queryClient.invalidateQueries({ queryKey: ['nomina-estadisticas'] });
+  // Datos mock de empleados
+  const [empleados] = useState<Empleado[]>([
+    {
+      id: '1',
+      nombre: 'Juan Pérez García',
+      puesto: 'Administrador',
+      salarioBase: 45000,
+      deducciones: {
+        afp: 3285,
+        ars: 1368,
+        isr: 2500
+      },
+      bonos: 5000,
+      salarioNeto: 42847,
+      estado: 'Pagado'
     },
-  });
-
-  // Mutación para pagar nómina
-  const pagarMutation = useMutation({
-    mutationFn: (id: string) => nominaAPI.pagar(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['nomina'] });
-      queryClient.invalidateQueries({ queryKey: ['nomina-estadisticas'] });
+    {
+      id: '2',
+      nombre: 'María Rodríguez López',
+      puesto: 'Conserje',
+      salarioBase: 25000,
+      deducciones: {
+        afp: 1825,
+        ars: 760,
+        isr: 800
+      },
+      bonos: 2000,
+      salarioNeto: 23615,
+      estado: 'Procesado'
     },
-  });
+    {
+      id: '3',
+      nombre: 'Carlos Martínez Santos',
+      puesto: 'Personal de Seguridad',
+      salarioBase: 30000,
+      deducciones: {
+        afp: 2190,
+        ars: 912,
+        isr: 1200
+      },
+      bonos: 0,
+      salarioNeto: 25698,
+      estado: 'Procesado'
+    },
+    {
+      id: '4',
+      nombre: 'Ana González Díaz',
+      puesto: 'Personal de Limpieza',
+      salarioBase: 22000,
+      deducciones: {
+        afp: 1606,
+        ars: 669,
+        isr: 600
+      },
+      bonos: 1000,
+      salarioNeto: 20125,
+      estado: 'Pendiente'
+    },
+    {
+      id: '5',
+      nombre: 'Luis Fernando Torres',
+      puesto: 'Mantenimiento',
+      salarioBase: 28000,
+      deducciones: {
+        afp: 2044,
+        ars: 851,
+        isr: 1000
+      },
+      bonos: 1500,
+      salarioNeto: 25605,
+      estado: 'Pendiente'
+    }
+  ]);
 
   // Calcular totales
-  const totalNominaMes = estadisticas?.totalNominaMes || empleados.reduce((sum: number, e: Empleado) => sum + e.salarioNeto, 0);
-  const personalActivo = estadisticas?.personalActivo || empleados.length;
-  const totalAFP = estadisticas?.totalAFP || empleados.reduce((sum: number, e: Empleado) => sum + e.deducciones.afp, 0);
-  const totalARS = estadisticas?.totalARS || empleados.reduce((sum: number, e: Empleado) => sum + e.deducciones.ars, 0);
+  const totalNominaMes = empleados.reduce((sum: number, e: Empleado) => sum + e.salarioNeto, 0);
+  const personalActivo = empleados.length;
+  const totalAFP = empleados.reduce((sum: number, e: Empleado) => sum + e.deducciones.afp, 0);
+  const totalARS = empleados.reduce((sum: number, e: Empleado) => sum + e.deducciones.ars, 0);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-DO', {
@@ -80,31 +121,6 @@ export default function Nomina() {
     { value: '2024-09', label: 'Septiembre 2024' },
     { value: '2024-08', label: 'Agosto 2024' }
   ];
-
-  // Mostrar estado de carga
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Cargando nómina...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <Users size={64} className="mx-auto text-red-500 mb-4" />
-          <p className="text-red-400 text-lg mb-2">Error al cargar nómina</p>
-          <p className="text-gray-500 text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">

@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Store, Plus, Search, Star, TrendingUp, Users, Award } from 'lucide-react';
-import { proveedoresAPI } from '../services/api';
 
 interface Proveedor {
   id: string;
@@ -17,29 +15,76 @@ interface Proveedor {
 
 export default function ProveedoresPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const queryClient = useQueryClient();
 
-  // Cargar proveedores desde el API
-  const { data: proveedores = [], isLoading, error } = useQuery({
-    queryKey: ['proveedores'],
-    queryFn: () => proveedoresAPI.obtenerTodos(),
-  });
-
-  // Mutación para crear proveedor
-  const crearMutation = useMutation({
-    mutationFn: proveedoresAPI.crear,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['proveedores'] });
+  // Datos mock de proveedores
+  const [proveedores] = useState<Proveedor[]>([
+    {
+      id: '1',
+      nombre: 'Servicios Técnicos RD',
+      rnc: '131-45678-9',
+      tipo: 'Mantenimiento',
+      telefono: '809-555-1234',
+      email: 'contacto@serviciosrd.com',
+      calificacion: 4.5,
+      gastosDelMes: 45000,
+      estado: 'Activo'
     },
-  });
-
-  // Mutación para actualizar proveedor
-  const actualizarMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => proveedoresAPI.actualizar(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['proveedores'] });
+    {
+      id: '2',
+      nombre: 'Suministros del Caribe',
+      rnc: '131-23456-7',
+      tipo: 'Limpieza',
+      telefono: '809-555-5678',
+      email: 'ventas@suministroscaribe.com',
+      calificacion: 4.8,
+      gastosDelMes: 32000,
+      estado: 'Activo'
     },
-  });
+    {
+      id: '3',
+      nombre: 'Electrónica Santo Domingo',
+      rnc: '131-98765-4',
+      tipo: 'Electricidad',
+      telefono: '809-555-9876',
+      email: 'info@electronicasd.com',
+      calificacion: 4.2,
+      gastosDelMes: 28500,
+      estado: 'Activo'
+    },
+    {
+      id: '4',
+      nombre: 'Jardinería Tropical',
+      rnc: '131-11223-3',
+      tipo: 'Jardinería',
+      telefono: '809-555-2468',
+      email: 'jardineria@tropical.com',
+      calificacion: 4.7,
+      gastosDelMes: 18000,
+      estado: 'Activo'
+    },
+    {
+      id: '5',
+      nombre: 'Seguridad Integral',
+      rnc: '131-33445-5',
+      tipo: 'Seguridad',
+      telefono: '809-555-1357',
+      email: 'contacto@seguridadintegral.com',
+      calificacion: 4.9,
+      gastosDelMes: 65000,
+      estado: 'Activo'
+    },
+    {
+      id: '6',
+      nombre: 'Plomería Express',
+      rnc: '131-55667-7',
+      tipo: 'Plomería',
+      telefono: '809-555-8642',
+      email: 'servicios@plomeriaexpress.com',
+      calificacion: 4.3,
+      gastosDelMes: 22000,
+      estado: 'Inactivo'
+    }
+  ]);
 
   // Calcular estadísticas
   const totalProveedores = proveedores.length;
@@ -77,31 +122,6 @@ export default function ProveedoresPage() {
       </div>
     );
   };
-
-  // Mostrar estado de carga
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Cargando proveedores...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <Store size={64} className="mx-auto text-red-500 mb-4" />
-          <p className="text-red-400 text-lg mb-2">Error al cargar proveedores</p>
-          <p className="text-gray-500 text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">

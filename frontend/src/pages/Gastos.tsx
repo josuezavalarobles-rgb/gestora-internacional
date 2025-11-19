@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Receipt, Plus, TrendingDown, Clock, CheckCircle, FileText } from 'lucide-react';
-import { gastosAPI } from '../services/api';
 
 interface Gasto {
   id: string;
@@ -15,43 +13,70 @@ interface Gasto {
 
 export default function Gastos() {
   const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth() + 1);
-  const queryClient = useQueryClient();
 
-  // Cargar gastos desde el API
-  const { data: gastos = [], isLoading, error } = useQuery({
-    queryKey: ['gastos', mesSeleccionado],
-    queryFn: () => gastosAPI.obtenerTodos({ mes: mesSeleccionado }),
-  });
-
-  // Cargar estadísticas
-  const { data: estadisticas } = useQuery({
-    queryKey: ['gastos-estadisticas', mesSeleccionado],
-    queryFn: () => gastosAPI.obtenerEstadisticas({ mes: mesSeleccionado }),
-  });
-
-  // Mutación para marcar como pagado
-  const marcarPagadoMutation = useMutation({
-    mutationFn: (id: string) => gastosAPI.marcarComoPagado(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gastos'] });
-      queryClient.invalidateQueries({ queryKey: ['gastos-estadisticas'] });
+  // Datos mock de gastos
+  const [gastos] = useState<Gasto[]>([
+    {
+      id: '1',
+      fecha: '2024-11-05',
+      concepto: 'Mantenimiento Ascensores',
+      proveedor: 'Servicios Técnicos RD',
+      ncf: 'B0100000001',
+      monto: 45000,
+      estado: 'Pagado'
     },
-  });
-
-  // Mutación para crear gasto
-  const crearMutation = useMutation({
-    mutationFn: gastosAPI.crear,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gastos'] });
-      queryClient.invalidateQueries({ queryKey: ['gastos-estadisticas'] });
+    {
+      id: '2',
+      fecha: '2024-11-10',
+      concepto: 'Suministros de Limpieza',
+      proveedor: 'Suministros del Caribe',
+      ncf: 'B0100000002',
+      monto: 32000,
+      estado: 'Pagado'
     },
-  });
+    {
+      id: '3',
+      fecha: '2024-11-12',
+      concepto: 'Reparación Eléctrica Torre A',
+      proveedor: 'Electrónica Santo Domingo',
+      ncf: 'B0100000003',
+      monto: 28500,
+      estado: 'Pendiente'
+    },
+    {
+      id: '4',
+      fecha: '2024-11-15',
+      concepto: 'Jardinería Áreas Comunes',
+      proveedor: 'Jardinería Tropical',
+      ncf: 'B0100000004',
+      monto: 18000,
+      estado: 'Pendiente'
+    },
+    {
+      id: '5',
+      fecha: '2024-11-01',
+      concepto: 'Servicio de Seguridad',
+      proveedor: 'Seguridad Integral',
+      ncf: 'B0100000005',
+      monto: 65000,
+      estado: 'Pagado'
+    },
+    {
+      id: '6',
+      fecha: '2024-11-08',
+      concepto: 'Consumo de Agua',
+      proveedor: 'CAASD',
+      ncf: 'B0200000001',
+      monto: 45000,
+      estado: 'Vencido'
+    }
+  ]);
 
   // Calcular estadísticas
-  const totalGastosMes = estadisticas?.totalGastosMes || gastos.reduce((sum: number, g: Gasto) => sum + g.monto, 0);
-  const pendientesPago = estadisticas?.pendientesPago || gastos.filter((g: Gasto) => g.estado === 'Pendiente').length;
-  const pagados = estadisticas?.pagados || gastos.filter((g: Gasto) => g.estado === 'Pagado').length;
-  const ncfUsados = estadisticas?.ncfUsados || gastos.filter((g: Gasto) => g.ncf).length;
+  const totalGastosMes = gastos.reduce((sum: number, g: Gasto) => sum + g.monto, 0);
+  const pendientesPago = gastos.filter((g: Gasto) => g.estado === 'Pendiente').length;
+  const pagados = gastos.filter((g: Gasto) => g.estado === 'Pagado').length;
+  const ncfUsados = gastos.filter((g: Gasto) => g.ncf).length;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-DO', {
@@ -92,31 +117,6 @@ export default function Gastos() {
     { value: 11, label: 'Noviembre' },
     { value: 12, label: 'Diciembre' }
   ];
-
-  // Mostrar estado de carga
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Cargando gastos...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <Receipt size={64} className="mx-auto text-red-500 mb-4" />
-          <p className="text-red-400 text-lg mb-2">Error al cargar gastos</p>
-          <p className="text-gray-500 text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">
@@ -253,12 +253,8 @@ export default function Gastos() {
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-2">
                       {gasto.estado !== 'Pagado' && (
-                        <button
-                          onClick={() => marcarPagadoMutation.mutate(gasto.id)}
-                          disabled={marcarPagadoMutation.isPending}
-                          className="px-3 py-1.5 bg-green-600 bg-opacity-20 hover:bg-opacity-30 text-green-400 rounded-lg transition-all text-sm font-medium disabled:opacity-50"
-                        >
-                          {marcarPagadoMutation.isPending ? 'Procesando...' : 'Marcar Pagado'}
+                        <button className="px-3 py-1.5 bg-green-600 bg-opacity-20 hover:bg-opacity-30 text-green-400 rounded-lg transition-all text-sm font-medium">
+                          Marcar Pagado
                         </button>
                       )}
                       <button className="px-3 py-1.5 bg-blue-600 bg-opacity-20 hover:bg-opacity-30 text-blue-400 rounded-lg transition-all text-sm font-medium">

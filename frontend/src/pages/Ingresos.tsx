@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TrendingUp, Plus, DollarSign, CheckCircle, Clock, FileText } from 'lucide-react';
-import { ingresosAPI } from '../services/api';
 
 interface Ingreso {
   id: string;
@@ -14,43 +12,69 @@ interface Ingreso {
 }
 
 export default function Ingresos() {
-  const queryClient = useQueryClient();
-
-  // Cargar ingresos desde el API
-  const { data: ingresos = [], isLoading, error } = useQuery({
-    queryKey: ['ingresos'],
-    queryFn: () => ingresosAPI.obtenerTodos(),
-  });
-
-  // Cargar estadísticas
-  const { data: estadisticas } = useQuery({
-    queryKey: ['ingresos-estadisticas'],
-    queryFn: () => ingresosAPI.obtenerEstadisticas(),
-  });
-
-  // Mutación para marcar como cobrado
-  const marcarCobradoMutation = useMutation({
-    mutationFn: (id: string) => ingresosAPI.marcarComoCobrado(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingresos'] });
-      queryClient.invalidateQueries({ queryKey: ['ingresos-estadisticas'] });
+  // Datos mock de ingresos
+  const [ingresos] = useState<Ingreso[]>([
+    {
+      id: '1',
+      fecha: '2024-11-01',
+      concepto: 'Mantenimiento Mensual',
+      unidad: 'Apto 101',
+      monto: 5000,
+      estado: 'Cobrado',
+      recibo: 'REC-2024-001'
     },
-  });
-
-  // Mutación para crear ingreso
-  const crearMutation = useMutation({
-    mutationFn: ingresosAPI.crear,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingresos'] });
-      queryClient.invalidateQueries({ queryKey: ['ingresos-estadisticas'] });
+    {
+      id: '2',
+      fecha: '2024-11-01',
+      concepto: 'Mantenimiento Mensual',
+      unidad: 'Apto 102',
+      monto: 5000,
+      estado: 'Cobrado',
+      recibo: 'REC-2024-002'
     },
-  });
+    {
+      id: '3',
+      fecha: '2024-11-01',
+      concepto: 'Mantenimiento Mensual',
+      unidad: 'Apto 201',
+      monto: 5000,
+      estado: 'Pendiente',
+      recibo: 'REC-2024-003'
+    },
+    {
+      id: '4',
+      fecha: '2024-11-01',
+      concepto: 'Mantenimiento Mensual',
+      unidad: 'Apto 202',
+      monto: 5000,
+      estado: 'Pendiente',
+      recibo: 'REC-2024-004'
+    },
+    {
+      id: '5',
+      fecha: '2024-11-15',
+      concepto: 'Cuota Extraordinaria - Pintura',
+      unidad: 'Apto 101',
+      monto: 2500,
+      estado: 'Cobrado',
+      recibo: 'REC-2024-005'
+    },
+    {
+      id: '6',
+      fecha: '2024-11-20',
+      concepto: 'Multa por Ruido',
+      unidad: 'Apto 301',
+      monto: 1000,
+      estado: 'Vencido',
+      recibo: 'REC-2024-006'
+    }
+  ]);
 
   // Calcular estadísticas
-  const totalIngresosMes = estadisticas?.totalIngresosMes || ingresos.reduce((sum: number, i: Ingreso) => sum + i.monto, 0);
-  const cobrados = estadisticas?.cobrados || ingresos.filter((i: Ingreso) => i.estado === 'Cobrado').length;
-  const pendientes = estadisticas?.pendientes || ingresos.filter((i: Ingreso) => i.estado === 'Pendiente').length;
-  const recibosEmitidos = estadisticas?.recibosEmitidos || ingresos.filter((i: Ingreso) => i.recibo).length;
+  const totalIngresosMes = ingresos.reduce((sum: number, i: Ingreso) => sum + i.monto, 0);
+  const cobrados = ingresos.filter((i: Ingreso) => i.estado === 'Cobrado').length;
+  const pendientes = ingresos.filter((i: Ingreso) => i.estado === 'Pendiente').length;
+  const recibosEmitidos = ingresos.filter((i: Ingreso) => i.recibo).length;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-DO', {
@@ -76,31 +100,6 @@ export default function Ingresos() {
     };
     return colors[estado] || 'bg-gray-600 text-white';
   };
-
-  // Mostrar estado de carga
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Cargando ingresos...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <TrendingUp size={64} className="mx-auto text-red-500 mb-4" />
-          <p className="text-red-400 text-lg mb-2">Error al cargar ingresos</p>
-          <p className="text-gray-500 text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">

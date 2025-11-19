@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Home, Plus, Calendar as CalendarIcon, DollarSign, CheckCircle, Clock } from 'lucide-react';
-import { areasComunesAPI } from '../services/api';
 
 interface AreaComun {
   id: string;
@@ -24,29 +22,58 @@ interface Reserva {
 
 export default function AreasComunes() {
   const [vistaActual, setVistaActual] = useState<'areas' | 'calendario'>('areas');
-  const queryClient = useQueryClient();
 
-  // Cargar áreas comunes desde el API
-  const { data: areasComunes = [], isLoading, error } = useQuery({
-    queryKey: ['areas-comunes'],
-    queryFn: () => areasComunesAPI.obtenerTodas(),
-  });
-
-  // Mutación para crear área
-  const crearAreaMutation = useMutation({
-    mutationFn: areasComunesAPI.crear,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['areas-comunes'] });
+  // Datos mock de áreas comunes
+  const [areasComunes] = useState<AreaComun[]>([
+    {
+      id: '1',
+      nombre: 'Salón de Eventos',
+      tipo: 'Eventos',
+      capacidad: 100,
+      costo: 5000,
+      estado: 'Disponible'
     },
-  });
-
-  // Mutación para crear reserva
-  const crearReservaMutation = useMutation({
-    mutationFn: areasComunesAPI.crearReserva,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['areas-comunes'] });
+    {
+      id: '2',
+      nombre: 'Piscina Principal',
+      tipo: 'Recreación',
+      capacidad: 50,
+      costo: 0,
+      estado: 'Disponible'
     },
-  });
+    {
+      id: '3',
+      nombre: 'Gimnasio',
+      tipo: 'Deportivo',
+      capacidad: 20,
+      costo: 0,
+      estado: 'Disponible'
+    },
+    {
+      id: '4',
+      nombre: 'Cancha de Tenis',
+      tipo: 'Deportivo',
+      capacidad: 4,
+      costo: 500,
+      estado: 'Ocupada'
+    },
+    {
+      id: '5',
+      nombre: 'Área BBQ',
+      tipo: 'Recreación',
+      capacidad: 30,
+      costo: 2000,
+      estado: 'Disponible'
+    },
+    {
+      id: '6',
+      nombre: 'Salón Infantil',
+      tipo: 'Eventos',
+      capacidad: 50,
+      costo: 3000,
+      estado: 'Mantenimiento'
+    }
+  ]);
 
   // Calcular estadísticas
   const totalAreas = areasComunes.length;
@@ -81,31 +108,6 @@ export default function AreasComunes() {
     };
     return colors[estado] || 'bg-gray-600 text-white';
   };
-
-  // Mostrar estado de carga
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Cargando áreas comunes...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <Home size={64} className="mx-auto text-red-500 mb-4" />
-          <p className="text-red-400 text-lg mb-2">Error al cargar áreas comunes</p>
-          <p className="text-gray-500 text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">

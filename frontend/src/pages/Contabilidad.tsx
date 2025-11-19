@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, Plus, Search, TrendingUp, TrendingDown, DollarSign, FileText } from 'lucide-react';
-import { contabilidadAPI } from '../services/api';
 
 interface Cuenta {
   id: string;
@@ -13,44 +11,98 @@ interface Cuenta {
 
 export default function Contabilidad() {
   const [searchTerm, setSearchTerm] = useState('');
-  const queryClient = useQueryClient();
 
-  // Cargar plan de cuentas desde el API
-  const { data: cuentas = [], isLoading, error } = useQuery({
-    queryKey: ['plan-cuentas'],
-    queryFn: () => contabilidadAPI.obtenerPlanCuentas(),
-  });
-
-  // Cargar balance general
-  const { data: balanceGeneral } = useQuery({
-    queryKey: ['balance-general'],
-    queryFn: () => contabilidadAPI.obtenerBalanceGeneral(),
-  });
-
-  // Cargar estado de resultados
-  const { data: estadoResultados } = useQuery({
-    queryKey: ['estado-resultados'],
-    queryFn: () => contabilidadAPI.obtenerEstadoResultados(),
-  });
-
-  // Mutación para crear cuenta
-  const crearCuentaMutation = useMutation({
-    mutationFn: contabilidadAPI.crearCuenta,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plan-cuentas'] });
+  // Datos mock de plan de cuentas
+  const [cuentas] = useState<Cuenta[]>([
+    {
+      id: '1',
+      codigo: '1-01-001',
+      nombre: 'Caja General',
+      tipo: 'Activo',
+      saldo: 450000
     },
-  });
+    {
+      id: '2',
+      codigo: '1-01-002',
+      nombre: 'Banco Popular - Cuenta Corriente',
+      tipo: 'Activo',
+      saldo: 2350000
+    },
+    {
+      id: '3',
+      codigo: '1-02-001',
+      nombre: 'Cuentas por Cobrar - Residentes',
+      tipo: 'Activo',
+      saldo: 125000
+    },
+    {
+      id: '4',
+      codigo: '2-01-001',
+      nombre: 'Cuentas por Pagar - Proveedores',
+      tipo: 'Pasivo',
+      saldo: 85000
+    },
+    {
+      id: '5',
+      codigo: '2-01-002',
+      nombre: 'Préstamos Bancarios',
+      tipo: 'Pasivo',
+      saldo: 500000
+    },
+    {
+      id: '6',
+      codigo: '4-01-001',
+      nombre: 'Cuotas de Mantenimiento',
+      tipo: 'Ingreso',
+      saldo: 320000
+    },
+    {
+      id: '7',
+      codigo: '4-02-001',
+      nombre: 'Ingresos por Áreas Comunes',
+      tipo: 'Ingreso',
+      saldo: 45000
+    },
+    {
+      id: '8',
+      codigo: '5-01-001',
+      nombre: 'Salarios y Beneficios',
+      tipo: 'Gasto',
+      saldo: 180000
+    },
+    {
+      id: '9',
+      codigo: '5-02-001',
+      nombre: 'Servicios Públicos',
+      tipo: 'Gasto',
+      saldo: 95000
+    },
+    {
+      id: '10',
+      codigo: '5-03-001',
+      nombre: 'Mantenimiento y Reparaciones',
+      tipo: 'Gasto',
+      saldo: 65000
+    },
+    {
+      id: '11',
+      codigo: '3-01-001',
+      nombre: 'Capital Social',
+      tipo: 'Capital',
+      saldo: 1500000
+    }
+  ]);
 
   // Calcular totales
-  const totalActivos = balanceGeneral?.totalActivos || cuentas
+  const totalActivos = cuentas
     .filter((c: Cuenta) => c.tipo === 'Activo')
     .reduce((sum: number, c: Cuenta) => sum + c.saldo, 0);
 
-  const totalIngresos = estadoResultados?.totalIngresos || cuentas
+  const totalIngresos = cuentas
     .filter((c: Cuenta) => c.tipo === 'Ingreso')
     .reduce((sum: number, c: Cuenta) => sum + c.saldo, 0);
 
-  const totalGastos = estadoResultados?.totalGastos || cuentas
+  const totalGastos = cuentas
     .filter((c: Cuenta) => c.tipo === 'Gasto')
     .reduce((sum: number, c: Cuenta) => sum + c.saldo, 0);
 
@@ -80,31 +132,6 @@ export default function Contabilidad() {
     };
     return colors[tipo] || 'bg-gray-600 text-white';
   };
-
-  // Mostrar estado de carga
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Cargando plan de cuentas...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <BookOpen size={64} className="mx-auto text-red-500 mb-4" />
-          <p className="text-red-400 text-lg mb-2">Error al cargar plan de cuentas</p>
-          <p className="text-gray-500 text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-8 space-y-8">
