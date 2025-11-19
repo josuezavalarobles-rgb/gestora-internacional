@@ -14,37 +14,35 @@ export interface CrearUnidadDTO {
   numero: string; // "402", "12-A", "PH-1"
   alicuota: number; // Porcentaje de participación (0.05 = 5%)
   propietarioId?: string;
-  metraje?: number;
+  inquilinoId?: string;
+  metrosCuadrados?: number;
   habitaciones?: number;
   banos?: number;
-  parqueos?: number;
-  nivel?: string;
+  estacionamientos?: number;
+  piso?: number;
+  edificio?: string;
   telefono?: string;
+  telefonoEmergencia?: string;
   emailContacto?: string;
-  inquilino?: boolean;
-  nombreInquilino?: string;
-  telefonoInquilino?: string;
   notas?: string;
 }
 
 export interface CrearDependienteDTO {
   unidadId: string;
-  nombre: string;
-  parentesco: string; // "hijo", "hija", "cónyuge", "padre", "madre", etc.
+  nombreCompleto: string;
+  relacion: 'conyuge' | 'hijo' | 'padre' | 'otro_familiar' | 'empleado_domestico';
   cedula?: string;
-  fechaNacimiento?: Date;
   telefono?: string;
-  autorizadoRetirar?: boolean;
+  fotoUrl?: string;
 }
 
 export interface CrearVehiculoDTO {
   unidadId: string;
   placa: string;
-  marca: string;
-  modelo: string;
-  color: string;
-  ano?: number;
-  tipo?: string; // "automovil", "motocicleta", "suv", "camioneta"
+  marca?: string;
+  modelo?: string;
+  color?: string;
+  tipo: 'automovil' | 'motocicleta' | 'camioneta' | 'camion' | 'bicicleta' | 'otro';
 }
 
 export class UnidadService {
@@ -70,22 +68,21 @@ export class UnidadService {
         data: {
           condominioId: data.condominioId,
           numero: data.numero,
+          tipo: 'apartamento', // Default value
           alicuota: new Decimal(data.alicuota),
           propietarioId: data.propietarioId,
-          metraje: data.metraje ? new Decimal(data.metraje) : null,
+          inquilinoId: data.inquilinoId,
+          metrosCuadrados: data.metrosCuadrados ? new Decimal(data.metrosCuadrados) : undefined,
           habitaciones: data.habitaciones,
           banos: data.banos,
-          parqueos: data.parqueos,
-          nivel: data.nivel,
-          telefono: data.telefono,
+          estacionamientos: data.estacionamientos,
+          piso: data.piso,
+          edificio: data.edificio,
+          telefonoEmergencia: data.telefonoEmergencia,
           emailContacto: data.emailContacto,
-          inquilino: data.inquilino || false,
-          nombreInquilino: data.nombreInquilino,
-          telefonoInquilino: data.telefonoInquilino,
           notas: data.notas,
         },
         include: {
-          propietario: true,
           condominio: true,
         },
       });
@@ -102,35 +99,53 @@ export class UnidadService {
    * Obtener unidades de un condominio
    */
   async obtenerUnidades(
-    condominioId: string,
+    condominioIdOrFiltros: string | { condominioId: string; tipo?: any; estado?: any },
     filtros?: {
-      activa?: boolean;
+      estado?: 'ocupada' | 'vacia' | 'en_renta' | 'en_venta';
       propietarioId?: string;
       buscar?: string;
     }
   ): Promise<Unidad[]> {
     try {
-      const where: any = { condominioId };
+      let condominioId: string;
+      let where: any = {};
 
-      if (filtros?.activa !== undefined) {
-        where.activa = filtros.activa;
-      }
+      // Manejar los dos formatos de llamada
+      if (typeof condominioIdOrFiltros === 'string') {
+        condominioId = condominioIdOrFiltros;
+        where = { condominioId };
 
-      if (filtros?.propietarioId) {
-        where.propietarioId = filtros.propietarioId;
-      }
+        if (filtros?.estado !== undefined) {
+          where.estado = filtros.estado;
+        }
 
-      if (filtros?.buscar) {
-        where.OR = [
-          { numero: { contains: filtros.buscar, mode: 'insensitive' } },
-          { nivel: { contains: filtros.buscar, mode: 'insensitive' } },
-        ];
+        if (filtros?.propietarioId) {
+          where.propietarioId = filtros.propietarioId;
+        }
+
+        if (filtros?.buscar) {
+          where.OR = [
+            { numero: { contains: filtros.buscar, mode: 'insensitive' } },
+            { edificio: { contains: filtros.buscar, mode: 'insensitive' } },
+          ];
+        }
+      } else {
+        // Formato de objeto
+        condominioId = condominioIdOrFiltros.condominioId;
+        where = { condominioId };
+
+        if (condominioIdOrFiltros.tipo) {
+          where.tipo = condominioIdOrFiltros.tipo;
+        }
+
+        if (condominioIdOrFiltros.estado) {
+          where.estado = condominioIdOrFiltros.estado;
+        }
       }
 
       const unidades = await prisma.unidad.findMany({
         where,
         include: {
-          propietario: true,
           condominio: true,
           dependientes: {
             where: { activo: true },
@@ -142,7 +157,7 @@ export class UnidadService {
             select: {
               dependientes: true,
               vehiculos: true,
-              distribuciones: true,
+              distribucionGastos: true,
             },
           },
         },
@@ -166,17 +181,16 @@ export class UnidadService {
       const unidad = await prisma.unidad.findUnique({
         where: { id: unidadId },
         include: {
-          propietario: true,
           condominio: true,
           dependientes: {
             where: { activo: true },
-            orderBy: { nombre: 'asc' },
+            orderBy: { nombreCompleto: 'asc' },
           },
           vehiculos: {
             where: { activo: true },
             orderBy: { placa: 'asc' },
           },
-          distribuciones: {
+          distribucionGastos: {
             include: {
               gasto: {
                 include: {
@@ -186,7 +200,7 @@ export class UnidadService {
               },
             },
             orderBy: {
-              gasto: { fechaEmision: 'desc' },
+              fechaCreacion: 'desc',
             },
             take: 20,
           },
@@ -221,16 +235,15 @@ export class UnidadService {
         updateData.alicuota = new Decimal(data.alicuota);
       }
 
-      // Convertir metraje a Decimal si existe
-      if (data.metraje !== undefined) {
-        updateData.metraje = new Decimal(data.metraje);
+      // Convertir metrosCuadrados a Decimal si existe
+      if (data.metrosCuadrados !== undefined) {
+        updateData.metrosCuadrados = new Decimal(data.metrosCuadrados);
       }
 
       const unidad = await prisma.unidad.update({
         where: { id: unidadId },
         data: updateData,
         include: {
-          propietario: true,
           condominio: true,
         },
       });
@@ -255,7 +268,7 @@ export class UnidadService {
       const resultado = await prisma.unidad.aggregate({
         where: {
           condominioId,
-          activa: true,
+          estado: 'ocupada', // Solo contar unidades ocupadas
         },
         _sum: {
           alicuota: true,
@@ -292,17 +305,16 @@ export class UnidadService {
    */
   async agregarDependiente(data: CrearDependienteDTO): Promise<Dependiente> {
     try {
-      logger.info(`Agregando dependiente: ${data.nombre} a unidad ${data.unidadId}`);
+      logger.info(`Agregando dependiente: ${data.nombreCompleto} a unidad ${data.unidadId}`);
 
       const dependiente = await prisma.dependiente.create({
         data: {
           unidadId: data.unidadId,
-          nombre: data.nombre,
-          parentesco: data.parentesco,
+          nombreCompleto: data.nombreCompleto,
+          relacion: data.relacion,
           cedula: data.cedula,
-          fechaNacimiento: data.fechaNacimiento,
           telefono: data.telefono,
-          autorizadoRetirar: data.autorizadoRetirar || false,
+          fotoUrl: data.fotoUrl,
         },
         include: {
           unidad: true,
@@ -331,7 +343,7 @@ export class UnidadService {
           unidad: true,
         },
         orderBy: {
-          nombre: 'asc',
+          nombreCompleto: 'asc',
         },
       });
 
@@ -374,11 +386,10 @@ export class UnidadService {
         data: {
           unidadId: data.unidadId,
           placa: data.placa.toUpperCase(),
+          tipo: data.tipo,
           marca: data.marca,
           modelo: data.modelo,
           color: data.color,
-          ano: data.ano,
-          tipo: data.tipo || 'automovil',
         },
         include: {
           unidad: true,
@@ -419,39 +430,6 @@ export class UnidadService {
   }
 
   /**
-   * Buscar vehículo por placa (en todo el condominio)
-   */
-  async buscarVehiculoPorPlaca(
-    condominioId: string,
-    placa: string
-  ): Promise<Vehiculo | null> {
-    try {
-      const vehiculo = await prisma.vehiculo.findFirst({
-        where: {
-          placa: placa.toUpperCase(),
-          activo: true,
-          unidad: {
-            condominioId,
-            activa: true,
-          },
-        },
-        include: {
-          unidad: {
-            include: {
-              propietario: true,
-            },
-          },
-        },
-      });
-
-      return vehiculo;
-    } catch (error) {
-      logger.error('Error al buscar vehículo por placa:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Eliminar (desactivar) vehículo
    */
   async eliminarVehiculo(vehiculoId: string): Promise<void> {
@@ -479,61 +457,198 @@ export class UnidadService {
     condominioId: string
   ): Promise<{
     totalUnidades: number;
-    unidadesActivas: number;
     unidadesOcupadas: number;
-    unidadesDesocupadas: number;
-    unidadesConInquilinos: number;
+    unidadesVacias: number;
+    unidadesEnRenta: number;
+    unidadesEnVenta: number;
     totalDependientes: number;
     totalVehiculos: number;
   }> {
     try {
-      const [unidades, dependientes, vehiculos] = await Promise.all([
-        prisma.unidad.findMany({
-          where: { condominioId },
-          include: {
-            _count: {
-              select: {
-                dependientes: true,
-                vehiculos: true,
-              },
+      const unidades = await prisma.unidad.findMany({
+        where: { condominioId },
+        include: {
+          _count: {
+            select: {
+              dependientes: true,
+              vehiculos: true,
             },
           },
-        }),
-        prisma.unidad.aggregate({
-          where: { condominioId, activa: true },
-          _count: {
-            dependientes: true,
-          },
-        }),
-        prisma.unidad.aggregate({
-          where: { condominioId, activa: true },
-          _count: {
-            vehiculos: true,
-          },
-        }),
-      ]);
+        },
+      });
 
       const totalUnidades = unidades.length;
-      const unidadesActivas = unidades.filter((u) => u.activa).length;
-      const unidadesOcupadas = unidades.filter(
-        (u) => u.activa && u.propietarioId
-      ).length;
-      const unidadesDesocupadas = unidadesActivas - unidadesOcupadas;
-      const unidadesConInquilinos = unidades.filter(
-        (u) => u.activa && u.inquilino
-      ).length;
+      const unidadesOcupadas = unidades.filter((u) => u.estado === 'ocupada').length;
+      const unidadesVacias = unidades.filter((u) => u.estado === 'vacia').length;
+      const unidadesEnRenta = unidades.filter((u) => u.estado === 'en_renta').length;
+      const unidadesEnVenta = unidades.filter((u) => u.estado === 'en_venta').length;
+
+      const totalDependientes = unidades.reduce((sum, u) => sum + (u._count?.dependientes || 0), 0);
+      const totalVehiculos = unidades.reduce((sum, u) => sum + (u._count?.vehiculos || 0), 0);
 
       return {
         totalUnidades,
-        unidadesActivas,
         unidadesOcupadas,
-        unidadesDesocupadas,
-        unidadesConInquilinos,
-        totalDependientes: dependientes._count.dependientes,
-        totalVehiculos: vehiculos._count.vehiculos,
+        unidadesVacias,
+        unidadesEnRenta,
+        unidadesEnVenta,
+        totalDependientes,
+        totalVehiculos,
       };
     } catch (error) {
       logger.error('Error al obtener estadísticas de ocupación:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener unidad de un usuario
+   */
+  async obtenerUnidadUsuario(usuarioId: string): Promise<Unidad | null> {
+    try {
+      const unidad = await prisma.unidad.findFirst({
+        where: {
+          OR: [
+            { propietarioId: usuarioId },
+            { inquilinoId: usuarioId },
+          ],
+        },
+        include: {
+          condominio: true,
+          dependientes: {
+            where: { activo: true },
+          },
+          vehiculos: {
+            where: { activo: true },
+          },
+        },
+      });
+
+      return unidad;
+    } catch (error) {
+      logger.error('Error al obtener unidad de usuario:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Asignar propietario a unidad
+   */
+  async asignarPropietario(unidadId: string, propietarioId: string): Promise<Unidad> {
+    try {
+      const unidad = await prisma.unidad.update({
+        where: { id: unidadId },
+        data: { propietarioId },
+        include: {
+          condominio: true,
+        },
+      });
+
+      logger.info(`✅ Propietario asignado a unidad: ${unidadId}`);
+      return unidad;
+    } catch (error) {
+      logger.error('Error al asignar propietario:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Asignar inquilino a unidad
+   */
+  async asignarInquilino(unidadId: string, inquilinoId: string): Promise<Unidad> {
+    try {
+      const unidad = await prisma.unidad.update({
+        where: { id: unidadId },
+        data: { inquilinoId },
+        include: {
+          condominio: true,
+        },
+      });
+
+      logger.info(`✅ Inquilino asignado a unidad: ${unidadId}`);
+      return unidad;
+    } catch (error) {
+      logger.error('Error al asignar inquilino:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualizar dependiente
+   */
+  async actualizarDependiente(dependienteId: string, data: Partial<CrearDependienteDTO>): Promise<Dependiente> {
+    try {
+      const dependiente = await prisma.dependiente.update({
+        where: { id: dependienteId },
+        data,
+        include: {
+          unidad: true,
+        },
+      });
+
+      logger.info(`✅ Dependiente actualizado: ${dependienteId}`);
+      return dependiente;
+    } catch (error) {
+      logger.error('Error al actualizar dependiente:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Agregar vehículo (alias de registrarVehiculo)
+   */
+  async agregarVehiculo(data: CrearVehiculoDTO): Promise<Vehiculo> {
+    return this.registrarVehiculo(data);
+  }
+
+  /**
+   * Actualizar vehículo
+   */
+  async actualizarVehiculo(vehiculoId: string, data: Partial<CrearVehiculoDTO>): Promise<Vehiculo> {
+    try {
+      const updateData: any = { ...data };
+      if (data.placa) {
+        updateData.placa = data.placa.toUpperCase();
+      }
+
+      const vehiculo = await prisma.vehiculo.update({
+        where: { id: vehiculoId },
+        data: updateData,
+        include: {
+          unidad: true,
+        },
+      });
+
+      logger.info(`✅ Vehículo actualizado: ${vehiculoId}`);
+      return vehiculo;
+    } catch (error) {
+      logger.error('Error al actualizar vehículo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Buscar vehículo por placa (solo placa)
+   */
+  async buscarVehiculoPorPlaca(placa: string): Promise<Vehiculo | null> {
+    try {
+      const vehiculo = await prisma.vehiculo.findFirst({
+        where: {
+          placa: placa.toUpperCase(),
+          activo: true,
+        },
+        include: {
+          unidad: {
+            include: {
+              condominio: true,
+            },
+          },
+        },
+      });
+
+      return vehiculo;
+    } catch (error) {
+      logger.error('Error al buscar vehículo por placa:', error);
       throw error;
     }
   }

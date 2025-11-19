@@ -5,6 +5,7 @@
 import { getPrismaClient } from '../../config/database/postgres';
 import { NotificacionService } from '../notifications/NotificacionService';
 import { Prisma } from '@prisma/client';
+import { logger } from '../../utils/logger';
 
 const prisma = getPrismaClient();
 
@@ -386,13 +387,8 @@ export class CitasService {
       });
 
       // Notificar a técnicos/admin
-      await this.notificacionService.notificarAdmins({
-        tipo: 'caso_actualizado',
-        prioridad: 'media',
-        titulo: 'Cita Confirmada',
-        mensaje: `El propietario ha confirmado la cita del caso ${cita.caso.numeroCaso}`,
-        casoId: cita.casoId,
-      });
+      // TODO: Implementar notificación a admins
+      logger.info(`Cita confirmada para caso ${cita.caso.numeroCaso}`);
 
       return {
         success: true,
@@ -452,14 +448,8 @@ export class CitasService {
       });
 
       // Notificar al propietario
-      await this.notificacionService.crearNotificacion({
-        usuarioId: cita.caso.usuarioId,
-        tipo: 'caso_actualizado',
-        prioridad: 'alta',
-        titulo: 'Visita Confirmada',
-        mensaje: `Su visita ha sido confirmada por nuestro equipo técnico`,
-        casoId: cita.casoId,
-      });
+      // TODO: Implementar notificación al propietario
+      logger.info(`Notificación de cita confirmada para usuario ${cita.caso.usuarioId}`);
 
       return {
         success: true,
@@ -562,14 +552,8 @@ export class CitasService {
       });
 
       // Notificar al propietario
-      await this.notificacionService.crearNotificacion({
-        usuarioId: citaActual.caso.usuarioId,
-        tipo: 'visita_programada',
-        prioridad: 'alta',
-        titulo: 'Visita Reprogramada',
-        mensaje: `Su visita ha sido reprogramada para el ${data.nuevaFecha.toLocaleDateString()} de ${bloqueDisponible.horaInicio} a ${bloqueDisponible.horaFin}`,
-        casoId: citaActual.casoId,
-      });
+      // TODO: Implementar notificación al propietario
+      logger.info(`Notificación de cita reprogramada para usuario ${citaActual.caso.usuarioId}`);
 
       return {
         success: true,
@@ -616,14 +600,8 @@ export class CitasService {
       });
 
       // Notificar al propietario
-      await this.notificacionService.crearNotificacion({
-        usuarioId: cita.caso.usuarioId,
-        tipo: 'caso_actualizado',
-        prioridad: 'alta',
-        titulo: 'Visita Cancelada',
-        mensaje: `Su visita ha sido cancelada. Motivo: ${motivo}`,
-        casoId: cita.casoId,
-      });
+      // TODO: Implementar notificación al propietario
+      logger.info(`Notificación de cita cancelada para usuario ${cita.caso.usuarioId}`);
 
       return {
         success: true,

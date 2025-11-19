@@ -10,7 +10,7 @@ import { requireRole } from '../middleware/requireRole';
 import { CalendarioService } from '../services/calendario/CalendarioService';
 
 const router = Router();
-const calendarioService = new CalendarioService();
+const calendarioService = CalendarioService.getInstance();
 
 // Todas las rutas requieren autenticación
 router.use(authenticate);

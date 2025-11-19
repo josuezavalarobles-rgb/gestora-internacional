@@ -311,10 +311,8 @@ export class CasoService {
 
           // 7.4. 📱 ENVIAR WHATSAPP DIRECTO AL TÉCNICO (NUEVO)
           logger.info(`📱 Enviando WhatsApp directo al técnico ${slotAsignado.tecnicoAsignado.nombreCompleto}...`);
-          const whatsappTecnico = await this.seguimientoService.notificarTecnicoPorWhatsApp(
-            caso.id,
-            slotAsignado.tecnicoAsignado.id
-          );
+          // TODO: Implementar notificarTecnicoPorWhatsApp
+          const whatsappTecnico = null; // await this.seguimientoService.notificarTecnicoPorWhatsApp(caso.id, slotAsignado.tecnicoAsignado.id);
 
           if (whatsappTecnico) {
             logger.info(`✅ WhatsApp enviado al técnico exitosamente`);

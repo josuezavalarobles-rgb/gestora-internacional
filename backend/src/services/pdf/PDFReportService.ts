@@ -133,7 +133,7 @@ export class PDFReportService {
 
       doc.end();
 
-      await new Promise((resolve) => stream.on('finish', resolve));
+      await new Promise<void>((resolve) => stream.on('finish', () => resolve()));
 
       logger.info(`✅ Reporte PDF generado: ${filePath}`);
 
@@ -263,7 +263,7 @@ export class PDFReportService {
 
       doc.end();
 
-      await new Promise((resolve) => stream.on('finish', resolve));
+      await new Promise<void>((resolve) => stream.on('finish', () => resolve()));
 
       logger.info(`✅ Reporte dashboard PDF generado: ${filePath}`);
 
@@ -354,7 +354,7 @@ export class PDFReportService {
 
       doc.end();
 
-      await new Promise((resolve) => stream.on('finish', resolve));
+      await new Promise<void>((resolve) => stream.on('finish', () => resolve()));
 
       logger.info(`✅ Reporte técnicos PDF generado: ${filePath}`);
 

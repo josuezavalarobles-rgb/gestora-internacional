@@ -67,7 +67,8 @@ export class FacturaIAService {
       const extension = path.extname(rutaArchivo).toLowerCase();
 
       // Determinar tipo de archivo
-      let mediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' | 'application/pdf';
+      // Nota: application/pdf no está soportado por Anthropic API en el tipo image
+      let mediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
       switch (extension) {
         case '.jpg':
         case '.jpeg':
@@ -83,8 +84,8 @@ export class FacturaIAService {
           mediaType = 'image/webp';
           break;
         case '.pdf':
-          mediaType = 'application/pdf';
-          break;
+          // PDF no soportado en mensajes de imagen - usar conversión a imagen o procesamiento alternativo
+          throw new Error('Procesamiento de PDF no implementado. Use imágenes JPG/PNG.');
         default:
           throw new Error(`Tipo de archivo no soportado: ${extension}`);
       }
@@ -168,7 +169,9 @@ IMPORTANTE:
           datosEstructurados = JSON.parse(jsonString);
 
           // Calcular confianza basada en campos extraídos
-          confianza = this.calcularConfianza(datosEstructurados);
+          if (datosEstructurados) {
+            confianza = this.calcularConfianza(datosEstructurados);
+          }
         }
       } catch (error) {
         logger.warn('No se pudo parsear JSON de respuesta de Claude:', error);

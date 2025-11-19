@@ -12,7 +12,7 @@ import { requireRole } from '../middleware/requireRole';
 import { DocumentosService } from '../services/documentos/DocumentosService';
 
 const router = Router();
-const documentosService = new DocumentosService();
+const documentosService = DocumentosService.getInstance();
 
 // Configurar multer para subida de documentos
 const storage = multer.diskStorage({

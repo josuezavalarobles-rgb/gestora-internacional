@@ -15,7 +15,7 @@ const prisma = new PrismaClient();
 
 // Generar JWT Token
 const generateToken = (userId: string, tipoUsuario: string): string => {
-  return jwt.sign(
+  return (jwt.sign as any)(
     { userId, tipoUsuario },
     config.jwt.secret,
     { expiresIn: config.jwt.expiresIn }
@@ -24,7 +24,7 @@ const generateToken = (userId: string, tipoUsuario: string): string => {
 
 // Generar Refresh Token
 const generateRefreshToken = (userId: string): string => {
-  return jwt.sign(
+  return (jwt.sign as any)(
     { userId },
     config.jwt.refreshSecret,
     { expiresIn: config.jwt.refreshExpiresIn }
@@ -103,15 +103,13 @@ export const register = async (req: Request, res: Response) => {
     const token = generateToken(newUser.id, newUser.tipoUsuario);
     const refreshToken = generateRefreshToken(newUser.id);
 
-    // Crear sesión
+    // Crear sesión (nota: el modelo Sesion no tiene campos token/refreshToken/activo)
     await prisma.sesion.create({
       data: {
         usuarioId: newUser.id,
-        token,
-        refreshToken,
+        estado: 'online',
         ipAddress: req.ip || 'unknown',
-        userAgent: req.headers['user-agent'] || 'unknown',
-        activo: true
+        userAgent: req.headers['user-agent'] || 'unknown'
       }
     });
 
@@ -213,15 +211,13 @@ export const login = async (req: Request, res: Response) => {
     const token = generateToken(user.id, user.tipoUsuario);
     const refreshToken = generateRefreshToken(user.id);
 
-    // Crear sesión
+    // Crear sesión (nota: el modelo Sesion no tiene campos token/refreshToken/activo)
     await prisma.sesion.create({
       data: {
         usuarioId: user.id,
-        token,
-        refreshToken,
+        estado: 'online',
         ipAddress: req.ip || 'unknown',
-        userAgent: req.headers['user-agent'] || 'unknown',
-        activo: true
+        userAgent: req.headers['user-agent'] || 'unknown'
       }
     });
 
@@ -261,13 +257,19 @@ export const login = async (req: Request, res: Response) => {
  */
 export const logout = async (req: Request, res: Response) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const userId = (req as any).user?.userId;
 
-    if (token) {
-      // Desactivar sesión
+    if (userId) {
+      // Cambiar estado de la sesión a offline
       await prisma.sesion.updateMany({
-        where: { token },
-        data: { activo: false }
+        where: {
+          usuarioId: userId,
+          estado: 'online'
+        },
+        data: {
+          estado: 'offline',
+          fechaLogout: new Date()
+        }
       });
     }
 
@@ -355,20 +357,14 @@ export const refreshToken = async (req: Request, res: Response) => {
     }
 
     // Verificar refresh token
-    const decoded = jwt.verify(refreshToken, config.jwt.refreshSecret) as any;
+    const decoded = jwt.verify(refreshToken, config.jwt.refreshSecret as string) as any;
 
-    // Buscar sesión
-    const session = await prisma.sesion.findFirst({
-      where: {
-        refreshToken,
-        activo: true
-      },
-      include: {
-        usuario: true
-      }
+    // Buscar usuario por el ID del token decodificado
+    const user = await prisma.usuario.findUnique({
+      where: { id: decoded.userId }
     });
 
-    if (!session) {
+    if (!user || user.estado !== 'activo') {
       return res.status(401).json({
         success: false,
         message: 'Sesión inválida o expirada'
@@ -376,15 +372,17 @@ export const refreshToken = async (req: Request, res: Response) => {
     }
 
     // Generar nuevos tokens
-    const newToken = generateToken(session.usuario.id, session.usuario.tipoUsuario);
-    const newRefreshToken = generateRefreshToken(session.usuario.id);
+    const newToken = generateToken(user.id, user.tipoUsuario);
+    const newRefreshToken = generateRefreshToken(user.id);
 
-    // Actualizar sesión
-    await prisma.sesion.update({
-      where: { id: session.id },
+    // Actualizar última actividad en sesión
+    await prisma.sesion.updateMany({
+      where: {
+        usuarioId: user.id,
+        estado: 'online'
+      },
       data: {
-        token: newToken,
-        refreshToken: newRefreshToken
+        ultimaActividad: new Date()
       }
     });
 

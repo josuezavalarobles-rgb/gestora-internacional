@@ -38,6 +38,8 @@ import dashboardRoutes from './routes/dashboard.routes';
 
 // Rutas Nuevas (Gestora Internacional)
 import proveedoresRoutes from './routes/proveedores.routes';
+import gastosRoutes from './routes/gastos.routes';
+import ingresosRoutes from './routes/ingresos.routes';
 import contabilidadRoutes from './routes/contabilidad.routes';
 import estadosCuentaRoutes from './routes/estados-cuenta.routes';
 import iaRoutes from './routes/ia.routes';
@@ -45,6 +47,7 @@ import adminRoutes from './routes/admin.routes';
 import importRoutes from './routes/import.routes';
 import areasComunesRoutes from './routes/areas-comunes.routes';
 import visitasRoutes from './routes/visitas.routes';
+import nominaRoutes from './routes/nomina.routes';
 import personalRoutes from './routes/personal.routes';
 import unidadesRoutes from './routes/unidades.routes';
 import calendarioRoutes from './routes/calendario.routes';
@@ -61,8 +64,8 @@ class Application {
   public app: express.Application;
   public httpServer: http.Server;
   public io: SocketIOServer;
-  private whatsappService: WhatsAppService;
-  private socketService: SocketService;
+  private whatsappService?: WhatsAppService;
+  private socketService?: SocketService;
 
   constructor() {
     this.app = express();
@@ -181,6 +184,8 @@ class Application {
 
     // API Routes - Gestora Internacional (Nuevas)
     this.app.use(`${apiPrefix}/proveedores`, proveedoresRoutes);
+    this.app.use(`${apiPrefix}/gastos`, gastosRoutes);
+    this.app.use(`${apiPrefix}/ingresos`, ingresosRoutes);
     this.app.use(`${apiPrefix}/contabilidad`, contabilidadRoutes);
     this.app.use(`${apiPrefix}/estados-cuenta`, estadosCuentaRoutes);
     this.app.use(`${apiPrefix}/ia`, iaRoutes);
@@ -188,6 +193,7 @@ class Application {
     this.app.use(`${apiPrefix}/import`, importRoutes);
     this.app.use(`${apiPrefix}/areas-comunes`, areasComunesRoutes);
     this.app.use(`${apiPrefix}/visitas`, visitasRoutes);
+    this.app.use(`${apiPrefix}/nomina`, nominaRoutes);
     this.app.use(`${apiPrefix}/personal`, personalRoutes);
     this.app.use(`${apiPrefix}/unidades`, unidadesRoutes);
     this.app.use(`${apiPrefix}/calendario`, calendarioRoutes);
@@ -206,6 +212,11 @@ class Application {
       return;
     }
 
+    if (!this.whatsappService) {
+      logger.warn('⚠️  WhatsApp Bot service not initialized');
+      return;
+    }
+
     try {
       logger.info('📱 Iniciando WhatsApp Bot...');
       await this.whatsappService.initialize();
@@ -217,6 +228,10 @@ class Application {
   }
 
   private initializeSockets(): void {
+    if (!this.socketService) {
+      logger.warn('⚠️  Socket service not initialized');
+      return;
+    }
     this.socketService.initialize();
     logger.info('✅ WebSockets inicializados');
   }

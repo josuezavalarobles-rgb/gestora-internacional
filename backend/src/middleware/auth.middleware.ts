@@ -65,7 +65,7 @@ export const authenticate = async (
     let decoded: JWTPayload;
 
     try {
-      decoded = jwt.verify(token, config.jwt.secret) as JWTPayload;
+      decoded = jwt.verify(token, config.jwt.secret as string) as JWTPayload;
     } catch (error: any) {
       if (error.name === 'TokenExpiredError') {
         throw new AppError('Token expirado', 401);
@@ -141,7 +141,7 @@ export const authenticateOptional = async (
     const token = authHeader.substring(7);
 
     try {
-      const decoded = jwt.verify(token, config.jwt.secret) as JWTPayload;
+      const decoded = jwt.verify(token, config.jwt.secret as string) as JWTPayload;
 
       const usuario = await prisma.usuario.findUnique({
         where: { id: decoded.id },
@@ -272,7 +272,7 @@ export const sameCondominio = (req: Request, res: Response, next: NextFunction):
  * Generar JWT token
  */
 export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string => {
-  return jwt.sign(payload as object, config.jwt.secret, {
+  return (jwt.sign as any)(payload as object, config.jwt.secret, {
     expiresIn: config.jwt.expiresIn,
   });
 };
@@ -281,7 +281,7 @@ export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string 
  * Generar refresh token
  */
 export const generateRefreshToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string => {
-  return jwt.sign(payload as object, config.jwt.refreshSecret || config.jwt.secret, {
+  return (jwt.sign as any)(payload as object, config.jwt.refreshSecret, {
     expiresIn: config.jwt.refreshExpiresIn,
   });
 };
@@ -291,7 +291,7 @@ export const generateRefreshToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): 
  */
 export const verifyRefreshToken = (token: string): JWTPayload => {
   try {
-    return jwt.verify(token, config.jwt.refreshSecret) as JWTPayload;
+    return jwt.verify(token, config.jwt.refreshSecret as string) as JWTPayload;
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
       throw new AppError('Refresh token expirado', 401);

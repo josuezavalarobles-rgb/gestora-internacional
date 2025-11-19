@@ -24,7 +24,9 @@ export const iniciarJobRecordatoriosTecnicos = () => {
   cron.schedule('0 7 * * *', async () => {
     try {
       logger.info('⏰ [CRON] Iniciando job de recordatorios a técnicos...');
-      await seguimientoService.enviarRecordatoriosTecnicos();
+      // TODO: Implementar enviarRecordatoriosTecnicos
+      logger.warn('Job de recordatorios a técnicos temporalmente deshabilitado');
+      // await seguimientoService.enviarRecordatorioTecnico();
       logger.info('✅ [CRON] Job de recordatorios completado');
     } catch (error) {
       logger.error('❌ [CRON] Error en job de recordatorios:', error);
@@ -45,7 +47,8 @@ export const iniciarJobPreguntarStatus = () => {
   cron.schedule('0 * * * *', async () => {
     try {
       logger.info('📞 [CRON] Iniciando job de preguntas de status...');
-      await seguimientoService.preguntarStatusCita();
+      // TODO: Implementar preguntarStatusCita
+      logger.warn('Job de preguntas de status temporalmente deshabilitado');
       logger.info('✅ [CRON] Job de preguntas de status completado');
     } catch (error) {
       logger.error('❌ [CRON] Error en job de preguntas de status:', error);
@@ -66,7 +69,8 @@ export const iniciarJobRepreguntarSinRespuesta = () => {
   cron.schedule('0 */6 * * *', async () => {
     try {
       logger.info('🔄 [CRON] Iniciando job de recordatorios sin respuesta...');
-      await seguimientoService.repreguntarCasossSinRespuesta();
+      // TODO: Implementar repreguntarCasossSinRespuesta
+      logger.warn('Job de recordatorios sin respuesta temporalmente deshabilitado');
       logger.info('✅ [CRON] Job de recordatorios sin respuesta completado');
     } catch (error) {
       logger.error('❌ [CRON] Error en job de recordatorios sin respuesta:', error);

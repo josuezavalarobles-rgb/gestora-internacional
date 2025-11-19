@@ -54,31 +54,14 @@ export const importarPropietarios = async (req: Request, res: Response) => {
 /**
  * Importar proveedores desde Excel
  * POST /api/v1/import/proveedores
+ * NOTA: Método no implementado en ExcelImportService
  */
 export const importarProveedores = async (req: Request, res: Response) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'No se ha proporcionado ningún archivo',
-      });
-    }
-
-    logger.info(`📥 Importando proveedores desde: ${req.file.path}`);
-
-    const resultado = await importService.importarProveedores(req.file.path);
-
-    // Eliminar archivo temporal
-    try {
-      await fs.unlink(req.file.path);
-    } catch (error) {
-      logger.warn('⚠️  No se pudo eliminar archivo temporal:', error);
-    }
-
-    res.status(200).json({
-      success: true,
-      message: `Importación completada: ${resultado.importedRows} de ${resultado.totalRows} registros`,
-      data: resultado,
+    // TODO: Implementar importarProveedores en ExcelImportService
+    res.status(501).json({
+      success: false,
+      message: 'Importación de proveedores no implementada todavía',
     });
   } catch (error) {
     logger.error('❌ Error al importar proveedores:', error);
@@ -171,20 +154,15 @@ export const importarCasos = async (req: Request, res: Response) => {
 /**
  * Descargar plantilla de Excel para importación
  * GET /api/v1/import/plantilla/:tipo
+ * NOTA: Método no implementado en ExcelImportService
  */
 export const descargarPlantilla = async (req: Request, res: Response) => {
   try {
-    const { tipo } = req.params;
-
-    logger.info(`📥 Generando plantilla de importación para: ${tipo}`);
-
-    const plantilla = await importService.generarPlantilla(tipo);
-
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename=plantilla_${tipo}.xlsx`);
-
-    await plantilla.xlsx.write(res);
-    res.end();
+    // TODO: Implementar generarPlantilla en ExcelImportService
+    res.status(501).json({
+      success: false,
+      message: 'Generación de plantillas no implementada todavía',
+    });
   } catch (error) {
     logger.error('❌ Error al generar plantilla:', error);
     res.status(500).json({

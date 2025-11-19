@@ -1,46 +1,55 @@
-// ========================================
-// CONTABILIDAD ROUTES
-// ========================================
+/**
+ * ========================================
+ * RUTAS DE CONTABILIDAD
+ * ========================================
+ */
 
 import { Router } from 'express';
-import { ContabilidadController } from '../controllers';
+import {
+  obtenerPlanCuentas,
+  obtenerCuentaById,
+  crearCuenta,
+  actualizarCuenta,
+  obtenerBalance,
+} from '../controllers/contabilidad.controller';
 
 const router = Router();
 
-// ========================================
-// NCF
-// ========================================
+/**
+ * @route   GET /api/contabilidad/balance
+ * @desc    Obtener balance general con totales por tipo
+ * @query   organizacionId, fechaInicio, fechaFin, condominioId
+ * @access  Private
+ */
+router.get('/balance', obtenerBalance);
 
-router.post('/ncf/secuencia', ContabilidadController.crearSecuenciaNCF.bind(ContabilidadController));
-router.get('/ncf/siguiente', ContabilidadController.obtenerSiguienteNCF.bind(ContabilidadController));
+/**
+ * @route   GET /api/contabilidad/plan-cuentas
+ * @desc    Obtener plan de cuentas jerárquico
+ * @query   organizacionId, tipo, activa
+ * @access  Private
+ */
+router.get('/plan-cuentas', obtenerPlanCuentas);
 
-// ========================================
-// PLAN DE CUENTAS
-// ========================================
+/**
+ * @route   GET /api/contabilidad/cuentas/:id
+ * @desc    Obtener cuenta por ID con movimientos
+ * @access  Private
+ */
+router.get('/cuentas/:id', obtenerCuentaById);
 
-router.post('/cuentas', ContabilidadController.crearCuentaContable.bind(ContabilidadController));
-router.get('/cuentas', ContabilidadController.obtenerPlanCuentas.bind(ContabilidadController));
+/**
+ * @route   POST /api/contabilidad/cuentas
+ * @desc    Crear nueva cuenta contable
+ * @access  Private
+ */
+router.post('/cuentas', crearCuenta);
 
-// ========================================
-// GASTOS
-// ========================================
-
-router.post('/gastos', ContabilidadController.crearGasto.bind(ContabilidadController));
-router.get('/gastos', ContabilidadController.obtenerGastos.bind(ContabilidadController));
-router.put('/gastos/:id/pagar', ContabilidadController.marcarGastoPagado.bind(ContabilidadController));
-
-// ========================================
-// INGRESOS
-// ========================================
-
-router.post('/ingresos', ContabilidadController.crearIngreso.bind(ContabilidadController));
-router.get('/ingresos', ContabilidadController.obtenerIngresos.bind(ContabilidadController));
-
-// ========================================
-// REPORTES
-// ========================================
-
-router.get('/reportes/balance', ContabilidadController.obtenerBalanceSaldos.bind(ContabilidadController));
-router.get('/reportes/gastos-categoria', ContabilidadController.obtenerGastosPorCategoria.bind(ContabilidadController));
+/**
+ * @route   PUT /api/contabilidad/cuentas/:id
+ * @desc    Actualizar cuenta contable
+ * @access  Private
+ */
+router.put('/cuentas/:id', actualizarCuenta);
 
 export default router;

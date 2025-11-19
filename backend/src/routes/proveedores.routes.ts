@@ -1,61 +1,54 @@
-// ========================================
-// PROVEEDORES ROUTES
-// ========================================
+/**
+ * ========================================
+ * RUTAS DE PROVEEDORES
+ * ========================================
+ */
 
 import { Router } from 'express';
-import { ProveedorController } from '../controllers';
+import {
+  obtenerProveedores,
+  obtenerProveedorById,
+  crearProveedor,
+  actualizarProveedor,
+  evaluarProveedor,
+} from '../controllers/proveedores.controller';
 
 const router = Router();
 
 /**
- * @route   POST /api/v1/proveedores
+ * @route   GET /api/proveedores
+ * @desc    Obtener todos los proveedores con filtros
+ * @query   organizacionId, tipo, activo, search
+ * @access  Private
+ */
+router.get('/', obtenerProveedores);
+
+/**
+ * @route   GET /api/proveedores/:id
+ * @desc    Obtener proveedor por ID con detalles completos
+ * @access  Private
+ */
+router.get('/:id', obtenerProveedorById);
+
+/**
+ * @route   POST /api/proveedores
  * @desc    Crear nuevo proveedor
  * @access  Private
  */
-router.post('/', ProveedorController.crear.bind(ProveedorController));
+router.post('/', crearProveedor);
 
 /**
- * @route   GET /api/v1/proveedores
- * @desc    Obtener todos los proveedores
- * @access  Private
- * @query   organizacionId, tipo, activo, buscar
- */
-router.get('/', ProveedorController.obtenerTodos.bind(ProveedorController));
-
-/**
- * @route   GET /api/v1/proveedores/top
- * @desc    Obtener top proveedores por calificación
- * @access  Private
- * @query   organizacionId, limite
- */
-router.get('/top', ProveedorController.obtenerTop.bind(ProveedorController));
-
-/**
- * @route   GET /api/v1/proveedores/:id
- * @desc    Obtener proveedor por ID
- * @access  Private
- */
-router.get('/:id', ProveedorController.obtenerPorId.bind(ProveedorController));
-
-/**
- * @route   PUT /api/v1/proveedores/:id
+ * @route   PUT /api/proveedores/:id
  * @desc    Actualizar proveedor
  * @access  Private
  */
-router.put('/:id', ProveedorController.actualizar.bind(ProveedorController));
+router.put('/:id', actualizarProveedor);
 
 /**
- * @route   DELETE /api/v1/proveedores/:id
- * @desc    Desactivar proveedor
+ * @route   POST /api/proveedores/:id/evaluar
+ * @desc    Evaluar proveedor (calidad, puntualidad, precio, comunicación)
  * @access  Private
  */
-router.delete('/:id', ProveedorController.desactivar.bind(ProveedorController));
-
-/**
- * @route   POST /api/v1/proveedores/evaluar
- * @desc    Evaluar proveedor
- * @access  Private
- */
-router.post('/evaluar', ProveedorController.evaluar.bind(ProveedorController));
+router.post('/:id/evaluar', evaluarProveedor);
 
 export default router;

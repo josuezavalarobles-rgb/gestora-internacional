@@ -68,6 +68,8 @@ export class EncuestaSatisfaccionService {
       await prisma.timelineEvento.create({
         data: {
           casoId,
+          tipoEvento: 'comentario_agregado',
+          titulo: 'Encuesta enviada',
           descripcion: 'Encuesta de satisfacción enviada al propietario',
           metadata: {
             tipo: 'encuesta_enviada',
@@ -146,6 +148,8 @@ export class EncuestaSatisfaccionService {
       await prisma.timelineEvento.create({
         data: {
           casoId: encuesta.casoId,
+          tipoEvento: 'comentario_agregado',
+          titulo: 'Encuesta completada',
           descripcion: `Encuesta completada - Promedio: ${promedio.toFixed(2)}/5`,
           metadata: {
             tipo: 'encuesta_respondida',

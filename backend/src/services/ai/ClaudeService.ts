@@ -34,7 +34,7 @@ export class ClaudeService {
   private enabled: boolean = false;
 
   private constructor() {
-    const apiKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
 
     if (apiKey) {
       this.claude = new Anthropic({

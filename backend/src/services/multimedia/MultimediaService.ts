@@ -190,7 +190,7 @@ export class MultimediaService {
 
       // Obtener caption si existe
       const caption = message.message?.videoMessage?.caption || '';
-      const duracion = message.message?.videoMessage?.seconds;
+      const duracion = message.message?.videoMessage?.seconds ?? undefined;
 
       return {
         success: true,

@@ -53,8 +53,9 @@ export interface EmailCasoData {
 export class EmailNotificationService {
   private static instance: EmailNotificationService;
   private transporter: nodemailer.Transporter;
+  private from: string;
 
-  private constructor() {
+  constructor() {
     this.transporter = nodemailer.createTransport({
       host: config.email.host,
       port: config.email.port,
@@ -64,6 +65,7 @@ export class EmailNotificationService {
         pass: config.email.password,
       },
     });
+    this.from = config.email.from || config.email.user;
   }
 
   public static getInstance(): EmailNotificationService {

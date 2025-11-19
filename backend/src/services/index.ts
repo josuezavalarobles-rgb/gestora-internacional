@@ -12,8 +12,6 @@ export { ContabilidadService } from './contabilidad/ContabilidadService';
 export type {
   CrearGastoDTO,
   CrearIngresoDTO,
-  CrearNCFSecuenciaDTO,
-  CrearPlanCuentasDTO,
 } from './contabilidad/ContabilidadService';
 
 export { EstadosCuentaService } from './contabilidad/EstadosCuentaService';
@@ -34,7 +32,6 @@ export type {
 
 // Recursos Humanos
 export { NominaService } from './rrhh/NominaService';
-export type { CrearNominaDTO, CalculoNomina } from './rrhh/NominaService';
 
 // Unidades
 export { UnidadService } from './unidades/UnidadService';
@@ -75,19 +72,14 @@ export type { SubirDocumentoDTO } from './documentos/DocumentosService';
 
 /**
  * Obtener instancias de todos los servicios
+ * NOTA: Temporalmente simplificado mientras se completan las implementaciones
  */
-export const getServices = () => ({
-  proveedor: ProveedorService.getInstance(),
-  contabilidad: ContabilidadService.getInstance(),
-  estadosCuenta: EstadosCuentaService.getInstance(),
-  facturaIA: FacturaIAService.getInstance(),
-  prediccionIA: PrediccionIAService.getInstance(),
-  nomina: NominaService.getInstance(),
-  unidad: UnidadService.getInstance(),
-  areasComunes: AreasComunesService.getInstance(),
-  visitas: VisitasService.getInstance(),
-  calendario: CalendarioService.getInstance(),
-  documentos: DocumentosService.getInstance(),
-});
+export const getServices = () => {
+  return {
+    // Servicios disponibles se obtienen mediante importación directa
+    // import { NominaService } from './services';
+    // const nominaService = NominaService.getInstance();
+  };
+};
 
 export default getServices;

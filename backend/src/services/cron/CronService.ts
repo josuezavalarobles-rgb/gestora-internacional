@@ -23,7 +23,7 @@ export class CronService {
   private whatsappIntegration: WhatsAppSeguimientoIntegration;
   private exportService: ExportService;
   private encuestaService: EncuestaSatisfaccionService;
-  private jobs: Map<string, cron.ScheduledTask> = new Map();
+  private jobs: Map<string, ReturnType<typeof cron.schedule>> = new Map();
   private whatsappSock: WASocket | null = null;
 
   private constructor() {
@@ -140,7 +140,6 @@ export class CronService {
   private registrarJob(nombre: string, schedule: string, callback: () => void | Promise<void>): void {
     try {
       const job = cron.schedule(schedule, callback, {
-        scheduled: true,
         timezone: 'America/Santo_Domingo', // República Dominicana
       });
 

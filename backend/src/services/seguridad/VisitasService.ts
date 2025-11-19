@@ -60,19 +60,19 @@ export class VisitasService {
       logger.info(`Registrando entrada de visita: ${data.nombreVisitante}`);
 
       // Verificar si es visitante frecuente
-      let visitanteFrecuenteId: string | undefined;
+      let visitaFrecuenteId: string | undefined;
       if (data.cedulaVisitante) {
         const visitanteFrecuente = await prisma.visitaFrecuente.findFirst({
           where: {
             unidadId: data.unidadId,
             cedula: data.cedulaVisitante,
-            activo: true,
+            autorizacionActiva: true,
           },
         });
 
         if (visitanteFrecuente) {
-          visitanteFrecuenteId = visitanteFrecuente.id;
-          logger.info(`Visitante frecuente detectado: ${visitanteFrecuente.nombre}`);
+          visitaFrecuenteId = visitanteFrecuente.id;
+          logger.info(`Visitante frecuente detectado: ${visitanteFrecuente.nombreCompleto}`);
         }
       }
 
@@ -80,26 +80,26 @@ export class VisitasService {
         data: {
           condominioId: data.condominioId,
           unidadId: data.unidadId,
-          visitanteFrecuenteId,
+          visitaFrecuenteId,
           nombreVisitante: data.nombreVisitante,
-          cedulaVisitante: data.cedulaVisitante,
-          telefonoVisitante: data.telefonoVisitante,
-          vehiculoPlaca: data.vehiculoPlaca,
-          vehiculoMarca: data.vehiculoMarca,
-          vehiculoColor: data.vehiculoColor,
-          motivo: data.motivo,
-          autorizadoPor: data.autorizadoPor,
+          cedula: data.cedulaVisitante,
+          telefono: data.telefonoVisitante,
+          tipo: 'personal',
+          estado: 'ingresada',
+          registradoPor: data.guardiaRegistro,
+          fechaHoraLlegada: new Date(),
           observaciones: data.observaciones,
-          guardiaRegistro: data.guardiaRegistro,
-          horaEntrada: new Date(),
+          metadata: {
+            vehiculoPlaca: data.vehiculoPlaca,
+            vehiculoMarca: data.vehiculoMarca,
+            vehiculoColor: data.vehiculoColor,
+            motivo: data.motivo,
+            autorizadoPor: data.autorizadoPor,
+          },
         },
         include: {
-          unidad: {
-            include: {
-              propietario: true,
-            },
-          },
-          visitanteFrecuente: true,
+          unidad: true,
+          visitaFrecuente: true,
         },
       });
 
@@ -123,8 +123,8 @@ export class VisitasService {
       const visita = await prisma.visita.update({
         where: { id: visitaId },
         data: {
-          horaSalida: new Date(),
-          guardiaSalida,
+          fechaHoraSalida: new Date(),
+          estado: 'salida_registrada',
           observaciones: observaciones
             ? `${observaciones}\n---\nSalida: ${observaciones}`
             : undefined,
@@ -135,13 +135,14 @@ export class VisitasService {
       });
 
       // Calcular tiempo de permanencia
-      const tiempoMinutos = Math.floor(
-        (visita.horaSalida!.getTime() - visita.horaEntrada.getTime()) / (1000 * 60)
-      );
-
-      logger.info(
-        `✅ Salida registrada: ${visitaId} - Tiempo: ${tiempoMinutos} minutos`
-      );
+      if (visita.fechaHoraLlegada) {
+        const tiempoMinutos = Math.floor(
+          (visita.fechaHoraSalida!.getTime() - visita.fechaHoraLlegada.getTime()) / (1000 * 60)
+        );
+        logger.info(
+          `✅ Salida registrada: ${visitaId} - Tiempo: ${tiempoMinutos} minutos`
+        );
+      }
       return visita;
     } catch (error) {
       logger.error('Error al registrar salida:', error);
@@ -157,18 +158,14 @@ export class VisitasService {
       const visitas = await prisma.visita.findMany({
         where: {
           condominioId,
-          horaSalida: null,
+          fechaHoraSalida: null,
         },
         include: {
-          unidad: {
-            include: {
-              propietario: true,
-            },
-          },
-          visitanteFrecuente: true,
+          unidad: true,
+          visitaFrecuente: true,
         },
         orderBy: {
-          horaEntrada: 'desc',
+          fechaHoraLlegada: 'desc',
         },
       });
 
@@ -202,38 +199,27 @@ export class VisitasService {
       }
 
       if (filtros?.fechaDesde || filtros?.fechaHasta) {
-        where.horaEntrada = {};
+        where.fechaHoraLlegada = {};
         if (filtros.fechaDesde) {
-          where.horaEntrada.gte = filtros.fechaDesde;
+          where.fechaHoraLlegada.gte = filtros.fechaDesde;
         }
         if (filtros.fechaHasta) {
-          where.horaEntrada.lte = filtros.fechaHasta;
+          where.fechaHoraLlegada.lte = filtros.fechaHasta;
         }
       }
 
       if (filtros?.cedulaVisitante) {
-        where.cedulaVisitante = filtros.cedulaVisitante;
-      }
-
-      if (filtros?.vehiculoPlaca) {
-        where.vehiculoPlaca = {
-          contains: filtros.vehiculoPlaca,
-          mode: 'insensitive',
-        };
+        where.cedula = filtros.cedulaVisitante;
       }
 
       const visitas = await prisma.visita.findMany({
         where,
         include: {
-          unidad: {
-            include: {
-              propietario: true,
-            },
-          },
-          visitanteFrecuente: true,
+          unidad: true,
+          visitaFrecuente: true,
         },
         orderBy: {
-          horaEntrada: 'desc',
+          fechaHoraLlegada: 'desc',
         },
         take: 100,
       });
@@ -253,20 +239,15 @@ export class VisitasService {
       const visitas = await prisma.visita.findMany({
         where: {
           OR: [
-            { cedulaVisitante: { contains: busqueda, mode: 'insensitive' } },
-            { vehiculoPlaca: { contains: busqueda, mode: 'insensitive' } },
+            { cedula: { contains: busqueda, mode: 'insensitive' } },
             { nombreVisitante: { contains: busqueda, mode: 'insensitive' } },
           ],
         },
         include: {
-          unidad: {
-            include: {
-              propietario: true,
-            },
-          },
+          unidad: true,
         },
         orderBy: {
-          horaEntrada: 'desc',
+          fechaHoraLlegada: 'desc',
         },
         take: 20,
       });
@@ -294,18 +275,12 @@ export class VisitasService {
       const visitante = await prisma.visitaFrecuente.create({
         data: {
           unidadId: data.unidadId,
-          nombre: data.nombre,
+          nombreCompleto: data.nombre,
           cedula: data.cedula,
           telefono: data.telefono,
-          parentesco: data.parentesco,
-          empresa: data.empresa,
-          vehiculoPlaca: data.vehiculoPlaca,
-          vehiculoMarca: data.vehiculoMarca,
-          foto: data.foto,
-          observaciones: data.observaciones,
-        },
-        include: {
-          unidad: true,
+          relacion: data.parentesco || data.empresa || 'Visitante',
+          autorizadoPor: 'admin', // TODO: Get from context
+          fotoUrl: data.foto,
         },
       });
 
@@ -325,10 +300,9 @@ export class VisitasService {
       const visitantes = await prisma.visitaFrecuente.findMany({
         where: {
           unidadId,
-          activo: true,
+          autorizacionActiva: true,
         },
         include: {
-          unidad: true,
           _count: {
             select: {
               visitas: true,
@@ -336,7 +310,7 @@ export class VisitasService {
           },
         },
         orderBy: {
-          nombre: 'asc',
+          nombreCompleto: 'asc',
         },
       });
 
@@ -359,10 +333,7 @@ export class VisitasService {
         where: {
           unidadId,
           cedula,
-          activo: true,
-        },
-        include: {
-          unidad: true,
+          autorizacionActiva: true,
         },
       });
 
@@ -380,7 +351,7 @@ export class VisitasService {
     try {
       await prisma.visitaFrecuente.update({
         where: { id: visitanteId },
-        data: { activo: false },
+        data: { autorizacionActiva: false },
       });
 
       logger.info(`✅ Visitante frecuente desactivado: ${visitanteId}`);
@@ -416,7 +387,7 @@ export class VisitasService {
       const visitas = await prisma.visita.findMany({
         where: {
           condominioId,
-          horaEntrada: {
+          fechaHoraLlegada: {
             gte: inicioDia,
             lte: finDia,
           },
@@ -427,8 +398,8 @@ export class VisitasService {
       });
 
       const totalVisitas = visitas.length;
-      const visitasActivas = visitas.filter((v) => !v.horaSalida).length;
-      const visitasConVehiculo = visitas.filter((v) => v.vehiculoPlaca).length;
+      const visitasActivas = visitas.filter((v) => !v.fechaHoraSalida).length;
+      const visitasConVehiculo = visitas.filter((v) => v.vehiculoId).length;
 
       // Agrupar por unidad
       const visitasPorUnidad = new Map<string, number>();
@@ -475,7 +446,7 @@ export class VisitasService {
       const visitas = await prisma.visita.findMany({
         where: {
           condominioId,
-          horaEntrada: {
+          fechaHoraLlegada: {
             gte: fechaDesde,
             lte: fechaHasta,
           },
@@ -491,13 +462,15 @@ export class VisitasService {
       const promedioVisitasPorDia = totalVisitas / diasPeriodo;
 
       // Calcular tiempo promedio de estancia
-      const visitasConSalida = visitas.filter((v) => v.horaSalida);
+      const visitasConSalida = visitas.filter((v) => v.fechaHoraSalida && v.fechaHoraLlegada);
       let tiempoTotalMinutos = 0;
       visitasConSalida.forEach((visita) => {
-        const minutos =
-          (visita.horaSalida!.getTime() - visita.horaEntrada.getTime()) /
-          (1000 * 60);
-        tiempoTotalMinutos += minutos;
+        if (visita.fechaHoraSalida && visita.fechaHoraLlegada) {
+          const minutos =
+            (visita.fechaHoraSalida.getTime() - visita.fechaHoraLlegada.getTime()) /
+            (1000 * 60);
+          tiempoTotalMinutos += minutos;
+        }
       });
       const tiempoPromedioEstancia =
         visitasConSalida.length > 0
@@ -518,8 +491,10 @@ export class VisitasService {
       diasSemana.forEach((dia) => (visitasPorDiaSemana[dia] = 0));
 
       visitas.forEach((visita) => {
-        const dia = diasSemana[visita.horaEntrada.getDay()];
-        visitasPorDiaSemana[dia]++;
+        if (visita.fechaHoraLlegada) {
+          const dia = diasSemana[visita.fechaHoraLlegada.getDay()];
+          visitasPorDiaSemana[dia]++;
+        }
       });
 
       // Visitas por hora
@@ -529,8 +504,10 @@ export class VisitasService {
       }
 
       visitas.forEach((visita) => {
-        const hora = visita.horaEntrada.getHours();
-        visitasPorHora[hora]++;
+        if (visita.fechaHoraLlegada) {
+          const hora = visita.fechaHoraLlegada.getHours();
+          visitasPorHora[hora]++;
+        }
       });
 
       return {
@@ -570,8 +547,8 @@ export class VisitasService {
       const visitasLargas = await prisma.visita.findMany({
         where: {
           condominioId,
-          horaSalida: null,
-          horaEntrada: {
+          fechaHoraSalida: null,
+          fechaHoraLlegada: {
             lte: hace12Horas,
           },
         },
@@ -581,25 +558,27 @@ export class VisitasService {
       });
 
       visitasLargas.forEach((visita) => {
-        const horas = Math.floor(
-          (Date.now() - visita.horaEntrada.getTime()) / (1000 * 60 * 60)
-        );
-        alertas.push({
-          tipo: 'estancia_prolongada',
-          descripcion: `Visita en unidad ${visita.unidad.numero} por ${horas} horas`,
-          visitaId: visita.id,
-          prioridad: horas > 24 ? 'alta' : 'media',
-        });
+        if (visita.fechaHoraLlegada) {
+          const horas = Math.floor(
+            (Date.now() - visita.fechaHoraLlegada.getTime()) / (1000 * 60 * 60)
+          );
+          alertas.push({
+            tipo: 'estancia_prolongada',
+            descripcion: `Visita en unidad ${visita.unidad.numero} por ${horas} horas`,
+            visitaId: visita.id,
+            prioridad: horas > 24 ? 'alta' : 'media',
+          });
+        }
       });
 
       // Visitantes frecuentes con muchas visitas recientes (posible irregularidad)
       const hace7Dias = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const visitasRecientes = await prisma.visita.groupBy({
-        by: ['visitanteFrecuenteId'],
+        by: ['visitaFrecuenteId'],
         where: {
           condominioId,
-          visitanteFrecuenteId: { not: null },
-          horaEntrada: {
+          visitaFrecuenteId: { not: null },
+          fechaHoraLlegada: {
             gte: hace7Dias,
           },
         },
@@ -616,18 +595,19 @@ export class VisitasService {
       });
 
       for (const grupo of visitasRecientes) {
-        const visitante = await prisma.visitaFrecuente.findUnique({
-          where: { id: grupo.visitanteFrecuenteId! },
-          include: { unidad: true },
-        });
-
-        if (visitante) {
-          alertas.push({
-            tipo: 'visitante_muy_frecuente',
-            descripcion: `${visitante.nombre} ha visitado ${grupo._count.id} veces en 7 días`,
-            visitaId: grupo.visitanteFrecuenteId!,
-            prioridad: 'baja',
+        if (grupo.visitaFrecuenteId) {
+          const visitante = await prisma.visitaFrecuente.findUnique({
+            where: { id: grupo.visitaFrecuenteId },
           });
+
+          if (visitante) {
+            alertas.push({
+              tipo: 'visitante_muy_frecuente',
+              descripcion: `${visitante.nombreCompleto} ha visitado ${grupo._count.id} veces en 7 días`,
+              visitaId: grupo.visitaFrecuenteId,
+              prioridad: 'baja',
+            });
+          }
         }
       }
 

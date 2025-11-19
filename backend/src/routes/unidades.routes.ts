@@ -11,7 +11,7 @@ import { requireRole } from '../middleware/requireRole';
 import { UnidadService } from '../services/unidades/UnidadService';
 
 const router = Router();
-const unidadService = new UnidadService();
+const unidadService = UnidadService.getInstance();
 
 // Todas las rutas requieren autenticación
 router.use(authenticate);
